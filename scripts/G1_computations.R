@@ -38,7 +38,7 @@ g1_query_list <- list("Jahr"= c("0"), # All available years
 
 
 ## Download data based on query list and convert to data.frame
-g1_data <- decarbmonitoring::get_pxdata(g1_px_path, g1_query_list) %>%
+g1_data <- get_pxdata(g1_px_path, g1_query_list) %>%
   # Renaming of columns in preparation to bring data into a uniform structure
   dplyr::rename("Gebiet" = Kanton, "Variable" = `Hauptenergiequelle der Heizung`, "Wert" = Gebäude)
 

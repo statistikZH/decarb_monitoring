@@ -28,7 +28,7 @@ q1_query_list <- list("Jahr"=as.character(year_range),
                       "Bevölkerungstyp"=c("1")) # Indicator: Ständige Wohnbevölkerung
 
 ## Download data based on query list and convert to data.frame
-q1_data <- decarbmonitoring::get_pxdata(q1_px_path, q1_query_list) %>%
+q1_data <- get_pxdata(q1_px_path, q1_query_list) %>%
   # Renaming of columns in preparation to bring data into a uniform structure
   dplyr::rename("Gebiet" = Kanton, "Indikator" = Bevölkerungstyp, "Wert" = `Ständige und nichtständige Wohnbevölkerung`)
 

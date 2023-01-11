@@ -25,7 +25,7 @@ year_range <- start_year:end_year
 openzh_filename <- "KTZH_00001661_00003118.csv"
 
 ## Download data based on query list and convert to data.frame
-m8_data <- decarbmonitoring::get_openzh_data(openzh_filename) %>%
+m8_data <- get_openzh_data(openzh_filename) %>%
   dplyr::filter(Energiesektor == "Treibstoff") %>%
   # Renaming of columns in preparation to bring data into a uniform structure
   dplyr::rename("Variable" = Energiesektor)

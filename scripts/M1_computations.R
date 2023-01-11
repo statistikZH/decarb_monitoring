@@ -32,7 +32,7 @@ m1_query_list <- list("Jahr"=c("2005","2006","2007","2008","2009","2010","2011",
                       "Treibstoff"=c("100","200","300","310","400","410","500","550","600","9900")) # Indicator: Treibstoff. Fetching all types in order to compute a total
 
 ## Download data based on query list and convert to data.frame
-m1_data <- decarbmonitoring::get_pxdata(m1_px_path, m1_query_list) %>%
+m1_data <- get_pxdata(m1_px_path, m1_query_list) %>%
   # Renaming of columns in preparation to bring data into a uniform structure
   dplyr::rename("Gebiet" = Kanton, "Variable" = Treibstoff, "Wert" = `Bestand der Personenwagen`)
 

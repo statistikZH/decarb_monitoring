@@ -24,7 +24,7 @@ access_url <- "https://data.geo.admin.ch/ch.bfe.kehrichtverbrennungsanlagen/kehr
 file_name <- "RecycledWaste.csv"
 
 ## Download zip folder, unzip, extract csv file...
-a1_data <- decarbmonitoring::get_zip_data(access_url, file_name) %>%
+a1_data <- get_zip_data(access_url, file_name) %>%
   # Renaming of columns in preparation to bring data into a uniform structure
   dplyr::rename("Gebiet" = id) %>%
   tidyr::pivot_longer(cols = matches("(\\d){4}"), names_to = "Jahr", values_to = "Wert")
