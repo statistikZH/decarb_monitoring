@@ -1,6 +1,6 @@
-#' Function to scrape the asset number of a specific bfs number
+#' Function to scrape the asset number of a specific BFS number
 #'
-#' This function scrapes the asset page of a bfs-nr for the asset number
+#' This function scrapes the asset page of a BFS-nr for the asset number
 #' !important: this bfs-nr is not the municipality bfs-nr
 #'
 #' @param bfs_nr Number of a bfs publication e.g: "ind-d-21.02.30.1202.02.01"
@@ -61,7 +61,7 @@ get_download_url.default <- function(ds) {
 }
 
 #' Method to create the download url for the XLSX data from the BFS
-#' requires the asset number (bfs nr) for the BFS DAM API
+#' requires the asset number (BFS Nr) for the BFS DAM API
 #'
 #' @param ds dataset object
 #'
@@ -71,7 +71,7 @@ get_download_url.xlsx <- function(ds) {
   #' Function that creates the download url for xlsx
   #'
   get_download_url_xlsx <- function(ds) UseMethod("get_download_url_xlsx")
-  #' Method specific to create the download url for xlsx data_type from data_organization bfs
+  #' Method specific to create the download url for xlsx data_type from data_organization BFS
   #'
   #' @param ds dataset object
   #'

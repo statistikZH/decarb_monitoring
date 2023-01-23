@@ -44,11 +44,102 @@ download_data.px <- function(ds){
   return(px_data_frame)
 }
 
-#' Download method for data_format csv
+#' Method to download data_format csv
 #'
 #'
-#' @inheritParams download_data
+#' @param ds dataset object
 #'
 #' @export
-download_data.csv <- function(ds){...}
+download_data.csv <- function(ds) {
 
+  #' Function to download csv
+  #'
+  download_data_csv <- function(ds) UseMethod("download_data_csv")
+  #' Method specific to download csv form data_organization openzh
+  #' openzh refers to the Datenkatalog Kanton Zürich (https://www.zh.ch/daten)
+  #'
+  #' @param ds dataset object
+  #'
+  #' @export
+  download_data_csv.openzh <- function(ds) {
+
+    # Create download_url
+    download_url <- get_download_url.default(ds)
+
+    data <- data.table::fread(download_url)
+
+    return(data)
+  }
+}
+
+#' Method to download zipped data files (csv)
+#'
+#'
+#' @param ds dataset object
+#'
+#' @export
+download_data.zip_csv <- function(ds) {
+
+  #' Function to download zipped csv
+  #'
+  download_data_zip_csv <- function(ds) UseMethod("download_data_zip_csv")
+  #' Method specific to download zipped csv form data_organization swisstopo
+  #' The target file is the file to get from the zip folder
+  #'
+  #' @param ds dataset object
+  #'
+  #' @export
+  download_data_zip_csv.swisstopo <- function(ds) {
+
+    # Create download_url
+    download_url <- get_download_url.zip_csv(ds)
+
+    # Set target file
+    target_file <- ds$data_file
+
+    # Create a temp. file name
+    temp <- tempfile()
+
+    # Fetch the zip file into the temp. file
+    utils::download.file(download_url, temp)
+
+
+    # Use unzip() to extract the target file from temp. file and convert to data.frame
+    data <- data.table::fread(utils::unzip(temp, target_file), header= TRUE ) %>%
+      as.data.frame(.)
+
+    # Remove the temp file
+    unlink(temp)
+
+    return(data)
+
+  }
+
+}
+
+#' Method to download data_format xlsx
+#'
+#'
+#' @param ds dataset object
+#'
+#' @export
+download_data.xlsx <- function(ds) {
+
+  #' Function to download csv
+  #'
+  download_data_xlsx <- function(ds) UseMethod("download_data_xlsx")
+  #' Method specific to download xlsx form data_organization BFS
+  #'
+  #' @param ds dataset object
+  #'
+  #' @export
+  download_data_xlsx.bfs <- function(ds) {
+
+    # Create download_url
+    download_url <- get_download_url_xlsx.bfs(ds)
+
+    data <- data.table::fread(download_url)
+
+    return(data)
+  }
+}
