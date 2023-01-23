@@ -43,30 +43,20 @@ get_px_query_list <- function(ds) {
 #' @param ds dataset object
 get_download_url <- function(ds) UseMethod("get_download_url")
 
-#' Method to create the download url for PX and CSV data_type
+#' Default method used to create the download url for PX and CSV data_type
+#' where the download url is a paste of url and id
 #'
 #' @param ds dataset object
 #'
 #' @export
-get_download_url.px <- function(ds) {
+get_download_url.default <- function(ds) {
 
   # set download path
   ds$download_url <- paste0(ds$data_url, ds$data_id)
 
   return(ds)
 }
-#' Method to create the download url for CSV data_type
-#'
-#' @param ds dataset object
-#'
-#' @export
-get_download_url.csv <- function(ds) {
 
-  # set download path
-  ds$download_url <- paste0(ds$data_url, ds$data_id)
-
-  return(ds)
-}
 #' Method to create the download url for the XLSX data from the BFS
 #' requires the asset number (bfs nr) for the BFS DAM API
 #'
@@ -75,13 +65,30 @@ get_download_url.csv <- function(ds) {
 #' @export
 get_download_url.xlsx <- function(ds) {
 
-    # get asset number
-    asset_number <- get_bfs_asset_nr(bfs_nr)
+  get_download_url_xlsx <- function(ds) {
 
-    # set download path
-    ds$download_url <- paste0(ds$data_url, asset_number, "/master")
+    # I'm lost right now. What to define here? Missing a use case...
+    # ...
 
-    return(ds)
+  }
+
+#' Method specific to create the download url for xlsx data_type from data_org bfs
+#'
+#' @param ds dataset object
+#'
+#' @export
+get_download_url_xlsx.bfs <- function(ds) {
+
+  # get asset number
+  asset_number <- get_bfs_asset_nr(bfs_nr)
+
+  # set download path
+  ds$download_url <- paste0(ds$data_url, asset_number, "/master")
+
+  return(ds)
+
+}
+
 }
 
 #' Method to create the download url for the csv_zipped data_type
