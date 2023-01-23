@@ -52,7 +52,7 @@ get_download_url <- function(ds) UseMethod("get_download_url")
 #' @param ds dataset object
 #'
 #' @export
-get_download_url.default <- function(ds) {
+get_download_url <- function(ds) {
 
   # set download path
   ds$download_url <- paste0(ds$data_url, ds$data_id)
@@ -68,23 +68,26 @@ get_download_url.default <- function(ds) {
 #' @export
 get_download_url.xlsx <- function(ds) {
 
-  #' Function that creates the download url for xlsx
-  #'
-  get_download_url_xlsx <- function(ds) UseMethod("get_download_url_xlsx")
-  #' Method specific to create the download url for xlsx data_type from data_organization BFS
-  #'
-  #' @param ds dataset object
-  #'
-  #' @export
-  get_download_url_xlsx.bfs <- function(ds) {
-    # get asset number
-    asset_number <- get_bfs_asset_nr(bfs_nr)
+  ds <- get_download_url_xlsx(ds)
+}
 
-    # set download path
-    ds$download_url <- paste0(ds$data_url, asset_number, "/master")
+#' Function that creates the download url for xlsx
+#'
+get_download_url_xlsx <- function(ds) UseMethod("get_download_url_xlsx")
 
-    return(ds)
-  }
+#' Method specific to create the download url for xlsx data_type from data_organization BFS
+#'
+#' @param ds dataset object
+#'
+#' @export
+get_download_url_xlsx.bfs <- function(ds) {
+  # get asset number
+  asset_number <- get_bfs_asset_nr(bfs_nr)
+
+  # set download path
+  ds$download_url <- paste0(ds$data_url, asset_number, "/master")
+
+  return(ds)
 }
 
 #' Method to create the download url for the csv_zipped data_type
