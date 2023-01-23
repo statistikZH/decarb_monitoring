@@ -19,11 +19,14 @@ get_bfs_asset_nr <- function(bfs_nr) {
 
 #' Function that generates the query list for PX data formats.
 #'
-#' This function reads the required parameters per dataset
-#' from the dataset list and compiles the query list.
-#' General structure: list("Jahr"=c("2010","2011","2012","2013","2014","2015","2016","2017","2018","2019","2020","2021"),
+#' This function reads the required parameters per dataset from the dataset list and compiles the query list.
+#' The query list, is a list element containing all query parameters following
+#' the general structure: list("Jahr"=c("2010","2011","2012","2013","2014","2015","2016","2017","2018","2019","2020","2021"),
 #'                         "Kanton"=c("8100","ZH"),
 #'                          "Bevölkerungstyp"=c("1"))
+#'
+#' To set up a PXWEB query list manually, start with a specific path and walk thorough each step
+#' d <- pxweb::pxweb_interactive("https://www.pxweb.bfs.admin.ch/api/v1/de/px-x-0103010000_102")#'
 #'
 #' @param ds dataset object
 get_px_query_list <- function(ds) {
