@@ -99,7 +99,7 @@ download_data.zip_csv <- function(ds) {
   download_data_zip_csv.swisstopo <- function(ds) {
 
     # Create download_url
-    ds <- get_download_url.zip_csv(ds)
+    ds <- get_download_url(ds)
 
     # Set target file
     target_file <- ds$data_file
@@ -145,7 +145,7 @@ download_data_xlsx <- function(ds) UseMethod("download_data_xlsx")
 download_data_xlsx.bfs <- function(ds) {
 
   # Create download_url
-  ds <- get_download_url_xlsx(ds)
+  ds <- get_download_url(ds)
 
   ds$data <- data.table::fread(ds$download_url)
 
