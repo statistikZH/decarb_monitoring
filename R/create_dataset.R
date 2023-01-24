@@ -18,7 +18,7 @@
 create_dataset <- function(dataset_id) {
 
   # get all the metadata information for a specific dataset
-  data <- readxl::read_excel("dataset_parameter_list.xlsx") %>%
+  data <- readxl::read_excel("dataset_parameter_list.xlsx", sheet = 2) %>%
     dplyr::filter(DATASET_ID == dataset_id) %>%
     dplyr::select(
       DATASET_ID,
