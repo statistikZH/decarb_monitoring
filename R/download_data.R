@@ -142,12 +142,12 @@ download_data_xlsx <- function(ds) UseMethod("download_data_xlsx")
 #' @param ds dataset object
 #'
 #' @export
-download_data_xlsx.bfs <- function(ds) {
+download_data_xlsx.default <- function(ds) {
 
   # Create download_url
   ds <- get_download_url(ds)
 
-  ds$data <- data.table::fread(ds$download_url)
+  ds$data <- readxl::read_excel(ds$download_url, sheet = ds$sheet_name)
 
   return(ds)
 }
