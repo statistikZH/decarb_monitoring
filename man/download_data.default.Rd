@@ -2,7 +2,7 @@
 % Please edit documentation in R/download_data.R
 \name{download_data.default}
 \alias{download_data.default}
-\title{Download method for data_format px which is unique to the BFS
+\title{Download method for download_format px which is unique to the BFS
 Downloads the data from a data cube based on a query list and converts it to a data.frame}
 \usage{
 \method{download_data}{default}(ds)

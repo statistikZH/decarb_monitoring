@@ -4,7 +4,7 @@
 \alias{get_bfs_asset_nr}
 \title{Function to scrape the asset number of a specific BFS number}
 \usage{
-get_bfs_asset_nr(bfs_nr)
+get_bfs_asset_nr(ds)
 }
 \arguments{
 \item{bfs_nr}{Number of a bfs publication e.g: "ind-d-21.02.30.1202.02.01"}
