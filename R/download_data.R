@@ -1,12 +1,3 @@
-#' Method dispatch for the data download
-#'
-#' @param ds dataset object to be processed
-#'
-#' @family Download
-#'
-#' @export
-download_data <- function(ds) UseMethod("download_data")
-
 #' Download method for download_format px which is unique to the BFS
 #' Downloads the data from a data cube based on a query list and converts it to a data.frame
 #'
@@ -24,21 +15,13 @@ download_data <- function(ds) UseMethod("download_data")
 #' @inheritParams download_data
 #'
 #' @export
-download_data.default <- function(ds){
+download_data <- function(ds){
 
   # Create the download url
   # all required information, like the name of the data cube, are in the dataset (ds)
   # Example: name of the data cube ("px-x-0103010000_102") is taken from ds$data_id
-  ds <- get_download_url(ds)
+  ds <- get_read_path(ds)
 
-  # we do this to harmonize the read methods
-  # since in the zip-method we do not stream the data but
-  # use the download url for the zip download and then
-  # the read_path is then the path to the unzipped file.
-  # in order to use the same parameter name for all read methods
-  # we assign here as well the read_path (which is here the exact same
-  # as the download_url)
-  ds$read_path <- ds$download_url
 
   ds <- read_data(ds)
 
@@ -49,50 +32,19 @@ download_data.default <- function(ds){
 
 
 
-#' Function to download zipped data files (csv)
-#'
-#'
-#' @param ds dataset object
-#'
-#' @export
-download_data.zip <- function(ds) {
-
-  # Create download_url
-  ds <- get_download_url(ds)
-
-  file_ext <- tools::file_ext(ds$data_file)
-
-  class(ds) <- file_ext
-
-  # Create a temp. file name
-  temp_zip <- tempfile(fileext = ".zip")
- # temp_file <- tempfile(fileext = paste0(".", file_ext))
-
-  # Fetch the zip file into the temp. file
-  utils::download.file(ds$download_url, temp_zip)
-
-  ds$read_path <- utils::unzip(temp_zip, ds$data_file)
-
-  # Use unzip() to extract the target file from temp. file and convert to data.frame
-  ds <- read_data(ds)
-
-  # Remove the temp file
-  unlink(temp_zip)
-  unlink(ds$read_path)
-
-  return(ds)
-
-}
 
 #' Method to download csv
 #'
 read_data <- function(ds) UseMethod("read_data")
 
 
-read_data.csv <- function(ds){
+read_data.default<- function(ds){
 
-  ds$data <-  data.table::fread(ds$read_path, header= TRUE ) %>%
-    as.data.frame(.)
+  ds$data <-  rio::import(
+    ds$read_path,
+    which = ds$which_data,
+    header = TRUE
+  )
 
   return(ds)
 
@@ -118,13 +70,5 @@ read_data.px <- function(ds){
 }
 
 
-read_data.xslx <- function(ds){
 
-  ds$data <- readxl::read_excel(
-    ds$read_path,
-    sheet = ds$sheet_name
-  )
-
-  return(ds)
-}
 

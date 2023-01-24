@@ -4,7 +4,7 @@
 #' !important: this bfs-nr is not the municipality bfs-nr
 #'
 #' @param bfs_nr Number of a bfs publication e.g: "ind-d-21.02.30.1202.02.01"
-get_bfs_asset_nr <- function(ds) {
+get_bfs_asset_info <- function(ds) {
   bfs_home <- "https://www.bfs.admin.ch"
 
   asset_page <- xml2::read_html(paste0(bfs_home, "/asset/de/", ds$data_id))
@@ -61,7 +61,7 @@ get_px_query_list <- function(ds) {
 #' Function that creates the download url based on dataset_id and data_type
 #'
 #' @param ds dataset object
-get_download_url <- function(ds) UseMethod("get_download_url")
+get_read_path <- function(ds) UseMethod("get_read_path")
 
 #' Default method used to create the download url for PX and CSV data_type
 #' where the download url is a paste of url and id
@@ -69,10 +69,10 @@ get_download_url <- function(ds) UseMethod("get_download_url")
 #' @param ds dataset object
 #'
 #' @export
-get_download_url.default <- function(ds) {
+get_read_path.default <- function(ds) {
 
   # set download path
-  ds$download_url <- paste0(ds$data_url, ds$data_id)
+  ds$read_path <- paste0(ds$data_url, ds$data_id)
 
   return(ds)
 }
@@ -83,28 +83,30 @@ get_download_url.default <- function(ds) {
 #' @param ds dataset object
 #'
 #' @export
-get_download_url.bfs <- function(ds) {
+get_read_path.bfs <- function(ds) {
 
-  ds <- get_download_url_bfs(ds)
-
-  return(ds)
-}
-
-get_download_url_bfs <- function(ds) UseMethod("get_download_url_bfs")
-
-
-get_download_url_bfs.px <- function(ds){
-  ds$download_url <- paste0(ds$data_url, ds$data_id, "/", ds$data_id, ".px")
+  ds <- get_read_path_bfs(ds)
 
   return(ds)
 }
 
-get_download_url_bfs.default <- function(ds){
+get_read_path_bfs <- function(ds) UseMethod("get_read_path_bfs")
+
+
+get_read_path_bfs.px <- function(ds){
+  ds <- get_bfs_asset_info(ds)
+
+  ds$read_path <- paste0(ds$data_url, ds$data_id, "/", ds$data_id, ".px")
+
+  return(ds)
+}
+
+get_read_path_bfs.default <- function(ds){
   # get asset number
-  ds <- get_bfs_asset_nr(ds)
+  ds <- get_bfs_asset_info(ds)
 
   # set download path
-  ds$download_url <- paste0(ds$data_url, ds$asset_number, "/master")
+  ds$read_path <- paste0(ds$data_url, ds$asset_number, "/master")
 
   return(ds)
 }
