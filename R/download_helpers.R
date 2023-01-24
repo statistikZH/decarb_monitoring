@@ -33,8 +33,15 @@ get_px_query_list <- function(ds) {
 
   query_list <- list()
 
+  # ## AAAAACHTUNG!!
+  # if(ds$data_id == "G1"){
+  #   ds$year_start <- 2021
+  # }
+
   # Year does not work for G1 yet
-  query_list[[ds$year_col]] <- as.character(ds$year_start:lubridate::year(Sys.Date()- lubridate::years(2)))
+  query_list[[ds$year_col]] <- as.character(
+    ds$year_start:lubridate::year(Sys.Date()- lubridate::years(2))
+  )
   query_list[[ds$gebiet_col]] <- stringr::str_split(ds$gebiet_id, ",")[[1]]
   query_list[[ds$dimension_col]] <- stringr::str_split(ds$dimension_id, ",")[[1]]
 
