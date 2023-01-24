@@ -22,6 +22,7 @@ create_dataset <- function(dataset_id) {
     dplyr::filter(DATASET_ID == dataset_id) %>%
     dplyr::select(
       DATASET_ID,
+      DATA_ORGANIZATION,
       DATASET_NAME,
       DATA_FORMAT,
       DATA_URL,
@@ -46,7 +47,7 @@ create_dataset <- function(dataset_id) {
   ds_list <- structure(
     data,
     data = NULL,
-    class = c(data$dataset_id, data$data_format)
+    class = c(data$data_organization, data$data_format, data$dataset_id)
   )
 
   return(ds_list)
