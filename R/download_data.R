@@ -39,7 +39,7 @@ download_data.px <- function(ds){
                               query = query_list)
 
   # Convert to data.frame
-  ds$px_data <- as.data.frame(data, column.name.type = "text", variable.value.type = "text")
+  ds$data <- as.data.frame(data, column.name.type = "text", variable.value.type = "text")
 
   return(ds)
 }
@@ -68,9 +68,9 @@ download_data_csv <- function(ds) UseMethod("download_data_csv")
 download_data_csv.openzh <- function(ds) {
 
   # Create download_url
-  ds <- get_download_url.default(ds)
+  ds <- get_download_url(ds)
 
-  ds$csv_data <- data.table::fread(ds$download_url)
+  ds$data <- data.table::fread(ds$download_url)
 
   return(ds)
 }
@@ -112,7 +112,7 @@ download_data.zip_csv <- function(ds) {
 
 
     # Use unzip() to extract the target file from temp. file and convert to data.frame
-    ds$zip_csv_data_frame <- data.table::fread(utils::unzip(temp, target_file), header= TRUE ) %>%
+    ds$data <- data.table::fread(utils::unzip(temp, target_file), header= TRUE ) %>%
       as.data.frame(.)
 
     # Remove the temp file
@@ -147,7 +147,7 @@ download_data_xlsx.bfs <- function(ds) {
   # Create download_url
   ds <- get_download_url_xlsx(ds)
 
-  ds$xlsx_data <- data.table::fread(ds$download_url)
+  ds$data <- data.table::fread(ds$download_url)
 
   return(ds)
 }
