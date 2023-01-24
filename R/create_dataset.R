@@ -5,7 +5,7 @@
 #'
 #' A dataset object inherits the following classes:
 #' - dataset_id -> needed for the download as well as the publishing process
-#' - data_format -> needed for the download process
+#' - download_format -> needed for the download process
 #'
 #' @param dataset_id id of the dataset
 #'
@@ -24,7 +24,7 @@ create_dataset <- function(dataset_id) {
       DATASET_ID,
       DATA_ORGANIZATION,
       DATASET_NAME,
-      DATA_FORMAT,
+      DOWNLOAD_FORMAT,
       DATA_URL,
       DATA_ID,
       DATA_FILE,
@@ -48,7 +48,7 @@ create_dataset <- function(dataset_id) {
   ds_list <- structure(
     data,
     data = NULL,
-    class = c(data$data_organization, data$data_format, data$dataset_id)
+    class = c(data$data_organization, data$download_format, data$dataset_id)
   )
 
   return(ds_list)

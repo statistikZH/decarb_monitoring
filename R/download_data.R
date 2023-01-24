@@ -7,7 +7,7 @@
 #' @export
 download_data <- function(ds) UseMethod("download_data")
 
-#' Download method for data_format px which is unique to the BFS
+#' Download method for download_format px which is unique to the BFS
 #' Downloads the data from a data cube based on a query list and converts it to a data.frame
 #'
 #' We are using the PXWEB package to stream BFS data: https://ropengov.github.io/pxweb/articles/pxweb.html
