@@ -5,15 +5,10 @@
 \title{Function that creates the download url based on dataset_id and data_type}
 \usage{
 get_download_url(ds)
-
-get_download_url(ds)
 }
 \arguments{
 \item{ds}{dataset object}
 }
 \description{
 Function that creates the download url based on dataset_id and data_type
-
-Default method used to create the download url for PX and CSV data_type
-where the download url is a paste of url and id
 }
