@@ -2,7 +2,12 @@
 
 S3method(get_read_path,bfs)
 S3method(get_read_path,default)
+S3method(structure_data,G1)
+S3method(structure_data,M1)
+S3method(structure_data,Q1)
 export("%>%")
 export(create_dataset)
 export(download_data)
+export(export_data)
+export(structure_data)
 importFrom(magrittr,"%>%")
