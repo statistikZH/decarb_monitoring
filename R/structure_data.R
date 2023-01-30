@@ -198,9 +198,111 @@ structure_data.M1 <- function(ds){
 #' @export
 #'
 #' @examples
-structure_data.A1 <- function(){
-  # code me!
+structure_data.A1 <- function(ds){
+  # add per capita data with helper (in principle Indikator Q1)
+  ds$pop_data <- download_per_capita()
+
+
+  ds$data %>%
+    dplyr::rename("Gebiet" = id) %>%
+    tidyr::pivot_longer(cols = matches("(\\d){4}"), names_to = "Jahr", values_to = "Wert") %>%
+    # Compute Wert for Schweiz (sum of all values)
+    dplyr::group_by(Jahr) %>%
+    dplyr::summarise(Wert = sum(Wert, na.rm = T), Gebiet = "Schweiz") %>%
+    dplyr::ungroup() %>%
+    dplyr::bind_rows(ds$data, . ) %>%
+    dplyr::select(-Name) %>%
+    # Rename Gebiet for Kanton Zürich
+    dplyr::mutate(Gebiet = dplyr::if_else(startsWith(Gebiet, "ZH"), "Kanton Zürich", Gebiet),
+                  Jahr = as.numeric(Jahr)) %>%
+    dplyr::filter(Gebiet %in% c("Schweiz", "Kanton Zürich")) %>%
+    # Compute Wert for Kanton Zürich (sum of all values for Gebiet == "Kanton Zürich")
+    dplyr::group_by(Jahr, Gebiet) %>%
+    dplyr::summarize(Wert = sum(Wert, na.rm = T), Einheit = "Tonnen pro Jahr (t/a)") %>%
+    dplyr::ungroup() %>%
+    # Joining population data
+    dplyr::left_join(ds$pop_data, by = c("Jahr", "Gebiet")) %>%
+    # Compute per capita
+    dplyr::mutate(`Tonnen pro Jahr pro Einwohner (t/a/Einw.)` = Wert / Einwohner) %>%
+    dplyr::rename("Unit" = Einheit, "Value" = Wert) %>%
+    dplyr::select(-Einwohner) %>%
+    # Convert table to a long format
+    tidyr::pivot_longer(cols = c(Value, `Tonnen pro Jahr pro Einwohner (t/a/Einw.)`), names_to = "Einheit", values_to = "Wert") %>%
+    dplyr::ungroup() -> ds$computed_data
+
+  browser()
+  ds$computed_data %>%
+    # Renaming values
+    dplyr::mutate(Gebiet = dplyr::if_else(Gebiet == "Zürich", "Kanton Zürich", Gebiet),
+                  Einheit = dplyr::if_else(Einheit == "Value", "Tonnen pro Jahr (t/a)", Einheit)) %>%
+    dplyr::select(-Unit) %>%
+    # Manually adding columns for Indikator_ID, Indikator_Name, Einheit and Datenquelle
+    dplyr::mutate(Indikator_ID = ds$dataset_id,
+                  Indikator_Name = ds$dataset_name,
+                  Datenquelle = ds$data_source) %>%
+    dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Wert, Einheit, Datenquelle) -> ds$export_data
+
+  return(ds)
+}
+
+
+#' Title
+#'
+#' @param ds
+#'
+#' @return
+#' @export
+#'
+#' @examples
+structure_data.M8 <- function(ds){
+  # add per capita data with helper (in principle Indikator Q1)
+  ds$pop_data <- download_per_capita()
+
+  ds$data %>%
+    dplyr::filter(Energiesektor == "Treibstoff") %>%
+    # Renaming of columns in preparation to bring data into a uniform structure
+    dplyr::rename("Variable" = Energiesektor) %>%
+    dplyr::left_join(ds$pop_data, by = "Jahr") %>%
+    # Compute per capita
+    dplyr::mutate(`GWh pro Einwohner` = Wert / Einwohner) %>%
+    dplyr::rename("Unit" = Einheit, "Value" = Wert) %>%
+    dplyr::select(-Einwohner) %>%
+    # Convert table to a long format
+    tidyr::pivot_longer(cols = c(Value, `GWh pro Einwohner`), names_to = "Einheit", values_to = "Wert") %>%
+    dplyr::ungroup() -> ds$computed_data
+
+  ds$computed_data %>%
+    # Renaming values
+    dplyr::mutate(Gebiet = "Kanton Zürich",
+                  Einheit = dplyr::if_else(Einheit == "Value", "Gigawattstunden (GWh)", "Gigawattstunden pro Einwohner (GWh pro Einw.)")) %>%
+    # Manually adding columns for Indikator_ID, Indikator_Name, Einheit and Datenquelle
+    dplyr::mutate(Indikator_ID = ds$dataset_id,
+                  Indikator_Name = ds$dataset_name,
+                  Variable = ds$dimension_id,
+                  Datenquelle = ds$data_source) %>%
+    dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle) -> ds$export_data
+
+  return(ds)
+}
+
+
+#' Title
+#'
+#' @return
+#' @export
+#'
+#' @examples
+structure_data.KG_a <- function(ds){
+
+  new_ds$data %>%
+  data.table::setnames(.,1:2,c("Jahr", "Wert")) %>%
+    # Remove first 4 rows and last 4 rows
+    dplyr::slice(., 5:(nrow(.) - 4)) %>%
+    # Setting values for Gebiet and Einheit manually
+    dplyr::mutate(Gebiet = "Schweiz",
+                  Einheit = "Mio. t CO2-eq")
 }
 
 #TODO: missing indicators, think about KG(a) --> second ds in download/import or in structure?
 #TODO: A1 + M8 having pop data stored for restructuring --> new class for download/structure?
+#TODO: Variable/Indikator_Name beides notwendig für export?
