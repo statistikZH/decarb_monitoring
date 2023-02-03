@@ -4,6 +4,7 @@
 #' as well as the publishing process
 #'
 #' A dataset object inherits the following classes:
+#' - data_organization -> needed for the download process
 #' - dataset_id -> needed for the download as well as the publishing process
 #' - download_format -> needed for the download process
 #'
