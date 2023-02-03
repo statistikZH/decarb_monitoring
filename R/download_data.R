@@ -1,8 +1,12 @@
 #' Function for streaming the data.
 #'
-#' First runs the get_read_path() function, which creates the path for the download URL.
-#' Then uses the read_data() function to stream the data and
-#' append it to the dataset (ds) in the $data object.
+#' We are only streaming the data, meaning we do not store local files of the
+#' data. Data streamed is held temporarily and deleted afterwards.
+#'
+#' The function first runs the get_read_path() method corresponding to the dataset ID,
+#' with which the read path for the download URL is created.
+#' Next the function uses the appropriate read_data() method to stream and append
+#' the data to the dataset (ds) in the $data object.
 #'
 #' @inheritParams download_data
 #'
@@ -18,16 +22,28 @@ download_data <- function(ds){
   return(ds)
 }
 
-#' Default method to stream data
+#' Function to stream data
 #'
-#' The method is used for all cases where the input data comes as csv, xlsx or
-#' in combination with a zipped folder
+#' For PXWEB data we need to define its own method, because we are working with
+#' the PXWEB package for streaming data. Every other use case can be handled by
+#' the default method.
 #'
 read_data <- function(ds) UseMethod("read_data")
-
-
+#' Default method
+#'
+#' The method is used in all cases where the input data is a csv, xlsx or
+#' one of both packaged in a zipped folder
+#'
+#' Working with import() from the rio package: https://cran.r-project.org/web/packages/rio/vignettes/rio.html
+#' rio uses the file extension of a file name to determine what kind of file it is
+#' and thus rio allows almost all common data formats to be read with the same function
+#' !Attention: package seems to be stable. Nevertheless, keep an eye out for potential issues.
+#'
 read_data.default<- function(ds){
 
+  # Passing all arguments that are required for both XLSX (which = sheet number)
+  # and CSV (header definition).rio takes care of the rest.
+  # The data gets appended to the ds and later be called as ds$data
   ds$data <-  rio::import(
     ds$read_path,
     which = ds$which_data,
@@ -41,7 +57,8 @@ read_data.default<- function(ds){
 #' Method to stream data from pxweb data cubes which is unique to the BFS
 #' Downloads the data from a data cube based on a query list and converts it to a data.frame
 #'
-#' We are using the PXWEB package to stream BFS data: https://ropengov.github.io/pxweb/articles/pxweb.html
+#' We are using the PXWEB package to stream BFS data:
+#' https://ropengov.github.io/pxweb/articles/pxweb.html
 #'
 #' !!! Important Limits: 10 calls per 10 sec., 5000  values per call
 #'
@@ -51,8 +68,10 @@ read_data.default<- function(ds){
 #'
 #' To set up a PXWEB query list manually, start with a specific path and walk thorough each step
 #' d <- pxweb::pxweb_interactive("https://www.pxweb.bfs.admin.ch/api/v1/de/px-x-0103010000_102")
+#'
 read_data.px <- function(ds){
-  # Create the query list using "get_px_query_list()"
+
+  # Create the query list using get_px_query_list() function
   query_list <- get_px_query_list(ds)
 
   # Stream the BFS data for a specific data cube and with the defined parameters
