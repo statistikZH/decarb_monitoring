@@ -8,19 +8,9 @@ Import &#8594; Processing &#8594; Export
 
 ## Import
 
-Jeder Datensatz ist in der Parameterliste `[dataset_parameter_list.xlsx](https://github.com/statistikZH/decarb_monitoring/blob/main/dataset_parameter_list.xlsx)` beschrieben.
-Die Parameterliste ist die Grundlage für den Import der Daten. Der Import wird in Abhängigkeit von ausgewählten Parametern (über Methoden) definiert und kann somit auch auf andere Datensätze mit den gleichen Parameterangaben angewendet werden.
+Jeder Datensatz ist in der Parameter-Liste [dataset_parameter_list.xlsx](https://github.com/statistikZH/decarb_monitoring/blob/main/dataset_parameter_list.xlsx) beschrieben.
+Die Parameter-Liste ist die Grundlage für den Import der Daten. Der Import wird in Abhängigkeit von ausgewählten Parametern (über Methoden) definiert und kann somit auch auf andere Datensätze mit den gleichen Parameterangaben angewendet werden.
 Basierend auf der `DATASET_ID`, dem `DATA_FORMAT` und der `DATA_ORGANIZATION` erfolgt der Datenimport in standardisierter Weise.
-
-Repository für den Bezug der Daten fürs Dekarbonisierungsmonitoring des Kantons Zürich
-
-## Input
-
-Jeder Datensatz ist in der Parameterliste ==[dataset_parameter_list.xlsx](https://github.com/statistikZH/decarb_monitoring/blob/main/dataset_parameter_list.xlsx)== beschrieben.
-Die Parameterliste ist die Grundlage für den Import der Daten. Der Import wird in Abhängigkeit von ausgewählten Parametern (über Methoden) definiert und kann somit auch auf andere Datensätze mit den gleichen Parameterangaben angewendet werden.
-Basierend auf der 'DATASET_ID', dem 'DATA_FORMAT' und der 'DATA_ORGANIZATION' erfolgt der Datenimport in standardisierter Weise.
-
-Jeder weitere Datensatz wird hinzugefügt und in der Parameterliste beschrieben.
 
 **Inhalte der Parameterliste**
 
@@ -110,8 +100,5 @@ Klima und Mobilität
 | Thomas Lo Russo | thomas.lorusso\@statistik.ji.zh.ch |
 
 
----
-
-## Fussnoten
 
 [^1]: Dimension attributes. (o.D.). © Copyright IBM Corporation 2016. https://www.ibm.com/docs/en/informix-servers/12.10?topic=model-dimension-attributes
