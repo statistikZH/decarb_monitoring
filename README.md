@@ -12,6 +12,14 @@ Jeder Datensatz ist in der Parameterliste `[dataset_parameter_list.xlsx](https:/
 Die Parameterliste ist die Grundlage für den Import der Daten. Der Import wird in Abhängigkeit von ausgewählten Parametern (über Methoden) definiert und kann somit auch auf andere Datensätze mit den gleichen Parameterangaben angewendet werden.
 Basierend auf der `DATASET_ID`, dem `DATA_FORMAT` und der `DATA_ORGANIZATION` erfolgt der Datenimport in standardisierter Weise.
 
+Repository für den Bezug der Daten fürs Dekarbonisierungsmonitoring des Kantons Zürich
+
+## Input
+
+Jeder Datensatz ist in der Parameterliste ==[dataset_parameter_list.xlsx](https://github.com/statistikZH/decarb_monitoring/blob/main/dataset_parameter_list.xlsx)== beschrieben.
+Die Parameterliste ist die Grundlage für den Import der Daten. Der Import wird in Abhängigkeit von ausgewählten Parametern (über Methoden) definiert und kann somit auch auf andere Datensätze mit den gleichen Parameterangaben angewendet werden.
+Basierend auf der 'DATASET_ID', dem 'DATA_FORMAT' und der 'DATA_ORGANIZATION' erfolgt der Datenimport in standardisierter Weise.
+
 Jeder weitere Datensatz wird hinzugefügt und in der Parameterliste beschrieben.
 
 **Inhalte der Parameterliste**
