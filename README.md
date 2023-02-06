@@ -55,6 +55,7 @@ Jeder weitere Datensatz wird hinzugefügt und in der Parameterliste beschrieben.
 Die Datenaufbereitung variiert von Datensatz zu Datensatz (`DATASET_ID`). Insbesondere was die Berechnungen anbelangt. Die Berechnung werden vorerst spezifisch für jeden Datensatz gemacht. Wo sich wiederkehrende Berechnungen in Funktionen auslagern lassen, wird das gemacht. 
 
 **Übersicht der Berechnungs-Funktionen**
+
 | Function | Title | Description | 
 | ---      | ---       |---       |
 | `download_per_capita()` | Pro Einwohner-Berechnung | Lädt die Bevölkerungsdaten aus DATASET_ID 'Q1' und lässt sich dann in der Berechnung pro Einwohner aufrufen |
@@ -69,6 +70,8 @@ Die exportierten Daten bilden die Grundlage für die Visualisierungen.
 **Datenstruktur**
 
 | Jahr | Gebiet | Indikator_ID | Indikator_Name | Variable | Datenquelle | Einheit | Wert | 
+|---      | ---      | ---       | ---       | ---       | ---       | ---       | ---       |
+| *dimsension attributes*   | *dimsension attributes*      | *dimsension attributes*       | *dimsension attributes*       | *dimsension attributes*       | *dimsension attributes*       | *dimsension attributes*       | *fact*       |
 
 
 **Logik hinter der Datenstruktur**
@@ -93,12 +96,15 @@ In unserer Tabelle entspricht alles links der `Wert`-Spalte den *dimsension attr
 Luft, Klima und Strahlung
 Klima und Mobilität
 
+| Name | E-Mail | 
+| ---      | ---       |
 | Gian-Marco Alt | gian-marco.alt\@bd.zh.ch |
 | Nathalie Hutter | nathalie.hutter\@bd.zh.ch |
 | Cuno Bieler | cuno.bieler\@bd.zh.ch |
 
 ### STAT
-
+| Name | E-Mail | 
+| ---      | ---       |
 | Corinna Grobe | corinna.grobe\@statistik.ji.zh.ch |
 | Philipp Bosch | philipp.bosch\@statistik.ji.zh.ch |
 | Thomas Lo Russo | thomas.lorusso\@statistik.ji.zh.ch |
