@@ -1,14 +1,13 @@
-ids <- c("A1", "G1", "Q1", "M1", "M8", "KG(a)")
-
+ids <- c("A1", "G1", "Q1", "M1", "M8", "KG_a", "G3", "M2", "M3", "M4", "M5", "IG1", "LF2")
 
 ds_list <- purrr::map(ids, create_dataset)
 
 ds_new_list <- purrr::map(ds_list, download_data, .progress = TRUE)
 
-new_ds <- create_dataset("Q1")
-new_ds <- download_data(new_ds)
-new_ds <- structure_data(new_ds)
-export_data(new_ds)
+ds <- create_dataset("LF2")
+ds <- download_data(ds)
+ds <- structure_data(ds)
+export_data(ds)
 
 
 

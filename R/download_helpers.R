@@ -58,7 +58,8 @@ get_px_query_list <- function(ds) {
   }
 
   query_list[[ds$gebiet_col]] <- stringr::str_split(ds$gebiet_id, ",")[[1]]
-  query_list[[ds$dimension_col]] <- stringr::str_split(ds$dimension_id, ",")[[1]]
+  query_list[[ds$dimension1_col]] <- stringr::str_split(ds$dimension1_id, ",")[[1]]
+  query_list[[ds$dimension2_col]] <- stringr::str_split(ds$dimension2_id, ",")[[1]]
 
   return(query_list)
 }
