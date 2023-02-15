@@ -63,13 +63,13 @@ m1_export_data <- m1_computed %>%
   # Renaming values
   dplyr::mutate(Gebiet = dplyr::if_else(Gebiet == "Zürich", "Kanton Zürich", Gebiet),
                 Variable = dplyr::if_else(Variable == "fossil", "fossiler Treibstoff", "fossilfreier Treibstoff"),
-                Einheit = dplyr::case_when(Einheit == "Anzahl" ~ "Personenwagen [Anz.]",
-                                           Einheit == "Anteil" ~ "Personenwagen [%]",
+                Einheit = dplyr::case_when(Einheit == "Anzahl" ~ paste0(ds$dimension_label, " [Anz.]"),
+                                           Einheit == "Anteil" ~ paste0(ds$dimension_label, " [%]"),
                                            TRUE ~ Einheit)) %>%
   # Manually adding columns for Indikator_ID, Indikator_Name, Einheit and Datenquelle
-  dplyr::mutate(Indikator_ID = indicator_id,
-                Indikator_Name = indicator_name,
-                Datenquelle = data_source) %>%
+  dplyr::mutate(Indikator_ID = ds$dataset_id,
+                Indikator_Name = ds$dataset_name,
+                Datenquelle = ds$data_source) %>%
   dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
 
 # Export CSV --------------------------------------------------------------

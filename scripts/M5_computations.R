@@ -1,4 +1,4 @@
-# M3 - Fossilfreie Neuzulassungen PKW ----------------------------------------------------
+# M5 - Fossilfreie Neuzulassungen Güterverkehr ----------------------------------------------------
 
 ## Computations:
 ## 1. Anzahl pro Gebiet
@@ -6,16 +6,16 @@
 
 # Import data -------------------------------------------------------------
 
-ds <- create_dataset("M3")
+ds <- create_dataset("M5")
 ds <- download_data(ds)
 
-m3_data <- ds$data
+m5_data <- ds$data
 
 # Computation: Anzahl & Anteil -----------------------------------------------------
 
 ## Splitting Fernwärme into fossil and fossil-free
 ## Assigning 10% of heating to means of fossil fuel
-m3_computed <- m3_data %>%
+m5_computed <- m5_data %>%
   # Renaming of columns in preparation to bring data into a uniform structure
   dplyr::rename("Gebiet" = Kanton, "Variable" = Treibstoff, "Wert" = `Neue Inverkehrsetzungen von Strassenfahrzeugen`) %>%
   # Auxiliary variable for calculating the number of fossil vs. fossil-free passenger cars. Fossil being 'Benzin' + 'Diesel' + 'Gas (mono- und bivalent)'
@@ -35,7 +35,7 @@ m3_computed <- m3_data %>%
 
 # Data structure ----------------------------------------------------------
 
-m3_export_data <- m3_computed %>%
+m5_export_data <- m5_computed %>%
   dplyr::filter(Einheit != "Total") %>%
   dplyr::rename("Variable" = Treibstoff_Typ) %>%
   # Renaming values
@@ -58,4 +58,4 @@ dir.create("output", showWarnings = FALSE)
 
 output_file <- paste0(ds$dataset_id, "_data.csv")
 
-utils::write.table(m3_export_data, paste0("./output/", output_file), fileEncoding = "UTF-8", row.names = FALSE, sep = ",")
+utils::write.table(m5_export_data, paste0("./output/", output_file), fileEncoding = "UTF-8", row.names = FALSE, sep = ",")
