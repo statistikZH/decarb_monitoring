@@ -2,10 +2,12 @@
 % Please edit documentation in R/download_data.R
 \name{read_data}
 \alias{read_data}
-\title{Method to download csv}
+\title{Function to stream data}
 \usage{
 read_data(ds)
 }
 \description{
-Method to download csv
+For PXWEB data we need to define its own method, because we are working with
+the PXWEB package for streaming data. Every other use case can be handled by
+the default method.
 }

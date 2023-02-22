@@ -2,21 +2,17 @@
 % Please edit documentation in R/download_data.R
 \name{download_data}
 \alias{download_data}
-\title{Download method for download_format px which is unique to the BFS
-Downloads the data from a data cube based on a query list and converts it to a data.frame}
+\title{Function for streaming the data.}
 \usage{
 download_data(ds)
 }
 \description{
-We are using the PXWEB package to stream BFS data: https://ropengov.github.io/pxweb/articles/pxweb.html
+We are only streaming the data, meaning we do not store local files of the
+data. Data streamed is held temporarily and deleted afterwards.
 }
 \details{
-!!! Important Limits: 10 calls per 10 sec., 5000  values per call
-
-the name of the data cube, e.g. "px-x-0103010000_102", is taken from ds$data_id
-the download url is constructed with the "get_download_url.default" method
-the query list, a list element containing all query parameters, gets constructed with "get_px_query_list()"
-
-To set up a PXWEB query list manually, start with a specific path and walk thorough each step
-d <- pxweb::pxweb_interactive("https://www.pxweb.bfs.admin.ch/api/v1/de/px-x-0103010000_102")
+The function first runs the get_read_path() method corresponding to the dataset ID,
+with which the read path for the download URL is created.
+Next the function uses the appropriate read_data() method to stream and append
+the data to the dataset (ds) in the $data object.
 }

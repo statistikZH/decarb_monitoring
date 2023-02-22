@@ -2,8 +2,8 @@
 % Please edit documentation in R/download_helpers.R
 \name{get_read_path.default}
 \alias{get_read_path.default}
-\title{Default method used to create the download url for PX and CSV data_type
-where the download url is a paste of url and id}
+\title{Standard method for creating the path of the download URL
+for any data-holding organisation other than the FSO.}
 \usage{
 \method{get_read_path}{default}(ds)
 }
@@ -11,6 +11,5 @@ where the download url is a paste of url and id}
 \item{ds}{dataset object}
 }
 \description{
-Default method used to create the download url for PX and CSV data_type
-where the download url is a paste of url and id
+General path format: paste of base url and id
 }

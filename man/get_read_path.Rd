@@ -10,5 +10,5 @@ get_read_path(ds)
 \item{ds}{dataset object}
 }
 \description{
-Function that creates the download url based on dataset_id and data_type
+Methods differ according to the data-holding organisation
 }

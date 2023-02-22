@@ -2,8 +2,7 @@
 % Please edit documentation in R/download_helpers.R
 \name{get_read_path.bfs}
 \alias{get_read_path.bfs}
-\title{Method to create the download url for the XLSX data from the BFS
-requires the asset number (BFS Nr) for the BFS DAM API}
+\title{Function for creating the FSP-specific read path}
 \usage{
 \method{get_read_path}{bfs}(ds)
 }
@@ -11,6 +10,5 @@ requires the asset number (BFS Nr) for the BFS DAM API}
 \item{ds}{dataset object}
 }
 \description{
-Method to create the download url for the XLSX data from the BFS
-requires the asset number (BFS Nr) for the BFS DAM API
+Use cases currently are XLSX via DAM API and via PXWEB data cubes
 }

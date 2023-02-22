@@ -2,7 +2,8 @@
 % Please edit documentation in R/download_helpers.R
 \name{get_bfs_asset_info}
 \alias{get_bfs_asset_info}
-\title{Function to scrape the asset number of a specific BFS number}
+\title{Function to retrieve the asset number and the last year of the time series
+for a specific BFS number}
 \usage{
 get_bfs_asset_info(ds)
 }
@@ -10,6 +11,6 @@ get_bfs_asset_info(ds)
 \item{bfs_nr}{Number of a bfs publication e.g: "ind-d-21.02.30.1202.02.01"}
 }
 \description{
-This function scrapes the asset page of a BFS-nr for the asset number
-!important: this bfs-nr is not the municipality bfs-nr
+This function scrapes the asset page of a BFS-nr
+!important: this bfs-nr here does not correspond to the bfs-nr of the municipality
 }

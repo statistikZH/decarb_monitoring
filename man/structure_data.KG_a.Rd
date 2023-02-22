@@ -4,7 +4,7 @@
 \alias{structure_data.KG_a}
 \title{Title}
 \usage{
-\method{structure_data}{KG_a}()
+\method{structure_data}{KG_a}(ds)
 }
 \description{
 Title
