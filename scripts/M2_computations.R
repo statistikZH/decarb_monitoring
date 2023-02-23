@@ -9,7 +9,7 @@
 ds <- create_dataset("M2")
 ds <- download_data(ds)
 
-m5_data <- ds$data
+m2_data <- ds$data
 
 # Computation: Anzahl & Anteil -----------------------------------------------------
 
