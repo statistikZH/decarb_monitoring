@@ -13,14 +13,11 @@ m2_data <- ds$data
 
 # Computation: Anzahl & Anteil -----------------------------------------------------
 
-## Splitting Fernwärme into fossil and fossil-free
-## Assigning 10% of heating to means of fossil fuel
-m5_computed <- m5_data %>%
+m2_computed <- m2_data %>%
   # Renaming of columns in preparation to bring data into a uniform structure
-  dplyr::rename("Gebiet" = Kanton, "Variable" = Treibstoff, "Wert" = `Neue Inverkehrsetzungen von Strassenfahrzeugen`) %>%
+  dplyr::rename("Gebiet" = Kanton, "Variable" = Treibstoff, "Wert" = `Bestand der Strassenfahrzeuge`) %>%
   # Auxiliary variable for calculating the number of fossil vs. fossil-free passenger cars. Fossil being 'Benzin' + 'Diesel' + 'Gas (mono- und bivalent)'
-  dplyr::mutate(Treibstoff_Typ = dplyr::if_else(Variable %in% c("Benzin", "Diesel", "Gas (mono- und bivalent)"), "fossil", "fossil-free")) %>%
-  # Calculating number of cars by year, spacial unit, and fuel type
+  dplyr::mutate(Treibstoff_Typ = dplyr::if_else(Variable %in% c("Benzin", "Diesel"), "fossil", "fossil-free")) %>%
   dplyr::group_by(Jahr, Gebiet, Treibstoff_Typ) %>%
   dplyr::summarise(Anzahl = sum(Wert)) %>%
   dplyr::ungroup() %>%
@@ -32,10 +29,9 @@ m5_computed <- m5_data %>%
   tidyr::pivot_longer(cols = c(Anzahl, Total, Anteil), names_to = "Einheit", values_to = "Wert") %>%
   dplyr::ungroup()
 
-
 # Data structure ----------------------------------------------------------
 
-m5_export_data <- m5_computed %>%
+m2_export_data <- m2_computed %>%
   dplyr::filter(Einheit != "Total") %>%
   dplyr::rename("Variable" = Treibstoff_Typ) %>%
   # Renaming values
