@@ -54,4 +54,4 @@ dir.create("output", showWarnings = FALSE)
 
 output_file <- paste0(ds$dataset_id, "_data.csv")
 
-utils::write.table(m5_export_data, paste0("./output/", output_file), fileEncoding = "UTF-8", row.names = FALSE, sep = ",")
+utils::write.table(m2_export_data, paste0("./output/", output_file), fileEncoding = "UTF-8", row.names = FALSE, sep = ",")
