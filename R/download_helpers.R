@@ -8,7 +8,11 @@
 get_bfs_asset_info <- function(ds) {
   bfs_home <- "https://www.bfs.admin.ch"
 
-  asset_page <- xml2::read_html(paste0(bfs_home, "/asset/de/", ds$data_id))
+  asset_page <- httr::GET(paste0(bfs_home, "/asset/de/", ds$data_id), config = httr::use_proxy("")) %>%
+    rvest::read_html()
+
+
+  #asset_page <- xml2::read_html(paste0(bfs_home, "/asset/de/", ds$data_id))
 
   # Retrieve asset number
   # 'asset_number' is used to construct the current read_paths for BFS assets from the DAM API.
