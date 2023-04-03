@@ -230,8 +230,8 @@ structure_data.A1 <- function(ds){
     tidyr::pivot_longer(cols = c(Value, `Tonnen pro Jahr pro Einwohner (t/a/Einw.)`), names_to = "Einheit", values_to = "Wert") %>%
     dplyr::ungroup() -> ds$computed_data
 
-  browser()
-  ds$computed_data %>%
+
+    ds$computed_data %>%
     # Renaming values
     dplyr::mutate(Gebiet = dplyr::if_else(Gebiet == "Zürich", "Kanton Zürich", Gebiet),
                   Einheit = dplyr::if_else(Einheit == "Value", "Tonnen pro Jahr (t/a)", Einheit)) %>%
