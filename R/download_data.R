@@ -74,9 +74,9 @@ read_data.px <- function(ds){
   # Create the query list using get_px_query_list() function
   query_list <- get_px_query_list(ds)
 
-  # Stream the BFS data for a specific data cube and with the defined parameters
-  data <- pxweb::pxweb_get(url = ds$read_path,
-                           query = query_list)
+    # Stream the BFS data for a specific data cube and with the defined parameters
+  data <- pxweb::pxweb_advanced_get(url = ds$read_path,
+                           query = query_list, config = httr::use_proxy(""))
 
   # Convert to data.frame and append to the dataset as 'data'
   ds$data <- as.data.frame(
