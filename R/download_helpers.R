@@ -61,7 +61,14 @@ get_px_query_list <- function(ds) {
     )
   }
 
-  query_list[[ds$gebiet_col]] <- stringr::str_split(ds$gebiet_id, ",")[[1]]
+  # excel coerces comma to decimal point in gebiet_id
+  if(stringr::str_detect(ds$gebiet_id, pattern = "\\.")){
+    query_list[[ds$gebiet_col]] <- stringr::str_split(ds$gebiet_id, "\\.")[[1]]
+  }else{
+    query_list[[ds$gebiet_col]] <- stringr::str_split(ds$gebiet_id, ",")[[1]]
+  }
+
+
 
   # check if two dimension cols are given in the parameter list
   if(!is.na(ds$dimension1_col)){
@@ -94,6 +101,11 @@ get_read_path.default <- function(ds) {
 
   # creating the path of the download URL
   ds$read_path <- paste0(ds$data_url, ds$data_id)
+
+  # set which data (xlsx sheet number) to 1 (first sheet) if not specified in excel list
+  if(is.na(ds$which_data)){
+    ds$which_data <- 1
+  }
 
   return(ds)
 }
