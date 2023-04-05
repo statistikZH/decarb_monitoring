@@ -15,7 +15,7 @@ m2_data <- ds$data
 
 m2_computed <- m2_data %>%
   # Renaming of columns in preparation to bring data into a uniform structure
-  dplyr::rename("Gebiet" = Kanton, "Variable" = Treibstoff, "Wert" = `Bestand der Strassenfahrzeuge`) %>%
+  dplyr::rename("Gebiet" = Kanton, "Variable" = Treibstoff, "Wert" = `Bestand der Sachentransportfahrzeuge`) %>%
   # Auxiliary variable for calculating the number of fossil vs. fossil-free passenger cars. Fossil being 'Benzin' + 'Diesel' + 'Gas (mono- und bivalent)'
   dplyr::mutate(Treibstoff_Typ = dplyr::if_else(Variable %in% c("Benzin", "Diesel"), "fossil", "fossil-free")) %>%
   dplyr::group_by(Jahr, Gebiet, Treibstoff_Typ) %>%
