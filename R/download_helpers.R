@@ -72,10 +72,13 @@ get_px_query_list <- function(ds) {
 
   # check if two dimension cols are given in the parameter list
   if(!is.na(ds$dimension1_col)){
-    query_list[[ds$dimension1_col]] <- stringr::str_split(ds$dimension1_id, ",")[[1]]
+    query_list[[ds$dimension1_col]] <- stringr::str_split(ds$dimension1_id, ",")[[1]] %>%
+      stringr::str_squish() # get rid of whitespace
+
   }
   if(!is.na(ds$dimension2_col)){
-    query_list[[ds$dimension2_col]] <- stringr::str_split(ds$dimension2_id, ",")[[1]]
+    query_list[[ds$dimension2_col]] <- stringr::str_split(ds$dimension2_id, ",")[[1]] %>%
+      stringr::str_squish() # get rid of whitespace
   }
 
 
