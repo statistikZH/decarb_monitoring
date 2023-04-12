@@ -19,6 +19,16 @@ download_data <- function(ds){
   # streams the data and appends it to the ds in $data
   ds <- read_data(ds)
 
+  # if the dataset requires a dependency (another dataset) the read function is called again and downloads the dependency
+  if(!is.na(ds$dependency)){
+    #temporarily create a dependent ds and download the data
+    ds_dep <- create_dataset(ds$dependency)
+    ds_dep <- download_data(ds_dep)
+
+    #add the downloaded data to the original ds object
+    ds$data_dep <- ds_dep$data
+  }
+  #only return the inital ds object
   return(ds)
 }
 
@@ -49,6 +59,8 @@ read_data.default<- function(ds){
     which = ds$which_data,
     header = TRUE
   )
+
+
 
   return(ds)
 
