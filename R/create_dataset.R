@@ -44,7 +44,8 @@ create_dataset <- function(dataset_id) {
       DIMENSION_LABEL,
       DATA_SOURCE,
       LAST_UPDATED,
-      MODIFY_NEXT
+      MODIFY_NEXT,
+      DEPENDENCY
     ) %>%
     dplyr::rename_all(tolower) %>%
     as.list()
