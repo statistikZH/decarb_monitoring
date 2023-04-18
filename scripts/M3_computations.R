@@ -9,15 +9,13 @@
 ds <- create_dataset("M3")
 ds <- download_data(ds)
 
-m3_data <- ds$data
+m3_data <- ds$data %>%
+  # Renaming of columns in preparation to bring data into a uniform structure
+  dplyr::rename("Gebiet" = Kanton, "Variable" = Treibstoff, "Wert" = `Neue Inverkehrsetzungen von Strassenfahrzeugen`)
 
 # Computation: Anzahl & Anteil -----------------------------------------------------
 
-## Splitting Fernwärme into fossil and fossil-free
-## Assigning 10% of heating to means of fossil fuel
-m3_computed <- m3_data %>%
-  # Renaming of columns in preparation to bring data into a uniform structure
-  dplyr::rename("Gebiet" = Kanton, "Variable" = Treibstoff, "Wert" = `Neue Inverkehrsetzungen von Strassenfahrzeugen`) %>%
+m3_computed <- m3_data  %>%
   # Auxiliary variable for calculating the number of fossil vs. fossil-free passenger cars. Fossil being 'Benzin' + 'Diesel' + 'Gas (mono- und bivalent)'
   dplyr::mutate(Treibstoff_Typ = dplyr::if_else(Variable %in% c("Benzin", "Diesel", "Gas (mono- und bivalent)"), "fossil", "fossil-free")) %>%
   # Calculating number of cars by year, spacial unit, and fuel type
@@ -50,12 +48,12 @@ m3_export_data <- m3_computed %>%
                 Datenquelle = ds$data_source) %>%
   dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
 
+# assign data to be exported back to the initial ds object -> ready to export
+ds$export_data <- m3_export_data
+
+
 # Export CSV --------------------------------------------------------------
 
 ## Temporarily storing export files in Gitea repo > output folder
 ## Naming convention for CSV files: [indicator number]_data.csv
-dir.create("output", showWarnings = FALSE)
-
-output_file <- paste0(ds$dataset_id, "_data.csv")
-
-utils::write.table(m3_export_data, paste0("./output/", output_file), fileEncoding = "UTF-8", row.names = FALSE, sep = ",")
+export_data(ds)

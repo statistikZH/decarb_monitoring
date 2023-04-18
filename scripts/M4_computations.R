@@ -1,22 +1,22 @@
-# M4 - CO₂ Emissionen pro km und durchschnittlicher Auslastung ----------------------------------------------------
+# M4 - Antriebsart bei Gütertransportfahrzeugen - Neuzulassungen ----------------------------------------------------
 
 ## Computations:
+## Computations:
+## 1. Anzahl pro Gebiet
+## 2. Anteil pro Gebiet und Jahr
 
 # Import data -------------------------------------------------------------
 
 ds <- create_dataset("M4")
 ds <- download_data(ds)
 
-m4_data <- ds$data
-
-ds_3 <- create_dataset("M3")
-ds_3 <- download_data(ds_3)
-
-m3_data <- ds_3$data
-
-m3_computed <- m3_data %>%
+m4_data <- ds$data %>%
   # Renaming of columns in preparation to bring data into a uniform structure
-  dplyr::rename("Gebiet" = Kanton, "Variable" = Treibstoff, "Wert" = `Neue Inverkehrsetzungen von Strassenfahrzeugen`) %>%
+  dplyr::rename("Gebiet" = Kanton, "Variable" = Treibstoff, "Wert" = `Neue Inverkehrsetzungen von Strassenfahrzeugen`)
+
+# Computation: Anzahl & Anteil -----------------------------------------------------
+
+m4_computed <- m4_data %>%
   # Auxiliary variable for calculating the number of fossil vs. fossil-free passenger cars. Fossil being 'Benzin' + 'Diesel' + 'Gas (mono- und bivalent)'
   dplyr::mutate(Treibstoff_Typ = dplyr::if_else(Variable %in% c("Benzin", "Diesel", "Gas (mono- und bivalent)"), "fossil", "fossil-free")) %>%
   # Calculating number of cars by year, spacial unit, and fuel type
@@ -34,7 +34,7 @@ m3_computed <- m3_data %>%
 
 # Data structure ----------------------------------------------------------
 
-m3_export_data <- m3_computed %>%
+m4_export_data <- m4_computed %>%
   dplyr::filter(Einheit != "Total") %>%
   dplyr::rename("Variable" = Treibstoff_Typ) %>%
   # Renaming values
@@ -48,3 +48,12 @@ m3_export_data <- m3_computed %>%
                 Indikator_Name = ds$dataset_name,
                 Datenquelle = ds$data_source) %>%
   dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
+
+# assign data to be exported back to the initial ds object -> ready to export
+ds$export_data <- m4_export_data
+
+# Export CSV --------------------------------------------------------------
+
+## Temporarily storing export files in Gitea repo > output folder
+## Naming convention for CSV files: [indicator number]_data.csv
+export_data(ds)
