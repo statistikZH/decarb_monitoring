@@ -131,6 +131,6 @@ params <- list(indicator_id = indicator_id, indicator_name = indicator_name)
 filled_template <- whisker::whisker.render(template, params)
 
 # Print the filled template
-cat(filled_template, file=paste0(indicator_id, "_computations.R"))
+cat(filled_template, file=paste0("output/",indicator_id, "_computations.R"))
 
 }
