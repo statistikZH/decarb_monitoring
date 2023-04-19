@@ -12,7 +12,7 @@ g2_data <- ds$data
 g2_computed <- g2_data %>%
   dplyr::mutate(Gebiet = ds$gebiet_name) %>%
   tidyr::pivot_wider(names_from = Waerme, values_from = Wert) %>%
-  dplyr::mutate(anteil_erneurbar = total / erneuerbar) %>%
+  dplyr::mutate(anteil_erneurbar = erneuerbar / total) %>%
   tidyr::pivot_longer(cols = c(total, erneuerbar, anteil_erneurbar), values_to = "Wert")
 
 
