@@ -1,35 +1,38 @@
-# G3 - Energiebedarf für Raumwärme und Warmwasser bei reinen Wohnbauten im Kanton Zürich nach Gebäudealtersklassen ----------------------------------------------------
+# G4 - Heizgradtage
 
 # Import data -------------------------------------------------------------
 
-ds <- create_dataset("G3")
+ds <- create_dataset("G4")
 ds <- download_data(ds)
 
-g3_data <- ds$data
+g4_data <- ds$data
 
 # Computation:  -----------------------------------------------------
 
 # None
 
 # Data structure ----------------------------------------------------------
-g3_export_data <- g3_data %>%
-  tidyr::drop_na() %>%
-  dplyr::rename("Wert" = "Energiebedarf", "Jahr" = "Bedarfsjahr", "Variable" = "Bauperiode") %>%
-  dplyr::mutate(Variable = paste("Bauperiode", Variable, sep = " ")) %>%
-  # Renaming values
+
+g4_export_data <- g4_data %>%
+  dplyr::select(4:ncol(g4_data)) %>%
+  janitor::row_to_names(16) %>%
+  dplyr::slice(1) %>%
+  dplyr::mutate(dplyr::across(.fns = as.numeric)) %>%
+  tidyr::pivot_longer(cols = everything(), names_to = c("Jahr"), values_to = "Wert") %>%
   dplyr::mutate(Gebiet = "Kanton Zürich",
-                Einheit = ds$dimension_unit) %>%
+                Einheit = paste("Anzahl", ds$dataset_name,"[Anz.]", sep = " ")) %>%
   # Manually adding columns for Indikator_ID, Indikator_Name, Einheit and Datenquelle
   dplyr::mutate(Indikator_ID = ds$dataset_id,
                 Indikator_Name = ds$dataset_name,
-                Datenquelle = ds$data_source) %>%
+                Datenquelle = ds$data_source,
+                Variable = ds$dataset_name) %>%
   dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
 
-# assign data to be exported back to the initial ds object -> ready to export
-ds$export_data <- g3_export_data
+ds$export_data <- g4_export_data
 
 # Export CSV --------------------------------------------------------------
 
 ## Temporarily storing export files in Gitea repo > output folder
 ## Naming convention for CSV files: [indicator number]_data.csv
 export_data(ds)
+

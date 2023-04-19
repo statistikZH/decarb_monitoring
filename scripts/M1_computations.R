@@ -1,14 +1,5 @@
 # M1 - Anteil fossilfreie Personenwagen im Fahrzeugbestand ----------------------------------------------------
-## Indicator:
-indicator_id <- "M1"
-indicator_name <- "Fossilfreie Personenwagen im Fahrzeugbestand"
-## Variable:
-variable <- "Treibstoff"
-## Spatial unit: Schweiz and Kanton Zürich
-## Temporal unit: starting 2005
-## Data url: https://www.bfs.admin.ch/asset/de/px-x-1103020100_105
-## Data sources:
-data_source <- "Strassenfahrzeugbestand MFZ, Bundesamt für Strassen (ASTRA) - IVZ-Fahrzeuge"
+
 
 ## Computations:
 ## 1. Anzahl: 'Total' - ('Benzin' + 'Diesel')
@@ -16,26 +7,14 @@ data_source <- "Strassenfahrzeugbestand MFZ, Bundesamt für Strassen (ASTRA) - I
 
 ## Cross check of the totals with the FSO: https://www.pxweb.bfs.admin.ch/sq/d37712cd-4d15-4218-a379-2928bbd9a9a7
 
+
 # Import data -------------------------------------------------------------
 
-## Setting the range of the time series, and continue the range every new year
-start_year <- "2005"
-end_year <- lubridate::year(Sys.Date()- lubridate::years(1))
-year_range <- start_year:end_year
+ds <- create_dataset("M1")
+ds <- download_data(ds)
 
-## Path name of the data cube
-m1_px_path <- "px-x-1103020100_105"
-
-## Pre-constructed list element containing all query parameters
-m1_query_list <- list("Jahr"=c("2005","2006","2007","2008","2009","2010","2011","2012","2013","2014","2015","2016","2017","2018","2019","2020","2021"),
-                      "Kanton"=c("0","1"), # Spatial unit: Schweiz and Kanton Zürich
-                      "Treibstoff"=c("100","200","300","310","400","410","500","550","600","9900")) # Indicator: Treibstoff. Fetching all types in order to compute a total
-
-## Download data based on query list and convert to data.frame
-m1_data <- get_pxdata(m1_px_path, m1_query_list) %>%
-  # Renaming of columns in preparation to bring data into a uniform structure
+m1_data <- ds$data %>%
   dplyr::rename("Gebiet" = Kanton, "Variable" = Treibstoff, "Wert" = `Bestand der Personenwagen`)
-
 
 # Computation: Anzahl & Anteil -----------------------------------------------------
 
@@ -72,12 +51,12 @@ m1_export_data <- m1_computed %>%
                 Datenquelle = ds$data_source) %>%
   dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
 
+# assign data to be exported back to the initial ds object -> ready to export
+ds$export_data <- m1_export_data
+
+
 # Export CSV --------------------------------------------------------------
 
 ## Temporarily storing export files in Gitea repo > output folder
 ## Naming convention for CSV files: [indicator number]_data.csv
-dir.create("output", showWarnings = FALSE)
-
-output_file <- paste0(indicator_id, "_data.csv")
-
-utils::write.table(m1_export_data, paste0("./output/", output_file), fileEncoding = "UTF-8", row.names = FALSE, sep = ",")
+export_data(ds)

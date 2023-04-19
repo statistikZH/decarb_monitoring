@@ -1,14 +1,10 @@
 # G1 - Anteil fossilfreier Wärmeerzeuger in Wohn- und Nichtwohngebäuden ----------------------------------------------------
-## Indicator:
-indicator_id <- "G1"
-indicator_name <- "Fossilfreie Wärmeerzeuger in Gebäuden"
-## Variable:
-variable <- "Hauptquelle der Heizung"
+## Indicator: "Fossilfreie Wärmeerzeuger in Gebäuden"
+## Variable: "Hauptquelle der Heizung"
 ## Spatial unit: Schweiz and Kanton Zürich
 ## Temporal unit: starting 2021
 ## Data url: https://www.bfs.admin.ch/asset/de/px-x-0902010000_102
-## Data sources:
-data_source <- "Gebäude- und Wohnungsstatistik GWS, BFS"
+## Data sources: "Gebäude- und Wohnungsstatistik GWS, BFS"
 
 ## Computations:
 ## 1. Anzahl: 'Total' - ('Heizöl' + 'Gas'+ (0.1 * 'Fernwärme'))
@@ -22,28 +18,19 @@ data_source <- "Gebäude- und Wohnungsstatistik GWS, BFS"
 
 # Import data -------------------------------------------------------------
 
-## Set the range of the time series and continue for each additional year
-start_year <- "2021"
-end_year <- lubridate::year(Sys.Date()- lubridate::years(1))
-year_range <- start_year:end_year
 
-## Path name of the data cube
-g1_px_path <- "px-x-0902010000_102"
+ds <- create_dataset("G1")
+ds <- download_data(ds)
 
-## Pre-constructed list element containing all query parameters
-g1_query_list <- list("Jahr"= c("0"), # All available years
-                      "Kanton"=c("8100","01"), # Spatial unit: Schweiz and Kanton Zürich
-                      "Hauptenergiequelle der Heizung"=c("0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23") # Indicator: Hauptenergiequelle der Heizung. Fetching all types in order to compute a total
-                      )
+g1_data <- ds$data
 
-
-## Download data based on query list and convert to data.frame
-g1_data <- get_pxdata(g1_px_path, g1_query_list) %>%
-  # Renaming of columns in preparation to bring data into a uniform structure
-  dplyr::rename("Gebiet" = Kanton, "Variable" = `Hauptenergiequelle der Heizung`, "Wert" = Gebäude)
 
 
 # Computation: Anzahl & Anteil -----------------------------------------------------
+
+# Renaming of columns in preparation to bring data into a uniform structure
+g1_data <- g1_data %>%
+  dplyr::rename("Gebiet" = Kanton, "Variable" = `Hauptenergiequelle der Heizung`, "Wert" = Gebäude)
 
 ## Splitting Fernwärme into fossil and fossil-free
 ## Assigning 10% of heating to means of fossil fuel
@@ -97,17 +84,17 @@ g1_export_data <- g1_computed %>%
                                            Einheit == "Anteil" ~ "Gebäude [%]",
                                            TRUE ~ Einheit)) %>%
   # Manually adding columns for Indikator_ID, Indikator_Name, Einheit and Datenquelle
-  dplyr::mutate(Indikator_ID = indicator_id,
-                Indikator_Name = indicator_name,
-                Datenquelle = data_source) %>%
+  dplyr::mutate(Indikator_ID = ds$dataset_id,
+                Indikator_Name = ds$dataset_name,
+                Datenquelle = ds$data_source) %>%
   dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
+
+
+# assign data to be exported back to the initial ds object -> ready to export
+ds$export_data <- g1_export_data
 
 # Export CSV --------------------------------------------------------------
 
 ## Temporarily storing export files in Gitea repo > output folder
 ## Naming convention for CSV files: [indicator number]_data.csv
-dir.create("output", showWarnings = FALSE)
-
-output_file <- paste0(indicator_id, "_data.csv")
-
-utils::write.table(g1_export_data, paste0("./output/", output_file), fileEncoding = "UTF-8", row.names = FALSE, sep = ",")
+export_data(ds)
