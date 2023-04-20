@@ -1,7 +1,6 @@
 #' Initialisiere ein neues Skript für einen neuen Indikator
 #'
 #' @param indicator_id ID of the indicator available in the indicator-list dataset
-#' @param indicator_dataset indicator list
 #'
 #' @return script
 #'
@@ -11,33 +10,30 @@
 #'
 #' @examples
 #'
-#' indicator_init("M3", ds)
+#' indicator_init("M3")
 #'
 #' indicator_init("M100",ds_l)
 
-# indicator_id <- "M10"
+# indicator_id <- "M3"
 # dataset_list <- data.frame()
 
-indicator_init <- function(indicator_id, dataset_list){
+indicator_init <- function(indicator_id){
+
+  #Prüfung einbauen -> Gibt es den Datensatz überhaupt in der Liste (besteht der Indikator und mit Status 1?)
+dataset_info <- create_dataset(indicator_id)
 
 ## Checks -----------
 
-# Check if a script for the Indicator exists already and abort if this is the case
+# Gibt es für den Indikator bereits ein bestehendes Skript?
 if(file.exists(paste0("scripts/", indicator_id,"_computations.R"))) cli::cli_abort(c("x" = "Skript für diesen Indikator besteht bereits"))
 
-# Check if the indicator is listed in the Indicator-List
-if(!is.list(dataset_list)) cli::cli_alert_warning("Datensatz-Liste ist keine Liste sondern vom Typ {.cls {typeof(dataset_list)}}.")
+# Besteht der Indikator in der Indikatoren-Liste?
+if(length(dataset_info$dataset_name)==0) cli::cli_abort(c("i"="Der Indikator mit der ID {.strong {indicator_id}} ist nicht in der Datensatzliste vorhanden."))
 
-# Extrahiere Indikator-Informationen aus der Liste
-indicator_info <- purrr::keep(ds_list, purrr::map(ds_list, purrr::pluck, "dataset_id") == indicator_id)
+# Extrahiere die Beschreibung, falls eine vorhanden ist
+indicator_name <- ifelse(length(dataset_info$dataset_name)==1,dataset_info$dataset_name,"")
 
-# Check ob der Indikator in der Liste besteht
-if(length(indicator_info)==0) cli::cli_alert_warning("Der Indikator mit der ID {.strong {indicator_id}} ist nicht in der Datensatzliste vorhanden.")
-
-# Beschreibung extrahieren falls ja
-indicator_name <- ifelse(length(indicator_info)==1,indicator_info[[1]]$dataset_name, NA)
-
-# Checke if ein Datensatzbeschrieb besteht
+# Prüfe ob eine Beschreibung hinterlegt ist
 if(is.na(indicator_name)) cli::cli_alert_warning("Der Datensatzbeschrieb ist leer.")
 
 ##  Template -----------
@@ -56,13 +52,18 @@ ds <- download_data(ds)
 
 indicator_data <- ds$data
 
-# Computation: Anzahl & Anteil -----------------------------------------------------
-# Schritt 2 : hier werden Berechnungen vorgenommen
+# Berechnungen -----------------------------------------------------
 
-# BEISPIEL (Fahrzeuge nach Treibstoff) - dieser Block muss an den neuen Indikator angepasst werden  ---------
+# Schritt 2 : Falls die zu publizierenden Werte noch berechnet werden müssen, können hier Aggregierungs- und Transformationsschritte vorgenommen werden.
+
+# Beispiele :
+# - neue Kategorien oder Totale bilden
+# - Anteile berechnen
+# - Umbenennung von Kategorien
+
+# Beispiel : Fahrzeuge nach Treibstoff - dieser Block dient nur der Veranschaulichung ---------
 
 indicator_export_data <- indicator_computed %>%
-# Berechnungen hier (Beispiel : Fahrzeuge nach Treibstoff)
   # Renaming of columns in preparation to bring data into a uniform structure
   dplyr::rename('Gebiet' = Kanton, 'Variable' = Treibstoff, 'Wert' = `Neue Inverkehrsetzungen von Strassenfahrzeugen`) %>%
   # Auxiliary variable for calculating the number of fossil vs. fossil-free passenger cars. Fossil being 'Benzin' + 'Diesel' + 'Gas (mono- und bivalent)'
@@ -90,13 +91,15 @@ indicator_export_data <- indicator_computed %>%
 #  4 2005  Schweiz fossil-free    Anzahl     706
 #  5 2005  Schweiz fossil-free    Total   307161
 
-# Data structure ----------------------------------------------------------
+# Harmonisierung Datenstruktur / Bezeichnungen  ----------------------------------------------------------
+
 # Schritt 3 : Hier werden die Daten in die finale Form gebracht
 
-## https://github.com/statistikZH/decarb_monitoring/tree/dev#export
+# - Angleichung der Spaltennamen / Kategorien und Einheitslabels an die Konvention
+# - Anreicherung mit Metadaten aus der Datensatzliste
 
 indicator_export_data <- indicator_computed %>%
-# BEISPIEL - dieser Block muss an den neuen Indikator angepasst werden--------
+# Beispiel - dieser Block dient nur der Veranschalichung und muss je nach Fall angepasst werden --------
 # dplyr::filter(Einheit != 'Total') %>%
 # dplyr::rename('Variable' = Treibstoff_Typ) %>%
 # # Renaming values
@@ -106,7 +109,7 @@ indicator_export_data <- indicator_computed %>%
 #                                          Einheit == 'Anteil' ~ paste0(ds$dimension_label, ' [%]'),
 #                                          TRUE ~ Einheit)) %>%
 # ----------------------
-# Hinzufügen der Indikatoren-Metadaten zum Datensatz
+# Anreicherung  mit Metadaten
   dplyr::mutate(Indikator_ID = ds$dataset_id,
                 Indikator_Name = ds$dataset_name,
                 Datenquelle = ds$data_source) %>%
@@ -131,6 +134,6 @@ params <- list(indicator_id = indicator_id, indicator_name = indicator_name)
 filled_template <- whisker::whisker.render(template, params)
 
 # Print the filled template
-cat(filled_template, file=paste0("output/",indicator_id, "_computations.R"))
+cat(filled_template, file=paste0("scripts/",indicator_id, "_computations.R"))
 
 }
