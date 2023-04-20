@@ -21,7 +21,8 @@ m8_data <- ds$data %>%
 # Computation: Anzahl & Anzahl pro Einwohner -----------------------------------------------------
 
 ## Getting population data for Kanton Zürich from indicator Q1
-m8_population <- decarbmonitoring::download_per_capita()
+m8_population <- decarbmonitoring::download_per_capita() %>%
+  dplyr::filter(Gebiet == "Kanton Zürich")
 
 
 m8_computed <- m8_data %>%
