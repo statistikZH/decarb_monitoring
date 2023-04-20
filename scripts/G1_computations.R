@@ -82,7 +82,7 @@ g1_computed <- g1_cleaned %>%
 g1_export_data <- g1_computed %>%
   # Renaming values
   dplyr::mutate(Gebiet = dplyr::if_else(Gebiet == "Zürich", "Kanton Zürich", Gebiet),
-                Einheit = dplyr::case_when(Einheit == "Anzahl" ~ "Gebäude [Anz.]",
+                Einheit = dplyr::case_when(Einheit == "Wert" ~ "Gebäude [Anz.]",
                                            Einheit == "Anteil" ~ "Gebäude [%]",
                                            TRUE ~ Einheit)) %>%
   # Manually adding columns for Indikator_ID, Indikator_Name, Einheit and Datenquelle
