@@ -14,7 +14,7 @@
 ## Für Differenzierung auch Parameter 'Gebäudekategorie' mitberücksichtigen.
 
 ## Computations:
-## 1. Anzahl: 'Total' - ('Heizöl' + 'Gas'+ (0.1 * 'Fernwärme'))
+## 1. Anzahl: Hauptenergiequelle der Heizung[alle]
 ## 2. Anteil: 1 - ('Heizöl' + 'Gas'+ (0.1 * 'Fernwärme')) / 'Total'
 
 ## Cross check of the totals with the FSO: https://www.pxweb.bfs.admin.ch/sq/b740e708-f521-4cd5-8eb0-661e1685e6de
