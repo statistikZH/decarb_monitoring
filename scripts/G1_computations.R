@@ -31,58 +31,57 @@ g1_data <- ds$data
 
 # Computation: Anzahl & Anteil -----------------------------------------------------
 
-# Renaming of columns in preparation to bring data into a uniform structure
-g1_data <- g1_data %>%
-  dplyr::rename("Gebiet" = Kanton, "Variable" = `Hauptenergiequelle der Heizung`, "Wert" = Gebäude)
+# Initial data restructuring and renaming before we do the actual computations
+g1_cleaned <- g1_data %>%
+  # Renaming of columns in preparation to bring data into a uniform structure
+  dplyr::rename("Gebiet" = Kanton, "Variable" = `Hauptenergiequelle der Heizung`, "Wert" = Gebäude) %>%
+  # Doing the new grouping of the Variable
+  dplyr::mutate(Variable = dplyr::case_when(Variable %in% c("Holz (generisch)","Holz (Pellets)","Holz (Schnitzel)","Holz (Stückholz)") ~ "Holz",
+                                            Variable == "Sonne (thermisch)" ~ "Sonne",
+                                            Variable %in% c("Wärmepumpe (Wasser)","Wärmepumpe (Luft)","Wärmepumpe (Gas)","Wärmepumpe (Fernwärme)","Wärmepumpe (Erdwärme)","Wärmepumpe (Erdwärmesonde)",
+                                                            "Wärmepumpe (Erdregister)","Wärmepumpe (andere Quelle)","Wärmepumpe (unbestimmte Quelle)") ~ "Wärmepumpe",
+                                            Variable %in% c("Fernwärme (generisch)","Fernwärme (Hochtemperatur)","Fernwärme (Niedertemperatur)") ~"Fernwärme",
+                                            Variable %in% c("Abwärme (innerhalb des Gebäudes)", "Andere", "Keine", "Unbestimmt") ~"Andere",
+                                            TRUE ~ Variable
+                                            )) %>%
+  # Now sum up by the new groups
+  dplyr::group_by(Gebiet, Jahr, Variable) %>%
+  dplyr::summarise(Wert = sum(Wert))
 
-## Splitting Fernwärme into fossil and fossil-free
-## Assigning 10% of heating to means of fossil fuel
-g1_fernwaerme_fossil <- g1_data %>%
-  dplyr::filter(startsWith( Variable, "Fernwärme")) %>%
-  dplyr::mutate(Variable = "Fernwärme fossil") %>%
-  dplyr::group_by(Jahr, Gebiet, Variable) %>%
-  dplyr::summarise(Wert = sum(Wert)) %>%
-  dplyr::ungroup() %>%
-  dplyr::mutate(Wert = Wert * 0.1)
-
-# ...and 90% of heating to means of fossil-free fuel
-g1_fernwaerme_fossilfree <- g1_data %>%
-  dplyr::filter(startsWith( Variable, "Fernwärme")) %>%
-  dplyr::mutate(Variable = "Fernwärme fossil-free") %>%
-  dplyr::group_by(Jahr, Gebiet, Variable) %>%
-  dplyr::summarise(Wert = sum(Wert)) %>%
-  dplyr::ungroup() %>%
-  dplyr::mutate(Wert = Wert * 0.9)
-
-g1_computed <- g1_data %>%
-  # Fernwärme has been calculated separately, so remove it from the data
-  dplyr::filter(!startsWith(Variable, "Fernwärme")) %>%
-  # Add Fernwärme splits (fossil vs. fossil-free) to the data.frame
-  dplyr::bind_rows(g1_fernwaerme_fossil) %>%
-  dplyr::bind_rows(g1_fernwaerme_fossilfree) %>%
-  # Auxiliary variable for calculating the number of buildings with fossil vs. fossil-free sources of heating. Fossil being 'Heizöl'+'Gas'+ (0.1 * 'Fernwärme')
-  dplyr::mutate(Heizquelle = dplyr::if_else(Variable %in% c("Heizöl", "Gas", "Fernwärme fossil"), "fossil", "fossil-free")) %>%
+# Auxiliary variable for calculating the number of buildings with fossil vs. fossil-free sources of heating. Fossil being 'Heizöl'+'Gas'+ (0.1 * 'Fernwärme')
+g1_fossil <- g1_cleaned %>%
+  dplyr::filter(Variable %in% c("Fernwärme", "Heizöl", "Gas")) %>%
+  # Only 10% of Fernwärme are attributed to come from fossil sources
+  dplyr::mutate(Wert = dplyr::if_else(Variable == "Fernwärme", Wert * 0.1, Wert)) %>%
+  dplyr::mutate(Variable = "Fossil") %>%
   # Calculating number of buildings by year, spacial unit, and source of heating
-  dplyr::group_by(Jahr, Gebiet, Heizquelle) %>%
-  dplyr::summarise(Anzahl = sum(Wert)) %>%
-  dplyr::ungroup() %>%
+  dplyr::group_by(Gebiet, Jahr, Variable) %>%
+  dplyr::summarise(Wert = sum(Wert)) %>%
+  dplyr::ungroup()
+
+# Auxiliary variable to computate the Total (Hauptenergiequelle der Heizung[alle])
+g1_total <- g1_cleaned %>%
+  dplyr::group_by(Gebiet, Jahr) %>%
+  dplyr::summarise(Total = sum(Wert))
+
+g1_computed <- g1_cleaned %>%
+  dplyr::bind_rows(g1_fossil) %>%
+  dplyr::left_join(g1_total, by = c("Gebiet", "Jahr")) %>%
   # Adding the total number of buildings by year and spacial unit and calculate the share by source of heating
   dplyr::group_by(Jahr, Gebiet) %>%
-  dplyr::mutate(Total = sum(Anzahl),
-                Anteil = (Anzahl / Total)) %>%
+  dplyr::mutate(Anteil = (Wert / Total)) %>%
+  # We no longer need the Total column, so we drop it
+  dplyr::select(-Total) %>%
   # Convert table to a long format
-  tidyr::pivot_longer(cols = c(Anzahl, Total, Anteil), names_to = "Einheit", values_to = "Wert") %>%
+  tidyr::pivot_longer(cols = c(Wert, Anteil), names_to = "Einheit", values_to = "Wert") %>%
   dplyr::ungroup()
 
 
 # Data structure ----------------------------------------------------------
 
 g1_export_data <- g1_computed %>%
-  dplyr::filter(Einheit != "Total") %>%
-  dplyr::rename("Variable" = Heizquelle) %>%
   # Renaming values
   dplyr::mutate(Gebiet = dplyr::if_else(Gebiet == "Zürich", "Kanton Zürich", Gebiet),
-                Variable = dplyr::if_else(Variable == "fossil", "Hauptquelle der Heizung, fossil", "Hauptquelle der Heizung, fossilfrei"),
                 Einheit = dplyr::case_when(Einheit == "Anzahl" ~ "Gebäude [Anz.]",
                                            Einheit == "Anteil" ~ "Gebäude [%]",
                                            TRUE ~ Einheit)) %>%
