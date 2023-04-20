@@ -1,49 +1,73 @@
-# M1 - Anteil fossilfreie Personenwagen im Fahrzeugbestand ----------------------------------------------------
+# M1 - Antriebsart bei Personenwagen - Fahrzeugbestand ----------------------------------------------------
+
+## Additional remarks:
+## Groupings Antriebsart: 1: Benzin, Diesel; 2: "Hybrid" -> [Benzin-elektrisch: Normal-Hybrid,Diesel-elektrisch: Normal-Hybrid];
+## 3: "PlugIn-Hybrid" ->  [Benzin-elektrisch: Plug-in-Hybrid, Diesel-elektrisch: Plug-in-Hybrid]; 4: Gas [Gas (mono- und bivalent)], Anderer; 5: Wasserstoff; 6: Elektrisch
 
 
 ## Computations:
-## 1. Anzahl: 'Total' - ('Benzin' + 'Diesel')
-## 2. Anteil: 1 - ('Benzin' + 'Diesel') / 'Total'
-
-## Cross check of the totals with the FSO: https://www.pxweb.bfs.admin.ch/sq/d37712cd-4d15-4218-a379-2928bbd9a9a7
-
+## 1. Anzahl: 'Total' (Treibstoffe[alle])
+## 2. Anteil Elektrofahrzeuge (ohne Hybrid): 1 - ('Elektrisch' + 'Wasserstoff') / 'Total'
 
 # Import data -------------------------------------------------------------
 
 ds <- create_dataset("M1")
 ds <- download_data(ds)
 
-m1_data <- ds$data %>%
-  dplyr::rename("Gebiet" = Kanton, "Variable" = Treibstoff, "Wert" = `Bestand der Personenwagen`)
+m1_data <- ds$data
 
 # Computation: Anzahl & Anteil -----------------------------------------------------
 
-m1_computed <- m1_data %>%
-  # Auxiliary variable for calculating the number of fossil vs. fossil-free passenger cars. Fossil being 'Benzin' + 'Diesel'
-  dplyr::mutate(Treibstoff_Typ = dplyr::if_else(Variable %in% c("Benzin", "Diesel"), "fossil", "fossil-free")) %>%
+# Initial data restructuring and renaming before we do the actual computations
+m1_cleaned <- m1_data %>%
+  # Renaming of columns in preparation to bring data into a uniform structure
+  dplyr::rename("Gebiet" = Kanton, "Variable" = Treibstoff, "Wert" = `Bestand der Personenwagen`) %>%
+  # Doing the new grouping of the Variable
+  dplyr::mutate(Variable = dplyr::case_when(Variable %in% c("Benzin", "Diesel") ~ "Benzin, Diesel",
+                                            Variable %in% c("Benzin-elektrisch: Normal-Hybrid","Diesel-elektrisch: Normal-Hybrid") ~ "Hybrid",
+                                            Variable %in% c("Benzin-elektrisch: Plug-in-Hybrid", "Diesel-elektrisch: Plug-in-Hybrid") ~ "PlugIn-Hybrid",
+                                            Variable == "Gas (mono- und bivalent)" ~"Gas",
+                                            Variable == "Anderer" ~"Andere",
+                                            TRUE ~ Variable
+  )) %>%
+  # Now sum up by the new groups
+  dplyr::group_by(Gebiet, Jahr, Variable) %>%
+  dplyr::summarise(Wert = sum(Wert))
+
+# Auxiliary variable for calculating the number of cars counting as Elektrofahrzeuge (ohne Hybrid); being 'Elektrisch'+'Wasserstoff'
+m1_elektro <- m1_cleaned %>%
+  dplyr::filter(Variable %in% c("Elektrisch", "Wasserstoff")) %>%
+  dplyr::mutate(Variable = "Elektrofahrzeuge (ohne Hybrid)") %>%
   # Calculating number of cars by year, spacial unit, and fuel type
-  dplyr::group_by(Jahr, Gebiet, Treibstoff_Typ) %>%
-  dplyr::summarise(Anzahl = sum(Wert)) %>%
-  dplyr::ungroup() %>%
-  # Adding the total number of cars by year and spacial unit and calculate the share by fuel type
+  dplyr::group_by(Gebiet, Jahr, Variable) %>%
+  dplyr::summarise(Wert = sum(Wert)) %>%
+  dplyr::ungroup()
+
+# Auxiliary variable to computate the Total (Treibstoffe[alle])
+m1_total <- m1_cleaned %>%
+  dplyr::group_by(Gebiet, Jahr) %>%
+  dplyr::summarise(Total = sum(Wert))
+
+m1_computed <- m1_cleaned %>%
+  dplyr::bind_rows(m1_elektro) %>%
+  dplyr::left_join(m1_total, by = c("Gebiet", "Jahr")) %>%
+  # Adding the total number of buildings by year and spacial unit and calculate the share by source of heating
   dplyr::group_by(Jahr, Gebiet) %>%
-  dplyr::mutate(Total = sum(Anzahl),
-                Anteil = (Anzahl / Total)) %>%
+  dplyr::mutate(Anteil = (Wert / Total)) %>%
+  # We no longer need the Total column, so we drop it
+  dplyr::select(-Total) %>%
   # Convert table to a long format
-  tidyr::pivot_longer(cols = c(Anzahl, Total, Anteil), names_to = "Einheit", values_to = "Wert") %>%
+  tidyr::pivot_longer(cols = c(Wert, Anteil), names_to = "Einheit", values_to = "Wert") %>%
   dplyr::ungroup()
 
 
 # Data structure ----------------------------------------------------------
 
 m1_export_data <- m1_computed %>%
-  dplyr::filter(Einheit != "Total") %>%
-  dplyr::rename("Variable" = Treibstoff_Typ) %>%
   # Renaming values
   dplyr::mutate(Gebiet = dplyr::if_else(Gebiet == "Zürich", "Kanton Zürich", Gebiet),
-                Variable = dplyr::if_else(Variable == "fossil", "fossiler Treibstoff", "fossilfreier Treibstoff"),
-                Einheit = dplyr::case_when(Einheit == "Anzahl" ~ paste0(ds$dimension_label, " [Anz.]"),
-                                           Einheit == "Anteil" ~ paste0(ds$dimension_label, " [%]"),
+                Einheit = dplyr::case_when(Einheit == "Wert" ~ "Personenwagen [Anz.]",
+                                           Einheit == "Anteil" ~ "Personenwagen [%]",
                                            TRUE ~ Einheit)) %>%
   # Manually adding columns for Indikator_ID, Indikator_Name, Einheit and Datenquelle
   dplyr::mutate(Indikator_ID = ds$dataset_id,
