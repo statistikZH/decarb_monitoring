@@ -26,8 +26,8 @@ m2_cleaned <- m2_data %>%
   dplyr::mutate(Variable = dplyr::case_when(Variable %in% c("Benzin", "Diesel") ~ "Benzin, Diesel",
                                             Variable %in% c("Benzin-elektrisch: Normal-Hybrid","Diesel-elektrisch: Normal-Hybrid") ~ "Hybrid",
                                             Variable %in% c("Benzin-elektrisch: Plug-in-Hybrid", "Diesel-elektrisch: Plug-in-Hybrid") ~ "PlugIn-Hybrid",
-                                            Variable == "Gas (mono- und bivalent)" ~"Gas",
-                                            Variable == "Anderer" ~"Andere",
+                                            Variable == "Gas (mono- und bivalent)" ~ "Gas",
+                                            Variable == "Anderer" ~ "Andere",
                                             TRUE ~ Variable
   )) %>%
   # Now sum up by the new groups
@@ -53,7 +53,7 @@ m2_computed <- m2_cleaned %>%
   dplyr::left_join(m2_total, by = c("Gebiet", "Jahr")) %>%
   # Adding the total number of buildings by year and spacial unit and calculate the share by source of heating
   dplyr::group_by(Jahr, Gebiet) %>%
-  dplyr::mutate(Anteil = (Wert / Total)) %>%
+  dplyr::mutate(Anteil = round((Wert / Total),3)) %>%
   # We no longer need the Total column, so we drop it
   dplyr::select(-Total) %>%
   # Convert table to a long format
