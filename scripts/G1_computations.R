@@ -6,13 +6,16 @@
 ## Data url: https://www.bfs.admin.ch/asset/de/px-x-0902010000_102
 ## Data sources: "Gebäude- und Wohnungsstatistik GWS, BFS"
 
+## Additional remarks:
+## Groupings: 1: Heizöl; 2: Gas; 3: Elektrizität; 4: Holz: [Holz (generisch),Holz (Pellets),Holz (Schnitzel),Holz (Stückholz)];
+## 5: Sonne: [Sonne (thermisch)]; 6: Wärmepumpe: [Wärmepumpe (Wasser),Wärmepumpe (Luft),Wärmepumpe (Gas),Wärmepumpe (Fernwärme),Wärmepumpe (Erdwärme),Wärmepumpe (Erdwärmesonde),Wärmepumpe (Erdregister),Wärmepumpe (andere Quelle),Wärmepumpe (unbestimmte Quelle)];
+## 7: Fernwärme: [Fernwärme (generisch),Fernwärme (Hochtemperatur),Fernwärme (Niedertemperatur)]; 8: Andere: [Abwärme (innerhalb des Gebäudes), Andere, Keine, Unbestimmt]
+## Annahme: 10% der Fernwärme mittels fossilem Energieträger für QS mit den kantonalen Daten vergleichen, die beim Stat. Amt vorliegen.
+## Für Differenzierung auch Parameter 'Gebäudekategorie' mitberücksichtigen.
+
 ## Computations:
 ## 1. Anzahl: 'Total' - ('Heizöl' + 'Gas'+ (0.1 * 'Fernwärme'))
 ## 2. Anteil: 1 - ('Heizöl' + 'Gas'+ (0.1 * 'Fernwärme')) / 'Total'
-
-## Additional remarks:
-## Annahme: 10% der Fernwärme mittels fossilem Energieträger für QS mit den kantonalen Daten vergleichen, die beim Stat. Amt vorliegen.
-## Für Differenzierung auch Parameter 'Gebäudekategorie' mitberücksichtigen.
 
 ## Cross check of the totals with the FSO: https://www.pxweb.bfs.admin.ch/sq/b740e708-f521-4cd5-8eb0-661e1685e6de
 
