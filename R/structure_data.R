@@ -102,7 +102,7 @@ structure_data.G1 <- function(ds){
 #' @examples
 structure_data.Q1 <- function(ds){
 
-  dimension_col <- rlang::sym(ds$dimension_col)
+  dimension_col <- rlang::sym(ds$dimension1_col)
   dimension_unit <- rlang::sym(ds$dimension_unit)
   gebiet_col <- rlang::sym(ds$gebiet_col)
 
