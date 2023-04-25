@@ -4,7 +4,7 @@
 \alias{export_data}
 \title{Title}
 \usage{
-export_data(ds)
+export_data(ds, interactive = TRUE)
 }
 \arguments{
 \item{ds}{}
