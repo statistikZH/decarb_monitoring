@@ -4,7 +4,7 @@
 #'
 #' @return script
 #'
-#' @import whisker whisker.render
+#'
 #'
 #' @export
 #'
@@ -50,7 +50,7 @@ ds <- download_data(ds)
 
 # Dieses Objekt dient als Grundlage zur Weiterverarbeitung
 
-indicator_data <- ds$data
+{{indicator_id}}_data <- ds$data
 
 # Berechnungen -----------------------------------------------------
 
@@ -63,7 +63,7 @@ indicator_data <- ds$data
 
 # Beispiel : Fahrzeuge nach Treibstoff - dieser Block dient nur der Veranschaulichung ---------
 
-indicator_export_data <- indicator_computed %>%
+{{indicator_id}}_computed <- {{indicator_id}}_data %>%
   # Renaming of columns in preparation to bring data into a uniform structure
   dplyr::rename('Gebiet' = Kanton, 'Variable' = Treibstoff, 'Wert' = `Neue Inverkehrsetzungen von Strassenfahrzeugen`) %>%
   # Auxiliary variable for calculating the number of fossil vs. fossil-free passenger cars. Fossil being 'Benzin' + 'Diesel' + 'Gas (mono- und bivalent)'
@@ -98,7 +98,7 @@ indicator_export_data <- indicator_computed %>%
 # - Angleichung der Spaltennamen / Kategorien und Einheitslabels an die Konvention
 # - Anreicherung mit Metadaten aus der Datensatzliste
 
-indicator_export_data <- indicator_computed %>%
+{{indicator_id}}_export_data <- {{indicator_id}}_computed %>%
 # Beispiel - dieser Block dient nur der Veranschalichung und muss je nach Fall angepasst werden --------
 # dplyr::filter(Einheit != 'Total') %>%
 # dplyr::rename('Variable' = Treibstoff_Typ) %>%
@@ -115,15 +115,14 @@ indicator_export_data <- indicator_computed %>%
                 Datenquelle = ds$data_source) %>%
   dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
 
+# assign data to be exported back to the initial ds object -> ready to export
+ds$export_data <- {{indicator_id}}_export_data
+
 # Export CSV --------------------------------------------------------------
 
 # Daten werden in den /output - Ordner geschrieben
 
-export_data(ds)
-
-# output_file <- paste0(indicator, '_data.csv')
-#
-# utils::write.table(m5_export_data, paste0('./output/', output_file), fileEncoding = 'UTF-8', row.names = FALSE, sep = ',')"
+export_data(ds)"
 
 # Vorlage-Skript generieren ----
 
