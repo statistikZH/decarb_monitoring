@@ -1,14 +1,10 @@
 # A1 - Abfallmenge verbrannt in KVA Kanton Zürich ----------------------------------------------------
-## Indicator:
-indicator_id <- "A1"
-indicator_name <- "Abfallmenge verbrannt in KVA"
-## Variable:
-variable <- "Recycled Waste"
+
+## Variable: "Recycled Waste"
 ## Spatial unit: Schweiz and Kanton Zürich
 ## Temporal unit: starting 2010
 ## Data url: https://opendata.swiss/de/dataset/kehrichtverbrennungsanlagen-kva
-## Data sources:
-data_source <- "Bundesamt für Energie"
+## Data sources: "Bundesamt für Energie"
 
 ## Computations:
 ## 1.Verwertete Abfallmenge: t/a
@@ -18,23 +14,19 @@ data_source <- "Bundesamt für Energie"
 
 # Import data -------------------------------------------------------------
 
-## Set the range of the time series defined in data file
-access_url <- "https://data.geo.admin.ch/ch.bfe.kehrichtverbrennungsanlagen/kehrichtverbrennungsanlagen/kehrichtverbrennungsanlagen_2056.csv.zip"
+ds <- create_dataset("A1")
+ds <- download_data(ds)
 
-file_name <- "RecycledWaste.csv"
-
-## Download zip folder, unzip, extract csv file...
-a1_data <- get_zip_data(access_url, file_name) %>%
+a1_data <- ds$data %>%
   # Renaming of columns in preparation to bring data into a uniform structure
   dplyr::rename("Gebiet" = id) %>%
   tidyr::pivot_longer(cols = matches("(\\d){4}"), names_to = "Jahr", values_to = "Wert")
 
+
 # Computation: Abfallmenge (t/a) & Abfallmenge pro Einwohner (t/a/Einw.) -----------------------------------------------------
 
-## Getting population data for Kanton Zürich from indicator Q1
-a1_population <- data.table::fread("output/Q1_data.csv") %>%
-  # dplyr::filter(Gebiet == "Kanton Zürich") %>%
-  dplyr::select(Jahr, Gebiet, "Einwohner" = Wert)
+## Getting population data for Kanton Zürich from indicator Q1 with helper function
+a1_population <- decarbmonitoring::download_per_capita()
 
 a1_computed <- a1_data %>%
   # Compute Wert for Schweiz (sum of all values)
@@ -70,18 +62,17 @@ a1_export_data <- a1_computed %>%
                 Einheit = dplyr::if_else(Einheit == "Value", "Tonnen pro Jahr (t/a)", Einheit)) %>%
   dplyr::select(-Unit) %>%
   # Manually adding columns for Indikator_ID, Indikator_Name, Einheit and Datenquelle
-  dplyr::mutate(Indikator_ID = indicator_id,
-                Indikator_Name = indicator_name,
-                Variable = variable,
-                Datenquelle = data_source) %>%
+  dplyr::mutate(Indikator_ID = ds$dataset_id,
+                Indikator_Name = ds$dataset_name,
+                Variable = "Recycled Waste",
+                Datenquelle = ds$data_source) %>%
   dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
+
+# assign data to be exported back to the initial ds object -> ready to export
+ds$export_data <- a1_export_data
 
 # Export CSV --------------------------------------------------------------
 
 ## Temporarily storing export files in Gitea repo > output folder
 ## Naming convention for CSV files: [indicator number]_data.csv
-dir.create("output", showWarnings = FALSE)
-
-output_file <- paste0(indicator_id, "_data.csv")
-
-utils::write.table(a1_export_data, paste0("./output/", output_file), fileEncoding = "UTF-8", row.names = FALSE, sep = ",")
+export_data(ds)
