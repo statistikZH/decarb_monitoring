@@ -1,0 +1,3 @@
+"Jahr","Gebiet","Indikator_ID","Indikator_Name","Variable","Wert","Einheit","Datenquelle"
+2021,"Flughafen Zürich","KG2","Anteil erneuerbares Kerosin an totalem Kerosin Flughafen Zürich","Erneuerbares Kerosin",591,"Tonnen Kerosin","Bundesamt für Zivilluftfahrt (BAZL)"
+2021,"Flughafen Zürich","KG2","Anteil erneuerbares Kerosin an totalem Kerosin Flughafen Zürich","Erneuerbares Kerosin",0.000841850361454364,"Tonnen Kerosin [%]","Bundesamt für Zivilluftfahrt (BAZL)"
