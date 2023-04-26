@@ -1,15 +1,15 @@
-# IG1 - Installierte Leistung fossil betriebener Anlagen grösser 1 MW gemäss Grossfeuerungsdatenbank ----------------------------------------------------
+# IG3 - Treibhauswirkung Kältemittel in grösseren Kälteanlagen ----------------------------------------------------
 
 
 # Import data -------------------------------------------------------------
 # Schritt 1 : hier werden die Daten eingelesen
 
-ds <- create_dataset('IG1')
+ds <- create_dataset('IG3')
 ds <- download_data(ds)
 
 # Dieses Objekt dient als Grundlage zur Weiterverarbeitung
 
-IG1_data <- ds$data
+IG3_data <- ds$data
 
 # Berechnungen -----------------------------------------------------
 
@@ -21,10 +21,12 @@ IG1_data <- ds$data
 # - Umbenennung von Kategorien
 
 # keine computation nötig
-IG1_computed <- IG1_data %>%
+IG3_computed <- IG3_data %>%
   # Renaming of columns in preparation to bring data into a uniform structure
-  dplyr::rename('Variable' = Brennstoff, 'Wert' = Leistung, 'Einheit' = `Einheit Leistung`) %>%
-  dplyr::mutate(Gebiet = "Kanton Zürich")
+  dplyr::rename('Wert' = durchschnittliches_GWP) %>%
+  dplyr::mutate(Gebiet = "Kanton Zürich",
+                Variable = "Durchschnittliche Treibhauswirkung (Global Warming Potential - GWP)")
+
 
 # Die Voraussetzung für den letzten Schritt (3) ist ein Datensatz im long Format nach folgendem Beispiel:
 
@@ -44,7 +46,7 @@ IG1_computed <- IG1_data %>%
 # - Angleichung der Spaltennamen / Kategorien und Einheitslabels an die Konvention
 # - Anreicherung mit Metadaten aus der Datensatzliste
 
-IG1_export_data <- IG1_computed %>%
+IG3_export_data <- IG3_computed %>%
 # Anreicherung  mit Metadaten
   dplyr::mutate(Indikator_ID = ds$dataset_id,
                 Indikator_Name = ds$dataset_name,
@@ -52,7 +54,7 @@ IG1_export_data <- IG1_computed %>%
   dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
 
 # assign data to be exported back to the initial ds object -> ready to export
-ds$export_data <- IG1_export_data
+ds$export_data <- IG3_export_data
 
 # Export CSV --------------------------------------------------------------
 

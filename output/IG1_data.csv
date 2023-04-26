@@ -1,0 +1,3 @@
+"Jahr","Gebiet","Indikator_ID","Indikator_Name","Variable","Wert","Einheit","Datenquelle"
+2022,"Kanton Zürich","IG1","Installierte Leistung fossil betriebener Anlagen grösser 1 MW gemäss Grossfeuerungsdatenbank","Erdgas",461598,"kW","Amt für Abfall, Wasser, Energie und Luft des Kantons Zürich"
+2022,"Kanton Zürich","IG1","Installierte Leistung fossil betriebener Anlagen grösser 1 MW gemäss Grossfeuerungsdatenbank","Heizöl",542817,"kW","Amt für Abfall, Wasser, Energie und Luft des Kantons Zürich"
