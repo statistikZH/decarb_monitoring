@@ -54,11 +54,13 @@ read_data.default<- function(ds){
   # Passing all arguments that are required for both XLSX (which = sheet number)
   # and CSV (header definition).rio takes care of the rest.
   # The data gets appended to the ds and later be called as ds$data
-  ds$data <-  rio::import(
-    ds$read_path,
-    which = ds$which_data,
-    header = TRUE
-  )
+  withr::with_envvar(new = c("no_proxy" = "dam-api.bfs.admin.ch"),
+                     code = ds$data <-  rio::import(
+                       ds$read_path,
+                       which = ds$which_data,
+                       header = TRUE
+                     ))
+
 
 
 
