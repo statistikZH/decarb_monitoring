@@ -25,6 +25,7 @@ create_dataset <- function(dataset_id) {
       DATASET_ID,
       DATA_ORGANIZATION,
       DATASET_NAME,
+      INDICATOR_NAME,
       DOWNLOAD_FORMAT,
       DATA_URL,
       DATA_ID,
