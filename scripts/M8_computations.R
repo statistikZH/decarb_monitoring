@@ -29,11 +29,11 @@ m8_computed <- m8_data %>%
   # Joining population data
   dplyr::left_join(m8_population, by = "Jahr") %>%
   # Compute per capita
-  dplyr::mutate(`GWh pro Einwohner` = Wert / Einwohner) %>%
+  dplyr::mutate(`MWh pro Einwohner` = (Wert / Einwohner)*1000) %>% # pro Einwohner wird in MWh angegeben
   dplyr::rename("Unit" = Einheit, "Value" = Wert) %>%
   dplyr::select(-Einwohner) %>%
   # Convert table to a long format
-  tidyr::pivot_longer(cols = c(Value, `GWh pro Einwohner`), names_to = "Einheit", values_to = "Wert") %>%
+  tidyr::pivot_longer(cols = c(Value, `MWh pro Einwohner`), names_to = "Einheit", values_to = "Wert") %>%
   dplyr::ungroup()
 
 
@@ -41,10 +41,10 @@ m8_computed <- m8_data %>%
 
 m8_export_data <- m8_computed %>%
   # Renaming values
-  dplyr::mutate(Einheit = dplyr::if_else(Einheit == "Value", "Gigawattstunden (GWh)", "Gigawattstunden pro Einwohner (GWh pro Einw.)")) %>%
+  dplyr::mutate(Einheit = dplyr::if_else(Einheit == "Value", "Gigawattstunden (GWh)", "Megawattstunden pro Einwohner (MWh pro Einw.)")) %>%
   # Manually adding columns for Indikator_ID, Indikator_Name, Einheit and Datenquelle
   dplyr::mutate(Indikator_ID = ds$dataset_id,
-                Indikator_Name = ds$dataset_name,
+                Indikator_Name = ds$indicator_name,
                 Variable = ds$dimension1_name,
                 Datenquelle = ds$data_source) %>%
   dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
