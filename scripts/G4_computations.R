@@ -19,8 +19,8 @@ g4_export_data <- g4_data %>%
   dplyr::slice(1) %>%
   dplyr::mutate(dplyr::across(.fns = as.numeric)) %>%
   tidyr::pivot_longer(cols = everything(), names_to = c("Jahr"), values_to = "Wert") %>%
-  dplyr::mutate(Gebiet = "Kanton Zürich",
-                Einheit = paste("Anzahl", ds$dataset_name,"[Anz.]", sep = " ")) %>%
+  dplyr::mutate(Gebiet = "Zürich Fluntern",
+                Einheit = ds$dimension_unit) %>%
   # Manually adding columns for Indikator_ID, Indikator_Name, Einheit and Datenquelle
   dplyr::mutate(Indikator_ID = ds$dataset_id,
                 Indikator_Name = ds$dataset_name,
