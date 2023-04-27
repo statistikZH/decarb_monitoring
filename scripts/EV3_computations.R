@@ -16,8 +16,10 @@ EV3_data <- ds$data
 EV3_computed <- EV3_data %>%
   dplyr::mutate(Gebiet = ds$gebiet_name) %>%
   tidyr::pivot_wider(names_from = Strom, values_from = Wert) %>%
-  dplyr::mutate(anteil_erneurbar = erneuerbar / total) %>%
-  tidyr::pivot_longer(cols = c(total, erneuerbar, anteil_erneurbar), values_to = "Wert")
+  dplyr::mutate(nicht_erneuerbar = total - erneuerbar,
+                anteil_erneuerbar = erneuerbar / total,
+                anteil_nicht_erneuerbar = (total - erneuerbar) / total) %>%
+  tidyr::pivot_longer(cols = c(total, erneuerbar, nicht_erneuerbar, anteil_erneuerbar, anteil_nicht_erneuerbar), values_to = "Wert")
 
 # Die Voraussetzung für den letzten Schritt (3) ist ein Datensatz im long Format nach folgendem Beispiel:
 
@@ -43,10 +45,10 @@ EV3_export_data <- EV3_computed %>%
   # Renaming values
   dplyr::mutate(Gebiet = "Kanton Zürich",
                 Einheit = dplyr::case_when(
-                  Variable == "erneuerbar" ~ "MWh",
-                  TRUE ~ "Mwh [%]"
+                  Variable %in% c("erneuerbar", "nicht_erneuerbar") ~ "Megawattstunde (MWh)",
+                  TRUE ~ "Prozent (%)"
                 )) %>%
-  dplyr::mutate(Variable = "Erneuerbar erzeugter Strom") %>%
+  dplyr::mutate(Variable = dplyr::if_else(Variable %in% c("erneuerbar", "anteil_erneuerbar"), "Erneuerbar erzeugter Strom", "Nicht-erneuerbar erzeugter Strom")) %>%
 # Anreicherung  mit Metadaten
   dplyr::mutate(Indikator_ID = ds$dataset_id,
                 Indikator_Name = ds$dataset_name,
