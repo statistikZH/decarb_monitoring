@@ -1,15 +1,21 @@
-# KG1 - Verbrauchsmengen nach Grossregion - Fleisch ----------------------------------------------------
+# KG4 - Treibhausgas-Fussabdruck ----------------------------------------------------
 
 
 # Import data -------------------------------------------------------------
 # Schritt 1 : hier werden die Daten eingelesen
 
-ds <- create_dataset('KG1')
+ds <- create_dataset('KG4')
 ds <- download_data(ds)
 
 # Dieses Objekt dient als Grundlage zur Weiterverarbeitung
 
-KG1_data <- ds$data
+KG4_data <- ds$data
+
+# Einlesen von Populationsdaten für per_capita
+KG4_pop <- decarbmonitoring::download_per_capita() %>%
+  dplyr::filter(Gebiet == "Schweiz")
+
+
 
 # Berechnungen -----------------------------------------------------
 
@@ -22,11 +28,20 @@ KG1_data <- ds$data
 
 # Beispiel : Fahrzeuge nach Treibstoff - dieser Block dient nur der Veranschaulichung ---------
 
-KG1_computed <- KG1_data %>%
+KG4_computed <- KG4_data %>%
+  # HIER JEDES JAHR ANPASSEN!
+  dplyr::slice(5:25) %>%
   # Renaming of columns in preparation to bring data into a uniform structure
-  dplyr::rename('Gebiet' = Region, 'Wert' = Konsum_Jahr) %>%
-  dplyr::mutate(Variable = ds$dimension_label)
-
+  dplyr::rename("Jahr" = 1, "Wert" = 2) %>%
+  dplyr::mutate(Jahr = as.numeric(Jahr),
+                Wert = as.numeric(Wert)) %>%
+  # Join mit Populationsdaten um Pro-Kopf zu berechnen
+  dplyr::left_join(KG4_pop, by = "Jahr") %>%
+  # nur Jahre mit Einwohnerdaten behalten
+  tidyr::drop_na() %>%
+  # Pro-Kopf berechnen
+  dplyr::mutate(per_capita = Wert / Einwohner) %>%
+  dplyr::mutate(Einheit = "Mio. Tonnen CO2-eq (pro Kopf)")
 # Die Voraussetzung für den letzten Schritt (3) ist ein Datensatz im long Format nach folgendem Beispiel:
 
 # # A tibble: 216 × 5
@@ -45,19 +60,19 @@ KG1_computed <- KG1_data %>%
 # - Angleichung der Spaltennamen / Kategorien und Einheitslabels an die Konvention
 # - Anreicherung mit Metadaten aus der Datensatzliste
 
-KG1_export_data <- KG1_computed %>%
-  dplyr::mutate(Gebiet = dplyr::case_when(
-    Gebiet == "Zürich" ~ "Kanton Zürich",
-    TRUE ~ Gebiet
-  )) %>%
-# Anreicherung  mit Metadaten
+KG4_export_data <- KG4_computed %>%
+  # Total wird nicht mehr benötigt
+  dplyr::select(-Wert) %>%
+  dplyr::rename("Wert" = "per_capita") %>%
+  dplyr::mutate(Variable = "Treibhausgas") %>%
+  # Anreicherung  mit Metadaten
   dplyr::mutate(Indikator_ID = ds$dataset_id,
                 Indikator_Name = ds$dataset_name,
                 Datenquelle = ds$data_source) %>%
   dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
 
 # assign data to be exported back to the initial ds object -> ready to export
-ds$export_data <- KG1_export_data
+ds$export_data <- KG4_export_data
 
 # Export CSV --------------------------------------------------------------
 
