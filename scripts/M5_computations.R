@@ -16,7 +16,10 @@ m5_data_ch <- ds$data_dep
 
 # First, we reshape both datasets to have the same long format
 co2_long <- ds$data %>%
-  tidyr::pivot_longer(cols = -date, names_to = "Canton", values_to = "Mean_CO2")
+  tidyr::pivot_longer(cols = -date, names_to = "Canton", values_to = "Mean_CO2") %>%
+  dplyr::mutate(date = dplyr::case_when( #temporary fix as the original data has an error!
+    date == 20201101 ~ 20210101, # replace 11th January 2020 with 1st January 2021
+    TRUE ~ as.numeric(date)))
 
 car_long <- ds$data_dep %>%
   tidyr::pivot_longer(cols = -date, names_to = "Canton", values_to = "Num_Cars")
@@ -25,9 +28,6 @@ car_long <- ds$data_dep %>%
 combined_data <- co2_long %>%
   dplyr::inner_join(car_long, by = c("date", "Canton")) %>%
   dplyr::rename("Jahr" = date) %>%
-  dplyr::mutate(Jahr = dplyr::case_when( #temporary fix as the original data has an error!
-    Jahr == 20201101 ~ 20210101, # replace 11th January 2020 with 1st January 2021
-    TRUE ~ as.numeric(Jahr))) %>%
   dplyr::mutate(Jahr = lubridate::ymd(Jahr))
 
 
