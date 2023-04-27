@@ -6,23 +6,26 @@
 ds <- create_dataset("M6")
 ds <- download_data(ds)
 
-m6_data <- ds$data
+m6_data_oev <- ds$data
+m6_data_miv <- ds$data_dep
+
 
 # Computation - None  -----------------------------------------------------
 
 
 # Data structure ----------------------------------------------------------
 
-m6_export_data <- m6_data %>%
+m6_export_data <- m6_data_oev %>%
+  dplyr::bind_rows(m6_data_miv) %>%
   dplyr::filter(GEBIET_NAME == "Zürich - ganzer Kanton") %>%
   dplyr::rename("Gebiet" = GEBIET_NAME, "Variable" = INDIKATOR_NAME, "Wert" = INDIKATOR_VALUE, "Jahr" = INDIKATOR_JAHR) %>%
   dplyr::select(Jahr, Gebiet, Variable, Wert) %>%
   dplyr::mutate(Gebiet = "Kanton Zürich",
-                Variable = "ÖV-Anteil (Modal Split)",
+                Variable = dplyr::if_else(Variable == "MIV-Anteil (Modal Split) [%]", "MIV", "ÖV"),
                 Wert = Wert / 100,
                 Indikator_ID = ds$dataset_id,
-                Indikator_Name = ds$dataset_name,
-                Einheit = "Verkehrsmittelwahl [%]",
+                Indikator_Name = ds$indicator_name,
+                Einheit = "Prozent (%)",
                 Datenquelle = ds$data_source) %>%
   dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
 
