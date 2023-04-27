@@ -12,8 +12,10 @@ g2_data <- ds$data
 g2_computed <- g2_data %>%
   dplyr::mutate(Gebiet = ds$gebiet_name) %>%
   tidyr::pivot_wider(names_from = Waerme, values_from = Wert) %>%
-  dplyr::mutate(anteil_erneurbar = erneuerbar / total) %>%
-  tidyr::pivot_longer(cols = c(total, erneuerbar, anteil_erneurbar), values_to = "Wert")
+  dplyr::mutate(nicht_erneuerbar = total - erneuerbar,
+                anteil_erneuerbar = erneuerbar / total,
+                anteil_nicht_erneuerbar = (total - erneuerbar) / total) %>%
+  tidyr::pivot_longer(cols = c(total, erneuerbar, nicht_erneuerbar, anteil_erneuerbar, anteil_nicht_erneuerbar), values_to = "Wert")
 
 
 # Data structure ----------------------------------------------------------
@@ -21,13 +23,13 @@ g2_export_data <- g2_computed %>%
     dplyr::filter(name != "total") %>%
     dplyr::rename("Variable" = name) %>%
     # Renaming values
-    dplyr::mutate(Gebiet = "Kanton Zürich",
-                  Einheit = dplyr::case_when(
-                    Variable == "erneuerbar" ~ "Megawattstunden (MWh)",
-                    TRUE ~ "Prozent (%)"
-                  )) %>%
-    dplyr::mutate(Variable = "Erneuerbare Wärme") %>%
-    # Manually adding columns for Indikator_ID, Indikator_Name, Einheit and Datenquelle
+  dplyr::mutate(Gebiet = "Kanton Zürich",
+                Einheit = dplyr::case_when(
+                  Variable %in% c("erneuerbar", "nicht_erneuerbar") ~ ds$dimension_label,
+                  TRUE ~ "Prozent (%)"
+                )) %>%
+  dplyr::mutate(Variable = dplyr::if_else(Variable %in% c("erneuerbar", "anteil_erneuerbar"), "Erneuerbare Energieträger", "Nicht-erneuerbare Energieträger")) %>%
+  # Manually adding columns for Indikator_ID, Indikator_Name, Einheit and Datenquelle
     dplyr::mutate(Indikator_ID = ds$dataset_id,
                   Indikator_Name = ds$indicator_name,
                   Datenquelle = ds$data_source) %>%
