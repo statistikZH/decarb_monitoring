@@ -45,7 +45,7 @@ EV3_export_data <- EV3_computed %>%
   # Renaming values
   dplyr::mutate(Gebiet = "Kanton Zürich",
                 Einheit = dplyr::case_when(
-                  Variable %in% c("erneuerbar", "nicht_erneuerbar") ~ "Megawattstunde (MWh)",
+                  Variable %in% c("erneuerbar", "nicht_erneuerbar") ~ ds$dimension_label,
                   TRUE ~ "Prozent (%)"
                 )) %>%
   dplyr::mutate(Variable = dplyr::if_else(Variable %in% c("erneuerbar", "anteil_erneuerbar"), "Erneuerbar erzeugter Strom", "Nicht-erneuerbar erzeugter Strom")) %>%
