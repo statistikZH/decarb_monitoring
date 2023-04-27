@@ -19,8 +19,10 @@ KG2_data <- ds$data
 KG2_computed <- KG2_data %>%
   # wide format für Berechnung
   tidyr::pivot_wider(names_from = Treibstoff, values_from = Kerosin) %>%
-  dplyr::mutate(Anteil_SAF = SAF / total) %>%
-  tidyr::pivot_longer(cols = c(total, SAF, Anteil_SAF), values_to = "Wert")
+  dplyr::mutate(Total_Kerosin = total,
+                Anteil_SAF = SAF / total,
+                Anteil_nicht_SAF = (total-SAF)/total) %>%
+  tidyr::pivot_longer(cols = c(Total_Kerosin, SAF, Anteil_SAF, Anteil_nicht_SAF), values_to = "Wert")
 
 # Die Voraussetzung für den letzten Schritt (3) ist ein Datensatz im long Format nach folgendem Beispiel:
 
@@ -41,15 +43,15 @@ KG2_computed <- KG2_data %>%
 # - Anreicherung mit Metadaten aus der Datensatzliste
 
 KG2_export_data <- KG2_computed %>%
-  dplyr::filter(name != "total") %>%
+  dplyr::select(-total) %>%
   dplyr::rename("Variable" = name) %>%
   # Renaming values
   dplyr::mutate(Gebiet = "Flughafen Zürich",
                 Einheit = dplyr::case_when(
-                  Variable == "SAF" ~ "Tonnen Kerosin",
-                  TRUE ~ "Tonnen Kerosin [%]"
+                  Variable %in% c("Total_Kerosin", "SAF") ~ "Tonnen (t)",
+                  TRUE ~ "%"
                 )) %>%
-  dplyr::mutate(Variable = "Erneuerbares Kerosin") %>%
+  dplyr::mutate(Variable = dplyr::if_else(Variable %in% c("SAF", "Anteil_SAF"), "Erneuerbares Kerosin", "Total Kerosin")) %>%
   # Manually adding columns for Indikator_ID, Indikator_Name, Einheit and Datenquelle
   dplyr::mutate(Indikator_ID = ds$dataset_id,
                 Indikator_Name = ds$dataset_name,
