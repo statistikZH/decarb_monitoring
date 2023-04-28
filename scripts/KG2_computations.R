@@ -54,7 +54,7 @@ KG2_export_data <- KG2_computed %>%
   dplyr::mutate(Variable = dplyr::if_else(Variable %in% c("SAF", "Anteil_SAF"), "Erneuerbares Kerosin", "Fossiles Kerosin")) %>%
   # Manually adding columns for Indikator_ID, Indikator_Name, Einheit and Datenquelle
   dplyr::mutate(Indikator_ID = ds$dataset_id,
-                Indikator_Name = ds$dataset_name,
+                Indikator_Name = ds$indicator_name,
                 Datenquelle = ds$data_source) %>%
   dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
 
