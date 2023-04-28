@@ -67,7 +67,7 @@ m5_export_data <- m5_data_zh %>%
   dplyr::mutate(Variable = ds$dimension_label,
                 Indikator_ID = ds$dataset_id,
                 Einheit = ds$dimension_unit,
-                Indikator_Name = ds$dataset_name,
+                Indikator_Name = ds$indicator_name,
                 Datenquelle = ds$data_source) %>%
   dplyr::mutate(Jahr = lubridate::year(Jahr)) %>%
   dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
