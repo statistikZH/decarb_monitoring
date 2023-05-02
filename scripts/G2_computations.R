@@ -28,7 +28,7 @@ g2_export_data <- g2_computed %>%
                   Variable %in% c("erneuerbar", "nicht_erneuerbar") ~ ds$dimension_label,
                   TRUE ~ "Prozent (%)"
                 )) %>%
-  dplyr::mutate(Variable = dplyr::if_else(Variable %in% c("erneuerbar", "anteil_erneuerbar"), "Erneuerbare Energieträger", "Nicht-erneuerbare Energieträger")) %>%
+  dplyr::mutate(Variable = dplyr::if_else(Variable %in% c("erneuerbar", "anteil_erneuerbar"), "Erneuerbar", "Nicht-erneuerbar")) %>%
   # Manually adding columns for Indikator_ID, Indikator_Name, Einheit and Datenquelle
     dplyr::mutate(Indikator_ID = ds$dataset_id,
                   Indikator_Name = ds$indicator_name,
