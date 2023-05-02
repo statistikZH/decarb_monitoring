@@ -54,11 +54,11 @@ EV2_computed <- EV2_data %>%
 EV2_export_data <- EV2_computed %>%
   # Renaming values
   dplyr::mutate(Einheit = dplyr::case_when(Einheit == "Total" ~ "Megawattstunden (MWh)",
-                                           Einheit == "per_capita" ~ "Megawattstunden (MWh) pro EinwohnerIn",
+                                           Einheit == "per_capita" ~ "Megawattstunden pro Person (MWh/Person)",
                                            TRUE ~ Einheit)) %>%
   # Manually adding columns for Indikator_ID, Indikator_Name, Einheit and Datenquelle
   dplyr::mutate(Indikator_ID = ds$dataset_id,
-                Indikator_Name = ds$dataset_name,
+                Indikator_Name = ds$indicator_name,
                 Datenquelle = ds$data_source,
                 Variable = "Strom aus erneuerbaren Energieträgern") %>%
   dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
