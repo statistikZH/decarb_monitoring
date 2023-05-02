@@ -41,16 +41,16 @@ a1_computed <- a1_data %>%
   dplyr::filter(Gebiet %in% c("Schweiz", "Kanton Zürich")) %>%
   # Compute Wert for Kanton Zürich (sum of all values for Gebiet == "Kanton Zürich")
   dplyr::group_by(Jahr, Gebiet) %>%
-  dplyr::summarize(Wert = sum(Wert, na.rm = T), Einheit = "Tonnen pro Jahr (t/a)") %>%
+  dplyr::summarize(Wert = sum(Wert, na.rm = T), Einheit = "Tonnen (t)") %>%
   dplyr::ungroup() %>%
   # Joining population data
   dplyr::left_join(a1_population, by = c("Jahr", "Gebiet")) %>%
   # Compute per capita
-  dplyr::mutate(`Tonnen pro Person (t/a/Person)` = Wert / Einwohner) %>%
+  dplyr::mutate(`Tonnen pro Person (t/Person)` = Wert / Einwohner) %>%
   dplyr::rename("Unit" = Einheit, "Value" = Wert) %>%
   dplyr::select(-Einwohner) %>%
   # Convert table to a long format
-  tidyr::pivot_longer(cols = c(Value, `Tonnen pro Person (t/a/Person)`), names_to = "Einheit", values_to = "Wert") %>%
+  tidyr::pivot_longer(cols = c(Value, `Tonnen pro Person (t/Person)`), names_to = "Einheit", values_to = "Wert") %>%
   dplyr::ungroup()
 
 
@@ -59,7 +59,7 @@ a1_computed <- a1_data %>%
 a1_export_data <- a1_computed %>%
   # Renaming values
   dplyr::mutate(Gebiet = dplyr::if_else(Gebiet == "Zürich", "Kanton Zürich", Gebiet),
-                Einheit = dplyr::if_else(Einheit == "Value", "Tonnen pro Jahr (t/a)", Einheit)) %>%
+                Einheit = dplyr::if_else(Einheit == "Value", "Tonnen (t)", Einheit)) %>%
   dplyr::select(-Unit) %>%
   # Manually adding columns for Indikator_ID, Indikator_Name, Einheit and Datenquelle
   dplyr::mutate(Indikator_ID = ds$dataset_id,
