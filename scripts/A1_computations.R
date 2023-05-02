@@ -46,11 +46,11 @@ a1_computed <- a1_data %>%
   # Joining population data
   dplyr::left_join(a1_population, by = c("Jahr", "Gebiet")) %>%
   # Compute per capita
-  dplyr::mutate(`Tonnen pro Jahr pro Einwohner (t/a/Einw.)` = Wert / Einwohner) %>%
+  dplyr::mutate(`Tonnen pro Person (t/a/Person)` = Wert / Einwohner) %>%
   dplyr::rename("Unit" = Einheit, "Value" = Wert) %>%
   dplyr::select(-Einwohner) %>%
   # Convert table to a long format
-  tidyr::pivot_longer(cols = c(Value, `Tonnen pro Jahr pro Einwohner (t/a/Einw.)`), names_to = "Einheit", values_to = "Wert") %>%
+  tidyr::pivot_longer(cols = c(Value, `Tonnen pro Person (t/a/Person)`), names_to = "Einheit", values_to = "Wert") %>%
   dplyr::ungroup()
 
 
@@ -63,7 +63,7 @@ a1_export_data <- a1_computed %>%
   dplyr::select(-Unit) %>%
   # Manually adding columns for Indikator_ID, Indikator_Name, Einheit and Datenquelle
   dplyr::mutate(Indikator_ID = ds$dataset_id,
-                Indikator_Name = ds$dataset_name,
+                Indikator_Name = ds$indicator_name,
                 Variable = "Recycled Waste",
                 Datenquelle = ds$data_source) %>%
   dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
