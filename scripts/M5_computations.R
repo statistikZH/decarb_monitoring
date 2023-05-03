@@ -48,7 +48,7 @@ combined_data <- combined_data %>%
 # Calculate the overall mean CO2 value for the country per year
 overall_mean_CO2 <- combined_data %>%
   dplyr::group_by(Jahr) %>%
-  dplyr::summarize(Country_Mean_CO2 = sum(Weighted_CO2)) %>%
+  dplyr::summarize(Country_Mean_CO2 = round(sum(Weighted_CO2),1)) %>%
   dplyr::rename("Wert" = Country_Mean_CO2) %>%
   dplyr::mutate(Gebiet = "Schweiz")
 
