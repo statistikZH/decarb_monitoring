@@ -15,29 +15,27 @@ LF1_data <- ds$data
 
 # Schritt 2 : Falls die zu publizierenden Werte noch berechnet werden müssen, können hier Aggregierungs- und Transformationsschritte vorgenommen werden.
 
-# Beispiele :
-# - neue Kategorien oder Totale bilden
-# - Anteile berechnen
-# - Umbenennung von Kategorien
-
-# Beispiel : Fahrzeuge nach Treibstoff - dieser Block dient nur der Veranschaulichung ---------
+# Einlesen von Populationsdaten für per_capita
+LF1_pop <- decarbmonitoring::download_per_capita()
 
 LF1_computed <- LF1_data %>%
   # Renaming of columns in preparation to bring data into a uniform structure
-  dplyr::rename('Gebiet' = Kanton, 'Variable' = Treibstoff, 'Wert' = `Neue Inverkehrsetzungen von Strassenfahrzeugen`) %>%
-  # Auxiliary variable for calculating the number of fossil vs. fossil-free passenger cars. Fossil being 'Benzin' + 'Diesel' + 'Gas (mono- und bivalent)'
-  dplyr::mutate(Treibstoff_Typ = dplyr::if_else(Variable %in% c('Benzin', 'Diesel', 'Gas (mono- und bivalent)'), 'fossil', 'fossil-free')) %>%
-  # Calculating number of cars by year, spacial unit, and fuel type
-  dplyr::group_by(Jahr, Gebiet, Treibstoff_Typ) %>%
-  dplyr::summarise(Anzahl = sum(Wert)) %>%
-  dplyr::ungroup() %>%
-  # Adding the total number of cars by year and spacial unit and calculate the share by fuel type
-  dplyr::group_by(Jahr, Gebiet) %>%
-  dplyr::mutate(Total = sum(Anzahl),
-                Anteil = (Anzahl / Total)) %>%
-  # Convert table to a long format
-  tidyr::pivot_longer(cols = c(Anzahl, Total, Anteil), names_to = 'Einheit', values_to = 'Wert') %>%
-  dplyr::ungroup()
+  dplyr::rename("Variable" = 1, "Gebiet" = 2, "Wert" = 4) %>%
+  # remove unwanted artifacts in Gebiet variable
+  dplyr::mutate(Gebiet = stringr::str_remove(Gebiet, stringr::fixed("** "))) %>%
+  # prepare for join with pop data
+  dplyr::mutate(Gebiet = dplyr::if_else(Gebiet == "Zürich", "Kanton Zürich", Gebiet),
+                Jahr = as.numeric(Jahr)) %>%
+  # join with population data
+  dplyr::left_join(LF1_pop, by = c("Jahr", "Gebiet")) %>%
+  # delete NA (years with no pop data) %>%
+  tidyr::drop_na() %>%
+  dplyr::mutate("Anzahl Rinder pro Person" = Wert / Einwohner) %>%
+  tidyr::pivot_longer(cols = c("Wert", "Anzahl Rinder pro Person"), names_to = "Einheit") %>%
+  dplyr::select(-Einwohner) %>%
+  dplyr::rename("Wert" = "value") %>%
+  dplyr::mutate(Einheit = dplyr::if_else(Einheit == "Wert", "Anzahl Rinder (Absolut)", Einheit))
+
 
 # Die Voraussetzung für den letzten Schritt (3) ist ein Datensatz im long Format nach folgendem Beispiel:
 
@@ -58,20 +56,10 @@ LF1_computed <- LF1_data %>%
 # - Anreicherung mit Metadaten aus der Datensatzliste
 
 LF1_export_data <- LF1_computed %>%
-# Beispiel - dieser Block dient nur der Veranschalichung und muss je nach Fall angepasst werden --------
-# dplyr::filter(Einheit != 'Total') %>%
-# dplyr::rename('Variable' = Treibstoff_Typ) %>%
-# # Renaming values
-# dplyr::mutate(Gebiet = dplyr::if_else(Gebiet == 'Zürich', 'Kanton Zürich', Gebiet),
-#               Variable = dplyr::if_else(Variable == 'fossil', 'fossiler Treibstoff', 'fossilfreier Treibstoff'),
-#               Einheit = dplyr::case_when(Einheit == 'Anzahl' ~ paste0(ds$dimension_label, ' [Anz.]'),
-#                                          Einheit == 'Anteil' ~ paste0(ds$dimension_label, ' [%]'),
-#                                          TRUE ~ Einheit)) %>%
-# ----------------------
-# Anreicherung  mit Metadaten
   dplyr::mutate(Indikator_ID = ds$dataset_id,
                 Indikator_Name = ds$indicator_name,
-                Datenquelle = ds$data_source) %>%
+                Datenquelle = ds$data_source,
+                Variable = ds$dataset_name) %>%
   dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
 
 # assign data to be exported back to the initial ds object -> ready to export
