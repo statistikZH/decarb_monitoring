@@ -8,7 +8,7 @@ Import &#8594; Processing &#8594; Export
 
 ## Import
 
-Jeder Datensatz ist in der Parameter-Liste [dataset_parameter_list.xlsx](https://github.com/statistikZH/decarb_monitoring/blob/main/dataset_parameter_list.xlsx) beschrieben.
+Jeder Datensatz ist in der Parameter-Liste [2773 Monitoring.xlsx](https://github.com/statistikZH/decarb_monitoring/blob/main/2773%20Monitoring.xlsx) beschrieben.
 Die Parameter-Liste ist die Grundlage für den Import der Daten. Der Import wird in Abhängigkeit von ausgewählten Parametern (über Methoden) definiert und kann somit auch auf andere Datensätze mit den gleichen Parameterangaben angewendet werden.
 Basierend auf der `DATASET_ID`, dem `DATA_FORMAT` und der `DATA_ORGANIZATION` erfolgt der Datenimport in standardisierter Weise.
 
