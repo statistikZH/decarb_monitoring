@@ -4,8 +4,9 @@
 #' as well as the publishing process
 #'
 #' A dataset object inherits the following classes:
+#' - data_organization -> needed for the download process
 #' - dataset_id -> needed for the download as well as the publishing process
-#' - data_format -> needed for the download process
+#' - download_format -> needed for the download process
 #'
 #' @param dataset_id id of the dataset
 #'
@@ -18,26 +19,34 @@
 create_dataset <- function(dataset_id) {
 
   # get all the metadata information for a specific dataset
-  data <- readxl::read_excel("dataset_parameter_list.xlsx") %>%
-    dplyr::filter(DATASET_ID == dataset_id) %>%
+  data <- readxl::read_excel("2773 Monitoring.xlsx", sheet = "ParameterlisteZH") %>%
+    dplyr::filter(DATASET_ID == dataset_id, STATUS == 1) %>%
     dplyr::select(
       DATASET_ID,
+      DATA_ORGANIZATION,
       DATASET_NAME,
-      DATA_FORMAT,
+      INDICATOR_NAME,
+      DOWNLOAD_FORMAT,
       DATA_URL,
       DATA_ID,
-      DATA_FILE,
+      WHICH_DATA,
       YEAR_COL,
       YEAR_START,
       GEBIET_COL,
       GEBIET_ID,
-      DIMENSION_COL,
-      DIMENSION_ID,
+      GEBIET_NAME,
+      DIMENSION1_COL,
+      DIMENSION1_ID,
+      DIMENSION1_NAME,
+      DIMENSION2_COL,
+      DIMENSION2_ID,
+      DIMENSION2_NAME,
       DIMENSION_UNIT,
       DIMENSION_LABEL,
       DATA_SOURCE,
       LAST_UPDATED,
-      MODIFY_NEXT
+      MODIFY_NEXT,
+      DEPENDENCY
     ) %>%
     dplyr::rename_all(tolower) %>%
     as.list()
@@ -46,7 +55,7 @@ create_dataset <- function(dataset_id) {
   ds_list <- structure(
     data,
     data = NULL,
-    class = c(data$dataset_id, data$data_format)
+    class = c(data$data_organization, data$download_format, data$dataset_id)
   )
 
   return(ds_list)

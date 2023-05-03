@@ -19,8 +19,9 @@ as well as the publishing process
 \details{
 A dataset object inherits the following classes:
 \itemize{
+\item data_organization -> needed for the download process
 \item dataset_id -> needed for the download as well as the publishing process
-\item data_format -> needed for the download process
+\item download_format -> needed for the download process
 }
 }
 \concept{Datensatz erstellen}

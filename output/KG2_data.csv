@@ -1,0 +1,5 @@
+"Jahr","Gebiet","Indikator_ID","Indikator_Name","Variable","Wert","Einheit","Datenquelle"
+2021,"Flughafen Zürich","KG2","Vertanktes Kerosin nach Energieträger","Fossiles Kerosin",702025,"Tonnen (t)","Bundesamt für Zivilluftfahrt (BAZL)"
+2021,"Flughafen Zürich","KG2","Vertanktes Kerosin nach Energieträger","Erneuerbares Kerosin",591,"Tonnen (t)","Bundesamt für Zivilluftfahrt (BAZL)"
+2021,"Flughafen Zürich","KG2","Vertanktes Kerosin nach Energieträger","Erneuerbares Kerosin",0.000841850361454364,"Prozent (%)","Bundesamt für Zivilluftfahrt (BAZL)"
+2021,"Flughafen Zürich","KG2","Vertanktes Kerosin nach Energieträger","Fossiles Kerosin",0.999158149638546,"Prozent (%)","Bundesamt für Zivilluftfahrt (BAZL)"
