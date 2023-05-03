@@ -1,57 +1,64 @@
 # Q1 - Einwohner:innen ----------------------------------------------------
-## Indicator:
-indicator_id <- "Q1"
-indicator_name <- "Einwohner:innen"
-## Variable:
-variable <- "Ständige Wohnbevölkerung"
-## Spatial unit: Schweiz and Kanton Zürich
-## Temporal unit: starting 2010
-## Data url: https://www.bfs.admin.ch/asset/de/px-x-0103010000_102
-## Data sources:
-data_source <- "Statistik der Bevölkerung und der Haushalte STATPOP (BFS)"
 
-## Computations: None
 
 # Import data -------------------------------------------------------------
+# Schritt 1 : hier werden die Daten eingelesen
 
-## Setting the range of the time series, and continue the range every new year
-start_year <- "2010"
-end_year <- lubridate::year(Sys.Date()- lubridate::years(1))
-year_range <- start_year:end_year
+ds <- create_dataset('Q1')
+ds <- download_data(ds)
 
-## Path name of the data cube
-q1_px_path <- "px-x-0103010000_102"
+# Dieses Objekt dient als Grundlage zur Weiterverarbeitung
 
-## Pre-constructed list element containing all query parameters
-q1_query_list <- list("Jahr"=as.character(year_range),
-                      "Kanton"=c("8100","ZH"), # Spatial level: Schweiz und Kanton Zürich
-                      "Bevölkerungstyp"=c("1")) # Indicator: Ständige Wohnbevölkerung
+Q1_data <- ds$data
 
-## Download data based on query list and convert to data.frame
-q1_data <- get_pxdata(q1_px_path, q1_query_list) %>%
+# Berechnungen -----------------------------------------------------
+
+# Schritt 2 : Falls die zu publizierenden Werte noch berechnet werden müssen, können hier Aggregierungs- und Transformationsschritte vorgenommen werden.
+
+# Beispiele :
+# - neue Kategorien oder Totale bilden
+# - Anteile berechnen
+# - Umbenennung von Kategorien
+
+# Beispiel : Fahrzeuge nach Treibstoff - dieser Block dient nur der Veranschaulichung ---------
+
+Q1_computed <- Q1_data %>%
   # Renaming of columns in preparation to bring data into a uniform structure
-  dplyr::rename("Gebiet" = Kanton, "Indikator" = Bevölkerungstyp, "Wert" = `Ständige und nichtständige Wohnbevölkerung`)
-
-
-# Data structure ----------------------------------------------------------
-
-q1_export_data <- q1_data %>%
-  # Renaming values
+  dplyr::rename('Gebiet' = Kanton, 'Variable' = Bevölkerungstyp, 'Wert' = `Ständige und nichtständige Wohnbevölkerung`) %>%
+  # Auxiliary variable for calculating the number of fossil vs. fossil-free passenger cars. Fossil being 'Benzin' + 'Diesel' + 'Gas (mono- und bivalent)'
   dplyr::mutate(Gebiet = dplyr::if_else(Gebiet == "Zürich", "Kanton Zürich", Gebiet),
-                Einheit = "Personen [Anz.]") %>%
-  # Manually adding columns for Indikator_ID, Indikator_Name, Einheit and Datenquelle
-  dplyr::mutate(Indikator_ID = indicator_id,
-                Indikator_Name = indicator_name,
-                Variable = variable,
-                Datenquelle = data_source) %>%
-  dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, "Variable" = Indikator, Wert, Einheit, Datenquelle)
+                Einheit = "Anzahl Personen")
+
+
+# Die Voraussetzung für den letzten Schritt (3) ist ein Datensatz im long Format nach folgendem Beispiel:
+
+# # A tibble: 216 × 5
+#    Jahr  Gebiet  Treibstoff_Typ Einheit         Wert
+#    <chr> <chr>   <chr>          <chr>          <dbl>
+#  1 2005  Schweiz fossil         Anzahl  306455
+#  2 2005  Schweiz fossil         Total   307161
+#  3 2005  Schweiz fossil         Anteil       0.998
+#  4 2005  Schweiz fossil-free    Anzahl     706
+#  5 2005  Schweiz fossil-free    Total   307161
+
+# Harmonisierung Datenstruktur / Bezeichnungen  ----------------------------------------------------------
+
+# Schritt 3 : Hier werden die Daten in die finale Form gebracht
+
+# - Angleichung der Spaltennamen / Kategorien und Einheitslabels an die Konvention
+# - Anreicherung mit Metadaten aus der Datensatzliste
+
+Q1_export_data <- Q1_computed %>%
+  dplyr::mutate(Indikator_ID = ds$dataset_id,
+                Indikator_Name = ds$indicator_name,
+                Datenquelle = ds$data_source) %>%
+  dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
+
+# assign data to be exported back to the initial ds object -> ready to export
+ds$export_data <- Q1_export_data
 
 # Export CSV --------------------------------------------------------------
 
-## Temporarily storing export files in Gitea repo > output folder
-## Naming convention for CSV files: [indicator number]_data.csv
-dir.create("output", showWarnings = FALSE)
+# Daten werden in den /output - Ordner geschrieben
 
-output_file <- paste0(indicator_id, "_data.csv")
-
-utils::write.table(q1_export_data, paste0("./output/", output_file), fileEncoding = "UTF-8", row.names = FALSE, sep = ",")
+export_data(ds)
