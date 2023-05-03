@@ -67,11 +67,11 @@ m1_export_data <- m1_computed %>%
   # Renaming values
   dplyr::mutate(Gebiet = dplyr::if_else(Gebiet == "Zürich", "Kanton Zürich", Gebiet),
                 Einheit = dplyr::case_when(Einheit == "Wert" ~ "Personenwagen [Anz.]",
-                                           Einheit == "Anteil" ~ "Personenwagen [%]",
+                                           Einheit == "Anteil" ~ "Prozent (%)",
                                            TRUE ~ Einheit)) %>%
   # Manually adding columns for Indikator_ID, Indikator_Name, Einheit and Datenquelle
   dplyr::mutate(Indikator_ID = ds$dataset_id,
-                Indikator_Name = ds$dataset_name,
+                Indikator_Name = ds$indicator_name,
                 Datenquelle = ds$data_source) %>%
   dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
 
