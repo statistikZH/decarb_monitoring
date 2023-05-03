@@ -8,36 +8,36 @@ ds <- create_dataset('KV3')
 ds <- download_data(ds)
 
 # Dieses Objekt dient als Grundlage zur Weiterverarbeitung
-
+# temp fix for reading in data
 KV3_data <- ds$data
 
 # Berechnungen -----------------------------------------------------
-
 # Schritt 2 : Falls die zu publizierenden Werte noch berechnet werden müssen, können hier Aggregierungs- und Transformationsschritte vorgenommen werden.
 
-# Beispiele :
-# - neue Kategorien oder Totale bilden
-# - Anteile berechnen
-# - Umbenennung von Kategorien
-
-# Beispiel : Fahrzeuge nach Treibstoff - dieser Block dient nur der Veranschaulichung ---------
-
 KV3_computed <- KV3_data %>%
-  # Renaming of columns in preparation to bring data into a uniform structure
-  dplyr::rename('Gebiet' = Kanton, 'Variable' = Treibstoff, 'Wert' = `Neue Inverkehrsetzungen von Strassenfahrzeugen`) %>%
-  # Auxiliary variable for calculating the number of fossil vs. fossil-free passenger cars. Fossil being 'Benzin' + 'Diesel' + 'Gas (mono- und bivalent)'
-  dplyr::mutate(Treibstoff_Typ = dplyr::if_else(Variable %in% c('Benzin', 'Diesel', 'Gas (mono- und bivalent)'), 'fossil', 'fossil-free')) %>%
-  # Calculating number of cars by year, spacial unit, and fuel type
-  dplyr::group_by(Jahr, Gebiet, Treibstoff_Typ) %>%
-  dplyr::summarise(Anzahl = sum(Wert)) %>%
-  dplyr::ungroup() %>%
-  # Adding the total number of cars by year and spacial unit and calculate the share by fuel type
-  dplyr::group_by(Jahr, Gebiet) %>%
-  dplyr::mutate(Total = sum(Anzahl),
-                Anteil = (Anzahl / Total)) %>%
-  # Convert table to a long format
-  tidyr::pivot_longer(cols = c(Anzahl, Total, Anteil), names_to = 'Einheit', values_to = 'Wert') %>%
-  dplyr::ungroup()
+  dplyr::mutate(Gebiet = "Kanton Zürich") %>%
+  # nur die Variable Treibhausgasemissionen wird hier betrachtet
+  dplyr::select(-c("Fahrzeugbestand", "Verkehrsleistung", "Emissionen_pro_km")) %>%
+  # hier könnte bei Bedarf noch "Emissionen_pro_km" bei values_from ergänzt werden
+  tidyr::pivot_wider(names_from = Fahrzeugtyp, values_from = c(Treibhausgasemissionen)) %>%
+  dplyr::mutate(total_emissionen = `Personenwagen (M1)` + `Lieferwagen (N1)` + `Lastwagen (N2/N3)`,
+                anteil_personenwagen = `Personenwagen (M1)` / total_emissionen,
+                anteil_lieferwagen = `Lieferwagen (N1)` / total_emissionen,
+                anteil_lastwagen = `Lastwagen (N2/N3)` / total_emissionen) %>%
+  tidyr::pivot_longer(cols = c(dplyr::starts_with("anteil"), dplyr::contains("wagen")), values_to = "Wert") %>%
+  dplyr::select(-total_emissionen) %>%
+  dplyr::mutate(Einheit = dplyr::case_when(
+    stringr::str_detect(name, "anteil") ~ "Prozent (%)",
+    TRUE ~ "Tonnen CO₂-Emissionen"
+  )) %>%
+  dplyr::mutate(name = dplyr::case_when(
+    stringr::str_detect(name, "anteil_personenwagen") ~ "Personenwagen (M1)",
+    stringr::str_detect(name, "anteil_lieferwagen") ~ "Lieferwagen (N1)",
+    stringr::str_detect(name, "anteil_lastwagen") ~ "Lastwagen (N2/N3)",
+    TRUE ~ name
+  )) %>%
+  dplyr::rename("Variable" = name)
+
 
 # Die Voraussetzung für den letzten Schritt (3) ist ein Datensatz im long Format nach folgendem Beispiel:
 
@@ -58,16 +58,6 @@ KV3_computed <- KV3_data %>%
 # - Anreicherung mit Metadaten aus der Datensatzliste
 
 KV3_export_data <- KV3_computed %>%
-# Beispiel - dieser Block dient nur der Veranschalichung und muss je nach Fall angepasst werden --------
-# dplyr::filter(Einheit != 'Total') %>%
-# dplyr::rename('Variable' = Treibstoff_Typ) %>%
-# # Renaming values
-# dplyr::mutate(Gebiet = dplyr::if_else(Gebiet == 'Zürich', 'Kanton Zürich', Gebiet),
-#               Variable = dplyr::if_else(Variable == 'fossil', 'fossiler Treibstoff', 'fossilfreier Treibstoff'),
-#               Einheit = dplyr::case_when(Einheit == 'Anzahl' ~ paste0(ds$dimension_label, ' [Anz.]'),
-#                                          Einheit == 'Anteil' ~ paste0(ds$dimension_label, ' [%]'),
-#                                          TRUE ~ Einheit)) %>%
-# ----------------------
 # Anreicherung  mit Metadaten
   dplyr::mutate(Indikator_ID = ds$dataset_id,
                 Indikator_Name = ds$indicator_name,
