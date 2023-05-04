@@ -17,9 +17,9 @@ KV3_data <- ds$data
 KV3_computed <- KV3_data %>%
   dplyr::mutate(Gebiet = "Kanton Zürich") %>%
   # nur die Variable Treibhausgasemissionen wird hier betrachtet
-  dplyr::select(-c("Fahrzeugbestand", "Verkehrsleistung", "Emissionen_pro_km")) %>%
+  dplyr::select(-c("Fahrzeugbestand", "Verkehrsleistung", "Treibhausgasemissionen")) %>%
   # hier könnte bei Bedarf noch "Emissionen_pro_km" bei values_from ergänzt werden
-  tidyr::pivot_wider(names_from = Fahrzeugtyp, values_from = c(Treibhausgasemissionen)) %>%
+  tidyr::pivot_wider(names_from = Fahrzeugtyp, values_from = c(Emissionen_pro_km)) %>%
   dplyr::mutate(total_emissionen = `Personenwagen (M1)` + `Lieferwagen (N1)` + `Lastwagen (N2/N3)`,
                 anteil_personenwagen = `Personenwagen (M1)` / total_emissionen,
                 anteil_lieferwagen = `Lieferwagen (N1)` / total_emissionen,
@@ -28,7 +28,7 @@ KV3_computed <- KV3_data %>%
   dplyr::select(-total_emissionen) %>%
   dplyr::mutate(Einheit = dplyr::case_when(
     stringr::str_detect(name, "anteil") ~ "Prozent (%)",
-    TRUE ~ "Tonnen CO₂-Emissionen"
+    TRUE ~ "g CO2eq/km"
   )) %>%
   dplyr::mutate(name = dplyr::case_when(
     stringr::str_detect(name, "anteil_personenwagen") ~ "Personenwagen (M1)",
