@@ -57,9 +57,7 @@ Die Bestätigung erfolgt:
 
     ℹ Loading decarbmonitoring
 
-4.  Um einen neuen Indikator anzulegen kann nun mittels der Funktion
-    `decarbmonitoring::indicator_init()` ein neuer Indikator angelegt
-    werden:
+4.  Ein neuer Indikator kann nun mittels der Funktion `decarbmonitoring::indicator_init()` angelegt werden.
 
 ``` r
 #Achtung: Code unten wird einen Fehler ergeben, da schon ein Skript für den Indikator M1 exisitert.
