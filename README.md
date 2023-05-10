@@ -20,8 +20,8 @@ Skript definiert und ausgeführt.
 ## Setup
 
 Um den Prozess für einen neuen Indikator zu initialiseren sind die
-folgenden Vorbereitungen notwendig. Schritte 1. und 2. sind dabei nur
-beim erstmaligen aufsetzen notwendig.
+folgenden Vorbereitungen notwendig. 
+Schritte 1. und 2. sind dabei nur beim erstmaligen Aufsetzen notwendig.
 
 1.  Dieses Code-Repo clonen. Entweder über den [klassischen download des
     Repos](https://github.com/statistikZH/decarb_monitoring/archive/refs/heads/main.zip)
