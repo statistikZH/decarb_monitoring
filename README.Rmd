@@ -35,7 +35,7 @@ Um den Prozess für einen neuen Indikator zu initialiseren sind die folgenden Vo
 
 2.  Installation notwendiger Pakete innerhalb des R-Projekts:
 
-```{r}
+```{r eval = FALSE}
 install.packages("devtools")
 devtools::load_all()
 ```
@@ -52,7 +52,7 @@ Hier mit `1` bestätigen.
 
 3.  Nun kann die komplette Funktionalität des Pakets/Repos genutzt werden. Dazu einfach noch einmal folgenden Code ausführen:
 
-```{r}
+```{r eval = FALSE}
 devtools::load_all()
 ```
 

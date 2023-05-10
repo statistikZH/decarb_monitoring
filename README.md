@@ -32,10 +32,7 @@ beim erstmaligen aufsetzen notwendig.
 
 ``` r
 install.packages("devtools")
-#> Installing devtools [2.4.5] ...
-#>  OK [copied cache]
 devtools::load_all()
-#> ℹ Loading decarbmonitoring
 ```
 
 Beim erstmaligen ausführen müssen nun zusätzliche Pakete installiert
@@ -54,7 +51,6 @@ Hier mit `1` bestätigen.
 
 ``` r
 devtools::load_all()
-#> ℹ Loading decarbmonitoring
 ```
 
 Die Bestätigung erfolgt:
