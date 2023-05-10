@@ -1,10 +1,44 @@
-# decarb_monitoring
+# decarb_monitoring 🌳📉
 
 Repository für den Bezug der Daten fürs Dekarbonisierungsmonitoring des Kantons Zürich.
 
 Für jeden Datensatz im Monitoring werden drei Prozessschritte durchlaufen:
 
-Import &#8594; Processing &#8594; Export
+Import ➡️ Processing ➡️ Export
+
+Diese drei Prozessschritte werden für jeden Indikator in einem separaten Skript definiert und ausgeführt. 
+
+## Setup
+Um den Prozess für einen neuen Indikator zu initialiseren sind die folgenden Vorbereitungen notwendig. Schritte 1. und 2. sind dabei nur beim erstmaligen aufsetzen notwendig.
+1. Dieses Code-Repo clonen. Entweder über den [klassischen download des Repos](https://github.com/statistikZH/decarb_monitoring/archive/refs/heads/main.zip) oder einen [direkten Download in der R-Studio Benutzeroberfläche.](https://happygitwithr.com/rstudio-git-github.html#clone-the-test-github-repository-to-your-computer-via-rstudio)
+2. Installation notwendiger Pakete innerhalb des R-Projekts: 
+```
+install.packages("devtools")
+devtools::load_all()
+```
+Beim erstmaligen ausführen müssen nun zusätzliche Pakete installiert werden. Dazu erscheint folgender Dialog:
+```
+ℹ The packages "data.table", "dplyr", "lubridate", "pxweb", "readxl", "rio", "rvest", and "tidyr" are required.
+✖ Would you like to install them?
+
+1: Yes
+2: No
+```
+Hier mit `1` bestätigen.
+
+3. Nun kann die komplette Funktionalität des Pakets/Repos genutzt werden. Dazu einfach noch einmal folgenden Code ausführen:
+```
+> devtools::load_all()
+```
+Die Bestätigung erfolgt:
+```
+ℹ Loading decarbmonitoring
+```
+4. Um einen neuen Indikator anzulegen kann nun mittels der Funktion `decarbmonitoring::indicator_init()` ein neuer Indikator angelegt werden
+```
+#Achtung: Code unten wird einen Fehler ergeben, da schon ein Skript für den Indikator M1 exisitert.
+decarbmonitoring::indicator_init("M1")
+```
 
 ## Import
 
