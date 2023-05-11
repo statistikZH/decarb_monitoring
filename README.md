@@ -17,7 +17,7 @@ Import ➡️ Processing ➡️ Export
 Diese drei Prozessschritte werden für jeden Indikator in einem separaten
 Skript definiert und ausgeführt.
 
-## Setup
+## Setup 📁
 
 Um den Prozess für einen neuen Indikator zu initialiseren sind die
 folgenden Vorbereitungen notwendig. 
@@ -63,8 +63,11 @@ Die Bestätigung erfolgt:
 #Achtung: Code unten wird einen Fehler ergeben, da schon ein Skript für den Indikator M1 exisitert.
 decarbmonitoring::indicator_init("M1")
 ```
+Exisitert der Indikator in der Parameter-Liste [2773
+Monitoring.xlsx](https://github.com/statistikZH/decarb_monitoring/blob/main/2773%20Monitoring.xlsx) und es gibt noch **KEIN** Aufbereitungsskript, wird nun ein neues Aufbereitungsskript im Ordner [scripts](scripts) erstellt.
 
-## Import
+
+## Import 📥
 
 Jeder Datensatz ist in der Parameter-Liste [2773
 Monitoring.xlsx](https://github.com/statistikZH/decarb_monitoring/blob/main/2773%20Monitoring.xlsx)
@@ -75,6 +78,27 @@ gleichen Parameterangaben angewendet werden. Basierend auf der
 `DATASET_ID`, dem `DATA_FORMAT` und der `DATA_ORGANIZATION` erfolgt der
 Datenimport in standardisierter Weise.
 
+Nach erfolgreichem Aufruf von `decarbmonitoring::indicator_init()` für einen neuen Indikator sind im jeweils neu erstellten Template schon die richtigen Parameter für den Import 
+eines Datensatzes hinterlegt. 
+
+Hier ein Beispiel für den Indikator `LF1` (Anzahl Rindvieh):
+
+``` r
+# LF1 - Anzahl Rindvieh ----------------------------------------------------
+
+
+# Import data -------------------------------------------------------------
+# Schritt 1 : hier werden die Daten eingelesen
+
+ds <- create_dataset('LF1')
+ds <- download_data(ds)
+
+# Dieses Objekt dient als Grundlage zur Weiterverarbeitung
+
+LF1_data <- ds$data
+
+```
+
 **Inhalte der Parameterliste**
 
 | Parameter         | Beschreibung                                                                                                                               |
@@ -82,26 +106,33 @@ Datenimport in standardisierter Weise.
 | DATASET_ID        | ID gem. AWEL                                                                                                                               |
 | DATASET_NAME      | NAME gem. AWEL                                                                                                                             |
 | INDICATOR_NAME    | Hier kann dem Indikator ein kürzerer, prägnanterer Name gegeben werden, wie er an der Visualisierung verwendet werden kann                 |
-| DATA_FORMAT       | Dateiformat bei der Datenquelle, bspw. px, XLSX, CSV, CSV aus gezipptem Ordner                                                             |
+| DOWNLOAD_FORMAT   | Dateiformat bei der Datenquelle, bspw. px, XLSX, CSV, CSV aus gezipptem Ordner. Wichtig für Wahl der download-Methode                      |
 | DATA_ORGANIZATION | Organisation, welche die Daten bereitstellt, bspw. BFS, openzh                                                                             |
 | DATA_URL          | URL zu den Daten                                                                                                                           |
 | DATA_ID           | ID eines Datensets, einer Ressource o.ä., bspw. px-x-0103010000_102                                                                        |
-| DATA_FILE         | Wird eine spezifische Datei verwendet?                                                                                                     |
+| WHICH_DATA        | Wird eine spezifische Datei verwendet? Name der csv aus zip oder Blattname in Excel                                                        |
 | YEAR_COL          | Name der Spalte, in der das Erfassungsjahr steht                                                                                           |
 | YEAR_START        | Jahr, in dem die Zeitreihe beginnt                                                                                                         |
 | GEBIET_COL        | Name der Spalte, in der das Gebiet erfasst ist, bspw. bei BFS pxweb oftmals “Kanton”                                                       |
-| GEBIET_ID         | Frei lassen                                                                                                                                |
+| GEBIET_ID         | Wichtig bei px-Tabellen des BFS. Wie ist Gebiet numerisch kodiert? Bsp.: Schweiz = 0, Zürich = 1                                           |
 | GEBIET_NAME       | Namen der Gebiete, wie an der Quelle                                                                                                       |
-| DIMENSION_COL     | Name der Spalte, in der die Variable erfasst ist, die importiert werden soll, bspw. Treibstoff für die Treibstofftypen Benzin, Diesel etc. |
-| DIMENSION_ID      | Frei lassen                                                                                                                                |
-| DIMENSION_NAME    | Name(n) der Ausprägungen der Variable, bspw. Benzin, Diesel etc.                                                                           |
+| DIMENSION1_COL    | Name der Spalte, in der die Variable erfasst ist, die importiert werden soll, bspw. Treibstoff für die Treibstofftypen Benzin, Diesel etc. |
+| DIMENSION1_ID     | Frei lassen                                                                                                                                |
+| DIMENSION1_NAME   | Name(n) der Ausprägungen der Variable, bspw. Benzin, Diesel etc.                                                                           |
+| DIMENSION2_COL    | Name der Spalte, in der eine weitere Variable erfasst ist, die importiert werden soll. Diese Variable ist eigentlich nur für einzelne px Tabellen relevant. |
+| DIMENSION2_ID     | Frei lassen                                                                                                                                |
+| DIMENSION2_NAME   | Name(n) der Ausprägungen der weiteren Variable, bspw. Benzin, Diesel etc.                                                                           |
 | DIMENSION_UNIT    | Einheit in Kurzform für die Dimension                                                                                                      |
 | DIMENSION_LABEL   | Einheit in Langform für die Dimension                                                                                                      |
+| DIMENSION_AGGREGATION | Wie werden Dimensionen zusammengefasst?                                                                                                |
 | DATA_SOURCE       | Angabe zur Datenquelle                                                                                                                     |
+| DIAGRAMM          | Angabe zur gewünschten Visualisierung. Hilft bei Aufbereitung                                                                              |
+| COMPUTATION_DEF   | Formalisierung der gewünschten Berechnungen.                                                                                               |
 | COMPUTATION       | Welche Berechnungen sollen gemacht werden. Bspw. Pro Einwohner, Anteil etc.                                                                |
 | UPDATE_DATE       | Frei lassen                                                                                                                                |
 | LAST_UPDATED      | Frei lassen                                                                                                                                |
 | MODIFY_NEXT       | Frei lassen                                                                                                                                |
+| DEPENDENCY        | ID eines anderen Indikators welcher zur Berechnung benötigt wird. Wird beim erstellen automatisch miteingelsen                             |
 
 ## Processing
 
