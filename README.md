@@ -120,6 +120,8 @@ Die verarbeiteten Daten werden in einer harmonisierten Datenstruktur
 exportiert, die für alle Datensätze identisch ist. Die exportierten
 Daten bilden die Grundlage für die Visualisierungen.
 
+
+
 **Datenstruktur**
 
 | Jahr                    | Gebiet                  | Indikator_ID            | Indikator_Name          | Variable                | Datenquelle             | Einheit                 | Wert   |
@@ -146,6 +148,37 @@ In unserer Tabelle entspricht alles links der `Wert`-Spalte den
 > field is a fact. If field is a discretely valued description of
 > something that is more or less constant, it is a dimension
 > attribute.[^1]
+
+Sind die Daten nach der Verarbeitung in der richtigen Struktur, können Sie ganz einfach im Template in die Export-Funktionen gegeben werden. Hier wieder beispielhaft für den Indikator `LF1`
+
+```r
+# Harmonisierung Datenstruktur / Bezeichnungen  ----------------------------------------------------------
+
+# Schritt 3 : Hier werden die Daten in die finale Form gebracht
+
+# - Angleichung der Spaltennamen / Kategorien und Einheitslabels an die Konvention
+# - Anreicherung mit Metadaten aus der Datensatzliste
+
+LF1_export_data <- LF1_computed %>%
+  dplyr::mutate(Indikator_ID = ds$dataset_id,
+                Indikator_Name = ds$indicator_name,
+                Datenquelle = ds$data_source,
+                Variable = ds$dataset_name) %>%
+  dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
+
+# assign data to be exported back to the initial ds object -> ready to export
+ds$export_data <- LF1_export_data
+
+# Export CSV --------------------------------------------------------------
+
+# Daten werden in den /output - Ordner geschrieben
+
+export_data(ds)
+
+```
+
+Die Funktion `export_data(ds)` prüft dabei, ob der Datensatz schon einmal aufbereitet wurde. Wenn dies der Fall ist, muss aktiv bestätigt werden, dass man den Datensatz überschreiben möchte.
+Ausserdem wirft die Funktion einen Fehler, wenn Variablen fehlen/überflüssig sind im Export-Datensatz.
 
 ## Kontakte 📧
 
