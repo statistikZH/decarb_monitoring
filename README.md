@@ -76,7 +76,7 @@ Daten. Der Import wird in Abhängigkeit von ausgewählten Parametern (über
 Methoden) definiert und kann somit auch auf andere Datensätze mit den
 gleichen Parameterangaben angewendet werden. Basierend auf der
 `DATASET_ID`, dem `DATA_FORMAT` und der `DATA_ORGANIZATION` erfolgt der
-Datenimport in standardisierter Weise.
+Datenimport in standardisierter Weise. Eine nähere Beschreibung der Parameter-Liste findet sich auch [hier](docu/parameter_list.md).
 
 Nach erfolgreichem Aufruf von `decarbmonitoring::indicator_init()` für einen neuen Indikator sind im jeweils neu erstellten Template schon die richtigen Parameter für den Import 
 eines Datensatzes hinterlegt. 
@@ -99,57 +99,24 @@ LF1_data <- ds$data
 
 ```
 
-**Inhalte der Parameterliste**
 
-| Parameter         | Beschreibung                                                                                                                               |
-|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
-| DATASET_ID        | ID gem. AWEL                                                                                                                               |
-| DATASET_NAME      | NAME gem. AWEL                                                                                                                             |
-| INDICATOR_NAME    | Hier kann dem Indikator ein kürzerer, prägnanterer Name gegeben werden, wie er an der Visualisierung verwendet werden kann                 |
-| DOWNLOAD_FORMAT   | Dateiformat bei der Datenquelle, bspw. px, XLSX, CSV, CSV aus gezipptem Ordner. Wichtig für Wahl der download-Methode                      |
-| DATA_ORGANIZATION | Organisation, welche die Daten bereitstellt, bspw. BFS, openzh                                                                             |
-| DATA_URL          | URL zu den Daten                                                                                                                           |
-| DATA_ID           | ID eines Datensets, einer Ressource o.ä., bspw. px-x-0103010000_102                                                                        |
-| WHICH_DATA        | Wird eine spezifische Datei verwendet? Name der csv aus zip oder Blattname in Excel                                                        |
-| YEAR_COL          | Name der Spalte, in der das Erfassungsjahr steht                                                                                           |
-| YEAR_START        | Jahr, in dem die Zeitreihe beginnt                                                                                                         |
-| GEBIET_COL        | Name der Spalte, in der das Gebiet erfasst ist, bspw. bei BFS pxweb oftmals “Kanton”                                                       |
-| GEBIET_ID         | Wichtig bei px-Tabellen des BFS. Wie ist Gebiet numerisch kodiert? Bsp.: Schweiz = 0, Zürich = 1                                           |
-| GEBIET_NAME       | Namen der Gebiete, wie an der Quelle                                                                                                       |
-| DIMENSION1_COL    | Name der Spalte, in der die Variable erfasst ist, die importiert werden soll, bspw. Treibstoff für die Treibstofftypen Benzin, Diesel etc. |
-| DIMENSION1_ID     | Frei lassen                                                                                                                                |
-| DIMENSION1_NAME   | Name(n) der Ausprägungen der Variable, bspw. Benzin, Diesel etc.                                                                           |
-| DIMENSION2_COL    | Name der Spalte, in der eine weitere Variable erfasst ist, die importiert werden soll. Diese Variable ist eigentlich nur für einzelne px Tabellen relevant. |
-| DIMENSION2_ID     | Frei lassen                                                                                                                                |
-| DIMENSION2_NAME   | Name(n) der Ausprägungen der weiteren Variable, bspw. Benzin, Diesel etc.                                                                           |
-| DIMENSION_UNIT    | Einheit in Kurzform für die Dimension                                                                                                      |
-| DIMENSION_LABEL   | Einheit in Langform für die Dimension                                                                                                      |
-| DIMENSION_AGGREGATION | Wie werden Dimensionen zusammengefasst?                                                                                                |
-| DATA_SOURCE       | Angabe zur Datenquelle                                                                                                                     |
-| DIAGRAMM          | Angabe zur gewünschten Visualisierung. Hilft bei Aufbereitung                                                                              |
-| COMPUTATION_DEF   | Formalisierung der gewünschten Berechnungen.                                                                                               |
-| COMPUTATION       | Welche Berechnungen sollen gemacht werden. Bspw. Pro Einwohner, Anteil etc.                                                                |
-| UPDATE_DATE       | Frei lassen                                                                                                                                |
-| LAST_UPDATED      | Frei lassen                                                                                                                                |
-| MODIFY_NEXT       | Frei lassen                                                                                                                                |
-| DEPENDENCY        | ID eines anderen Indikators welcher zur Berechnung benötigt wird. Wird beim erstellen automatisch miteingelsen                             |
-
-## Processing
+## Processing ⚙️
 
 Die Datenaufbereitung variiert von Datensatz zu Datensatz
 (`DATASET_ID`). Insbesondere was die Berechnungen anbelangt. Die
-Berechnung werden vorerst spezifisch für jeden Datensatz gemacht. Wo
-sich wiederkehrende Berechnungen in Funktionen auslagern lassen, wird
-das gemacht.
+Berechnung werden spezifisch für jeden Datensatz gemacht. Falls in der Berechnung eines Indikators Bevölkerungszahlen (Schweiz/Kanton Zürich) benötigt werden, können diese einfach 
+mit der Funktion `download_per_capita()` eingelesen werden. Diese lädt im Hintergrund den Indikator `Q1` herunter.
 
-**Übersicht der Berechnungs-Funktionen**
+Beispiel anhand Indikator `LF1`
 
-| Function                | Title                    | Description                                                                                                 |
-|-------------------------|--------------------------|-------------------------------------------------------------------------------------------------------------|
-| `download_per_capita()` | Pro Einwohner-Berechnung | Lädt die Bevölkerungsdaten aus DATASET_ID ‘Q1’ und lässt sich dann in der Berechnung pro Einwohner aufrufen |
-| …                       | …                        | …                                                                                                           |
+```r
+# Einlesen von Populationsdaten für per_capita
+LF1_pop <- decarbmonitoring::download_per_capita()
+```
 
-## Export
+Für die weiteren Berechnungsschritte sind im Aufbereitungstemplate jeweils Hinweise gegeben. Es wird empfohlen, Code von schon erstellten Indikatoren wiederzuverwenden.
+
+## Export 💾
 
 Die verarbeiteten Daten werden in einer harmonisierten Datenstruktur
 exportiert, die für alle Datensätze identisch ist. Die exportierten
