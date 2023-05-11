@@ -149,7 +149,7 @@ In unserer Tabelle entspricht alles links der `Wert`-Spalte den
 > something that is more or less constant, it is a dimension
 > attribute.[^1]
 
-## Kontakte
+## Kontakte 📧
 
 ### AWEL
 
