@@ -2,7 +2,7 @@
 % Please edit documentation in R/structure_data.R
 \name{structure_data.Q1}
 \alias{structure_data.Q1}
-\title{method for Q1}
+\title{method for Q1 - population data}
 \usage{
 \method{structure_data}{Q1}(ds)
 }
@@ -10,5 +10,5 @@
 \item{ds}{}
 }
 \description{
-method for Q1
+method for Q1 - population data
 }
