@@ -126,21 +126,21 @@ Daten bilden die Grundlage für die Visualisierungen.
 
 | Jahr                    | Gebiet                  | Indikator_ID            | Indikator_Name          | Variable                | Datenquelle             | Einheit                 | Wert   |
 |-------------------------|-------------------------|-------------------------|-------------------------|-------------------------|-------------------------|-------------------------|--------|
-| *dimsension attributes* | *dimsension attributes* | *dimsension attributes* | *dimsension attributes* | *dimsension attributes* | *dimsension attributes* | *dimsension attributes* | *fact* |
+| *dimension attributes* | *dimension attributes* | *dimension attributes* | *dimension attributes* | *dimension attributes* | *dimension attributes* | *dimension attributes* | *fact* |
 
 **Logik hinter der Datenstruktur**
 
-Die Tabelle besteht aus *dimsension attributes* und *facts*. Wobei die
+Die Tabelle besteht aus *dimension attributes* und *facts*. Wobei die
 *facts* durch die *dimension attributes* beschrieben werden.
 
-- *dimsension attributes* liefern strukturierte
-  Beschreibungsinformationen. Die Hauptfunktionen der *dimsension
+- *dimension attributes* liefern strukturierte
+  Beschreibungsinformationen. Die Hauptfunktionen der *dimension
   attributes* sind: Filtern, Gruppieren und Bezeichnen.
 
 - *facts* stellen die messbaren Werte dar.
 
 In unserer Tabelle entspricht alles links der `Wert`-Spalte den
-*dimsension attributes* und die `Wert`-Spalte ist der *fact*.
+*dimension attributes* und die `Wert`-Spalte ist der *fact*.
 
 > Sometimes (…), it is unclear whether a numeric data field from a data
 > source is a measured fact or an attribute. Generally, if the numeric
