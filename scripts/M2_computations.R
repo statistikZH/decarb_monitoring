@@ -65,7 +65,7 @@ m2_computed <- m2_cleaned %>%
 m2_export_data <- m2_computed %>%
   # Renaming values
   dplyr::mutate(Gebiet = dplyr::if_else(Gebiet == "Zürich", "Kanton Zürich", Gebiet),
-                Einheit = dplyr::case_when(Einheit == "Wert" ~ "Gütertransportfahrzeuge [Anz.]",
+                Einheit = dplyr::case_when(Einheit == "Wert" ~ "Gütertransportfahrzeuge (Anzahl)",
                                            Einheit == "Anteil" ~ "Gütertransportfahrzeuge [%]",
                                            TRUE ~ Einheit)) %>%
   # Manually adding columns for Indikator_ID, Indikator_Name, Einheit and Datenquelle
@@ -83,3 +83,4 @@ ds$export_data <- m2_export_data
 ## Temporarily storing export files in Gitea repo > output folder
 ## Naming convention for CSV files: [indicator number]_data.csv
 export_data(ds)
+
