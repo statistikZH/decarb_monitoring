@@ -65,7 +65,7 @@ m3_computed <- m3_cleaned %>%
 m3_export_data <- m3_computed %>%
   # Renaming values
   dplyr::mutate(Gebiet = dplyr::if_else(Gebiet == "Zürich", "Kanton Zürich", Gebiet),
-                Einheit = dplyr::case_when(Einheit == "Wert" ~ "Neuzulassungen PW [Anz.]",
+                Einheit = dplyr::case_when(Einheit == "Wert" ~ "Neuzulassungen PW (Anzahl)",
                                            Einheit == "Anteil" ~ "Neuzulassungen PW [%]",
                                            TRUE ~ Einheit)) %>%
   # Manually adding columns for Indikator_ID, Indikator_Name, Einheit and Datenquelle
