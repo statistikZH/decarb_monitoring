@@ -80,7 +80,7 @@ LF4_computed <- LF4_cleaned %>%
 LF4_export_data <- LF4_computed %>%
   # Renaming values
   dplyr::mutate(Gebiet = dplyr::if_else(Gebiet == "Zürich", "Kanton Zürich", Gebiet),
-                Einheit = dplyr::case_when(Einheit == "Wert" ~ "Landwirtschaftsfahrzeuge [Anz.]",
+                Einheit = dplyr::case_when(Einheit == "Wert" ~ "Landwirtschaftsfahrzeuge (Anzahl)",
                                            Einheit == "Anteil" ~ "Prozent (%)",
                                            TRUE ~ Einheit)) %>%
 # Anreicherung  mit Metadaten
