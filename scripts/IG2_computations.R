@@ -84,7 +84,7 @@ IG2_computed <- IG2_cleaned %>%
 
 IG2_export_data <- IG2_computed %>%
   dplyr::mutate(Gebiet = dplyr::if_else(Gebiet == "Zürich", "Kanton Zürich", Gebiet),
-                Einheit = dplyr::case_when(Einheit == "Wert" ~ "Industriefahrzeuge [Anz.]",
+                Einheit = dplyr::case_when(Einheit == "Wert" ~ "Industriefahrzeuge (Anzahl)",
                                            Einheit == "Anteil" ~ "Prozent (%)",
                                            TRUE ~ Einheit)) %>%
   # Manually adding columns for Indikator_ID, Indikator_Name, Einheit and Datenquelle
