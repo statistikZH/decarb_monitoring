@@ -49,24 +49,24 @@ read_data <- function(ds) UseMethod("read_data")
 #' and thus rio allows almost all common data formats to be read with the same function
 #' !Attention: package seems to be stable. Nevertheless, keep an eye out for potential issues.
 #'
-read_data.default<- function(ds){
+read_data.default <- function(ds) {
+  # Get the file extension from the URL
+  file_ext <- tools::file_ext(ds$read_path)
+  temp_file <- paste0("temp.", file_ext)
 
-  # Passing all arguments that are required for both XLSX (which = sheet number)
-  # and CSV (header definition).rio takes care of the rest.
-  # The data gets appended to the ds and later be called as ds$data
-  withr::with_envvar(new = c("no_proxy" = "dam-api.bfs.admin.ch"),
-                     code = ds$data <-  rio::import(
-                       ds$read_path,
-                       which = ds$which_data,
-                       header = TRUE
-                     ))
+  # Download the file
+  download.file(url = ds$read_path, destfile = temp_file, method = "wininet", mode = "wb")
 
+  # Import the data
+  ds$data <-  rio::import(temp_file, which = ds$which_data, header = TRUE)
 
-
+  # Remove the temporary file
+  file.remove(temp_file)
 
   return(ds)
-
 }
+
+
 
 #' Method to stream data from pxweb data cubes which is unique to the BFS
 #' Downloads the data from a data cube based on a query list and converts it to a data.frame
@@ -105,6 +105,7 @@ read_data.px <- function(ds){
 
   return(ds)
 }
+
 
 
 
