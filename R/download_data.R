@@ -70,8 +70,10 @@ read_data.default <- function(ds) {
   }
 
   # Download the file
-  download.file(url = ds$read_path, destfile = temp_file, method = download_method, mode = "wb")
 
+
+  withr::with_envvar(new = c("no_proxy" = "dam-api.bfs.admin.ch"),
+                     code = download.file(url = ds$read_path, destfile = temp_file, method = download_method, mode = "wb"))
   # Import the data
   ds$data <-  rio::import(temp_file, which = ds$which_data, header = TRUE)
 
