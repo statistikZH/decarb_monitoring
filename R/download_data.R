@@ -55,7 +55,6 @@ read_data.default <- function(ds) {
   temp_file <- paste0("temp.", file_ext)
 
   # check which system is used to set the download method
-  browser()
   if (Sys.info()["sysname"] == "Windows"){
     download_method <- "wininet"
 
