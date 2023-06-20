@@ -50,8 +50,14 @@ read_data <- function(ds) UseMethod("read_data")
 #' !Attention: package seems to be stable. Nevertheless, keep an eye out for potential issues.
 #'
 read_data.default <- function(ds) {
-  # Get the file extension from the URL
-  file_ext <- tools::file_ext(ds$read_path)
+
+  # Get the file extension from the URL or the given info from the excel sheet
+  if(!is.na(ds$download_format)){
+    file_ext <- ds$download_format
+  }else{
+    file_ext <- tools::file_ext(ds$read_path)
+  }
+
   temp_file <- paste0("temp.", file_ext)
 
   # check which system is used to set the download method
