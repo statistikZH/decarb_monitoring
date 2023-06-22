@@ -22,6 +22,18 @@ a1_data <- ds$data %>%
   dplyr::rename("Gebiet" = id) %>%
   tidyr::pivot_longer(cols = matches("(\\d){4}"), names_to = "Jahr", values_to = "Wert")
 
+a1_2_data <- ds$dep[[1]] %>%
+  # Renaming of columns in preparation to bring data into a uniform structure
+  dplyr::rename("Gebiet" = id) %>%
+  tidyr::pivot_longer(cols = matches("(\\d){4}"), names_to = "Jahr", values_to = "Wert")
+
+
+a1_3_data <- ds$dep[[2]] %>%
+  # Renaming of columns in preparation to bring data into a uniform structure
+  dplyr::rename("Gebiet" = id) %>%
+  tidyr::pivot_longer(cols = matches("(\\d){4}"), names_to = "Jahr", values_to = "Wert")
+
+
 
 # Computation: Abfallmenge (t/a) & Abfallmenge pro Einwohner (t/a/Einw.) -----------------------------------------------------
 
@@ -51,20 +63,82 @@ a1_computed <- a1_data %>%
   dplyr::select(-Einwohner) %>%
   # Convert table to a long format
   tidyr::pivot_longer(cols = c(Value, `Tonnen pro Person (t/Person)`), names_to = "Einheit", values_to = "Wert") %>%
+  dplyr::mutate(Variable = "Verbrannte Abfallmenge in KVA") %>%
+  dplyr::ungroup()
+
+
+# Computation Wärmeproduktion aus KVA pro Einwohner (Megawattstunden (MWh)) -----------------------------------------------------
+
+a1_2_computed <- a1_2_data %>%
+  # Compute Wert for Schweiz (sum of all values)
+  dplyr::group_by(Jahr) %>%
+  dplyr::summarise(Wert = sum(Wert, na.rm = T), Gebiet = "Schweiz") %>%
+  dplyr::ungroup() %>%
+  dplyr::bind_rows(a1_2_data, . ) %>%
+  dplyr::select(-Name) %>%
+  # Rename Gebiet for Kanton Zürich
+  dplyr::mutate(Gebiet = dplyr::if_else(startsWith(Gebiet, "ZH"), "Kanton Zürich", Gebiet),
+                Jahr = as.numeric(Jahr)) %>%
+  dplyr::filter(Gebiet %in% c("Schweiz", "Kanton Zürich")) %>%
+  # Compute Wert for Kanton Zürich (sum of all values for Gebiet == "Kanton Zürich")
+  dplyr::group_by(Jahr, Gebiet) %>%
+  dplyr::summarize(Wert = sum(Wert, na.rm = T), Einheit = "Megawattstunden (MWh)") %>%
+  dplyr::ungroup() %>%
+  # Joining population data
+  dplyr::left_join(a1_population, by = c("Jahr", "Gebiet")) %>%
+  # Compute per capita
+  dplyr::mutate(`Megawattstunden pro Person (MWh/Person)` = Wert / Einwohner) %>%
+  dplyr::rename("Unit" = Einheit, "Value" = Wert) %>%
+  dplyr::select(-Einwohner) %>%
+  # Convert table to a long format
+  tidyr::pivot_longer(cols = c(Value, `Megawattstunden pro Person (MWh/Person)`), names_to = "Einheit", values_to = "Wert") %>%
+  dplyr::mutate(Variable = "Wärmeproduktion aus KVA") %>%
+  dplyr::ungroup()
+
+
+
+# Computation Elekrizität aus KVA pro Einwohner (Megawattstunden (MWh)) -----------------------------------------------------
+
+a1_3_computed <- a1_3_data %>%
+  # Compute Wert for Schweiz (sum of all values)
+  dplyr::group_by(Jahr) %>%
+  dplyr::summarise(Wert = sum(Wert, na.rm = T), Gebiet = "Schweiz") %>%
+  dplyr::ungroup() %>%
+  dplyr::bind_rows(a1_2_data, . ) %>%
+  dplyr::select(-Name) %>%
+  # Rename Gebiet for Kanton Zürich
+  dplyr::mutate(Gebiet = dplyr::if_else(startsWith(Gebiet, "ZH"), "Kanton Zürich", Gebiet),
+                Jahr = as.numeric(Jahr)) %>%
+  dplyr::filter(Gebiet %in% c("Schweiz", "Kanton Zürich")) %>%
+  # Compute Wert for Kanton Zürich (sum of all values for Gebiet == "Kanton Zürich")
+  dplyr::group_by(Jahr, Gebiet) %>%
+  dplyr::summarize(Wert = sum(Wert, na.rm = T), Einheit = "Megawattstunden (MWh)") %>%
+  dplyr::ungroup() %>%
+  # Joining population data
+  dplyr::left_join(a1_population, by = c("Jahr", "Gebiet")) %>%
+  # Compute per capita
+  dplyr::mutate(`Megawattstunden pro Person (MWh/Person)` = Wert / Einwohner) %>%
+  dplyr::rename("Unit" = Einheit, "Value" = Wert) %>%
+  dplyr::select(-Einwohner) %>%
+  # Convert table to a long format
+  tidyr::pivot_longer(cols = c(Value, `Megawattstunden pro Person (MWh/Person)`), names_to = "Einheit", values_to = "Wert") %>%
+  dplyr::mutate(Variable = "Elekrizität aus KVA") %>%
   dplyr::ungroup()
 
 
 # Data structure ----------------------------------------------------------
 
+
 a1_export_data <- a1_computed %>%
+  # bind the three separate tables together
+  dplyr::bind_rows(a1_2_computed, a1_3_computed) %>%
   # Renaming values
   dplyr::mutate(Gebiet = dplyr::if_else(Gebiet == "Zürich", "Kanton Zürich", Gebiet),
-                Einheit = dplyr::if_else(Einheit == "Value", "Tonnen (t)", Einheit)) %>%
+                Einheit = dplyr::if_else(Einheit == "Value", Unit, Einheit)) %>%
   dplyr::select(-Unit) %>%
   # Manually adding columns for Indikator_ID, Indikator_Name, Einheit and Datenquelle
   dplyr::mutate(Indikator_ID = ds$dataset_id,
                 Indikator_Name = ds$indicator_name,
-                Variable = "Recycled Waste",
                 Datenquelle = ds$data_source) %>%
   dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
 
