@@ -23,32 +23,14 @@ LF3_data <- ds$data
 # Beispiel : Fahrzeuge nach Treibstoff - dieser Block dient nur der Veranschaulichung ---------
 
 LF3_computed <- LF3_data %>%
-  # Renaming of columns in preparation to bring data into a uniform structure
-  dplyr::rename('Gebiet' = Kanton, 'Variable' = Treibstoff, 'Wert' = `Neue Inverkehrsetzungen von Strassenfahrzeugen`) %>%
-  # Auxiliary variable for calculating the number of fossil vs. fossil-free passenger cars. Fossil being 'Benzin' + 'Diesel' + 'Gas (mono- und bivalent)'
-  dplyr::mutate(Treibstoff_Typ = dplyr::if_else(Variable %in% c('Benzin', 'Diesel', 'Gas (mono- und bivalent)'), 'fossil', 'fossil-free')) %>%
-  # Calculating number of cars by year, spacial unit, and fuel type
-  dplyr::group_by(Jahr, Gebiet, Treibstoff_Typ) %>%
-  dplyr::summarise(Anzahl = sum(Wert)) %>%
-  dplyr::ungroup() %>%
-  # Adding the total number of cars by year and spacial unit and calculate the share by fuel type
-  dplyr::group_by(Jahr, Gebiet) %>%
-  dplyr::mutate(Total = sum(Anzahl),
-                Anteil = (Anzahl / Total)) %>%
-  # Convert table to a long format
-  tidyr::pivot_longer(cols = c(Anzahl, Total, Anteil), names_to = 'Einheit', values_to = 'Wert') %>%
-  dplyr::ungroup()
+  tidyr::pivot_wider(names_from = Düngerart, values_from = Wert) %>%
+  dplyr::mutate(Total = rowSums(pick(tidyselect::contains("ünger")))) %>%
+  tidyr::pivot_longer(cols = dplyr::where(is.double), names_to = "Variable", values_to = "Wert") %>%
+  dplyr::mutate(Variable = stringr::str_replace(Variable, "_", "/")) %>%
+  dplyr::select(-Einheit) %>%
+  dplyr::rename(Einheit = `Einheit lang`) %>%
+  dplyr::mutate(Gebiet = "Kanton Zürich")
 
-# Die Voraussetzung für den letzten Schritt (3) ist ein Datensatz im long Format nach folgendem Beispiel:
-
-# # A tibble: 216 × 5
-#    Jahr  Gebiet  Treibstoff_Typ Einheit         Wert
-#    <chr> <chr>   <chr>          <chr>          <dbl>
-#  1 2005  Schweiz fossil         Anzahl  306455
-#  2 2005  Schweiz fossil         Total   307161
-#  3 2005  Schweiz fossil         Anteil       0.998
-#  4 2005  Schweiz fossil-free    Anzahl     706
-#  5 2005  Schweiz fossil-free    Total   307161
 
 # Harmonisierung Datenstruktur / Bezeichnungen  ----------------------------------------------------------
 
@@ -58,16 +40,6 @@ LF3_computed <- LF3_data %>%
 # - Anreicherung mit Metadaten aus der Datensatzliste
 
 LF3_export_data <- LF3_computed %>%
-# Beispiel - dieser Block dient nur der Veranschalichung und muss je nach Fall angepasst werden --------
-# dplyr::filter(Einheit != 'Total') %>%
-# dplyr::rename('Variable' = Treibstoff_Typ) %>%
-# # Renaming values
-# dplyr::mutate(Gebiet = dplyr::if_else(Gebiet == 'Zürich', 'Kanton Zürich', Gebiet),
-#               Variable = dplyr::if_else(Variable == 'fossil', 'fossiler Treibstoff', 'fossilfreier Treibstoff'),
-#               Einheit = dplyr::case_when(Einheit == 'Anzahl' ~ paste0(ds$dimension_label, ' [Anz.]'),
-#                                          Einheit == 'Anteil' ~ paste0(ds$dimension_label, ' [%]'),
-#                                          TRUE ~ Einheit)) %>%
-# ----------------------
 # Anreicherung  mit Metadaten
   dplyr::mutate(Indikator_ID = ds$dataset_id,
                 Indikator_Name = ds$indicator_name,
