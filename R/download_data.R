@@ -13,22 +13,31 @@
 #' @export
 download_data <- function(ds){
 
-  # creates the path for the download URL
+    # creates the path for the download URL
   ds <- get_read_path(ds)
-
   # streams the data and appends it to the ds in $data
   ds <- read_data(ds)
 
   # if the dataset requires a dependency (another dataset) the read function is called again and downloads the dependency
   if(!is.na(ds$dependency)){
-    #temporarily create a dependent ds and download the data
-    ds_dep <- create_dataset(ds$dependency)
-    ds_dep <- download_data(ds_dep)
 
-    #add the downloaded data to the original ds object
-    ds$data_dep <- ds_dep$data
+    ds$dep <- list()
+
+    # Splitting the dependencies into a vector
+    deps <- strsplit(ds$dependency, ", ")[[1]]
+
+    # Iterating over each dependency in the list
+    for (dep in deps) {
+
+      # Temporarily create a dependent ds and download the data
+      ds_dep <- create_dataset(dep)
+      ds_dep <- download_data(ds_dep)
+
+      # Add the downloaded data to the original ds object
+      ds$dep[[dep]] <- ds_dep$data
+    }
   }
-  #only return the inital ds object
+  # Only return the initial ds object
   return(ds)
 }
 
