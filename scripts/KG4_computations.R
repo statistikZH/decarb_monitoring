@@ -40,8 +40,12 @@ KG4_computed <- KG4_data %>%
   # nur Jahre mit Einwohnerdaten behalten
   tidyr::drop_na() %>%
   # Pro-Kopf berechnen
-  dplyr::mutate(per_capita = Wert / Einwohner) %>%
-  dplyr::mutate(Einheit = "Mio. Tonnen CO2-eq (pro Kopf)")
+  ## gma/2023-06-23, Einheit und Wert wegen Lesbarkeit angepasst auf Tonnen CO2-eq pro Kopf
+  dplyr::mutate(per_capita = Wert / Einwohner * 1000000) %>%
+  dplyr::mutate(Einheit = "Tonnen CO2-eq (pro Kopf)")
+  # dplyr::mutate(per_capita = Wert / Einwohner) %>%
+  # dplyr::mutate(Einheit = "Mio. Tonnen CO2-eq (pro Kopf)")
+
 # Die Voraussetzung für den letzten Schritt (3) ist ein Datensatz im long Format nach folgendem Beispiel:
 
 # # A tibble: 216 × 5
