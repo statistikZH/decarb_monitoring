@@ -63,7 +63,7 @@ a1_computed <- a1_data %>%
   dplyr::select(-Einwohner) %>%
   # Convert table to a long format
   tidyr::pivot_longer(cols = c(Value, `Tonnen pro Person (t/Person)`), names_to = "Einheit", values_to = "Wert") %>%
-  dplyr::mutate(Variable = "Verbrannte Abfallmenge in KVA") %>%
+  dplyr::mutate(Variable = "Verbrannte Abfallmenge") %>%
   dplyr::ungroup()
 
 
@@ -92,7 +92,7 @@ a1_2_computed <- a1_2_data %>%
   dplyr::select(-Einwohner) %>%
   # Convert table to a long format
   tidyr::pivot_longer(cols = c(Value, `Megawattstunden pro Person (MWh/Person)`), names_to = "Einheit", values_to = "Wert") %>%
-  dplyr::mutate(Variable = "Wärmeproduktion aus KVA") %>%
+  dplyr::mutate(Variable = "Wärmeproduktion") %>%
   dplyr::ungroup()
 
 
@@ -122,7 +122,7 @@ a1_3_computed <- a1_3_data %>%
   dplyr::select(-Einwohner) %>%
   # Convert table to a long format
   tidyr::pivot_longer(cols = c(Value, `Megawattstunden pro Person (MWh/Person)`), names_to = "Einheit", values_to = "Wert") %>%
-  dplyr::mutate(Variable = "Elekrizität aus KVA") %>%
+  dplyr::mutate(Variable = "Stromproduktion") %>%
   dplyr::ungroup()
 
 
