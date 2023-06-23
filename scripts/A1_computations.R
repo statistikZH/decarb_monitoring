@@ -104,7 +104,7 @@ a1_3_computed <- a1_3_data %>%
   dplyr::group_by(Jahr) %>%
   dplyr::summarise(Wert = sum(Wert, na.rm = T), Gebiet = "Schweiz") %>%
   dplyr::ungroup() %>%
-  dplyr::bind_rows(a1_2_data, . ) %>%
+  dplyr::bind_rows(a1_3_data, . ) %>%
   dplyr::select(-Name) %>%
   # Rename Gebiet for Kanton Zürich
   dplyr::mutate(Gebiet = dplyr::if_else(startsWith(Gebiet, "ZH"), "Kanton Zürich", Gebiet),
