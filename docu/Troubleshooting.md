@@ -22,6 +22,17 @@ Aus dem STAT-TAB Tool lassen sich die Codes über einen Click auf *Über die Tab
 
 Die Angaben zu Dimensionen und Ausprägungen lassen sich 1:1 auf die räumlichen Einheiten übertragen. Da diese in px-Tabellen auch als Dimensionen gesehen werden, müssen die Einträge in den Spalten `GEBIET_COL` und `GEBIET_ID` den entsprechenden Codes in der PX-Tabelle gleichen. Für den Kanton Zürich und die Schweiz werden oft (leider nicht immer) die Codes `0` und `1` verwendet.
 
+
+### Sonderfall: Zu viele Anfragen innerhalb kurzer Zeit
+
+PX-Tabellen werden über die API des BFS bezogen. Wenn von derselben IP-Adresse innerhalb kurzer Zeit zu viele Abfragen gestellt werden (= Daten heruntergeladen) kann es vorkommen, dass die API einen Fehler wirft. Dieser sieht in R folgendermassen aus:
+```r
+Caused by error in `pxweb::pxweb_advanced_get()`:
+! Too Many Requests (RFC 6585) (HTTP 429).
+```
+
+Leider kann man in diesem Fall nichts anderes tun als warten, bis die API wieder Zugriffe erlaubt.
+
 ## Falsches Dateiformat in Excel-Liste angegeben
 
 Hier ein Beispiel anhand 3 verschiedener Indikatoren.
