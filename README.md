@@ -181,7 +181,7 @@ Die Funktion `export_data(ds)` prüft dabei, ob der Datensatz schon einmal aufbe
 Ausserdem wirft die Funktion einen Fehler, wenn Variablen fehlen/überflüssig sind im Export-Datensatz.
 
 ## Troubleshooting
-Der Code läuft Stand Juli 2023 stabil auf einer Linux-Umgebung sowie der Windows-Umgebung des "Digitalen Arbeitsplatzes" (DAP). Da jeder Indikator externe Daten lädt und transfomiert, kann keine Garantie für das Funktionieren der Pipeline in Zukunft übernommen werden. Auch bei Aufnahmen eines neuen Indikators in der [Excel-Liste](2773 Monitoring.xlsx) können sich Fehler einschleichen. Deshalb findet sich [hier](docu/Troubleshooting.md) eine Sammlung an Hinweisen, wie mögliche Probleme entstehen und behoben werden können. 
+Der Code läuft Stand Juli 2023 stabil auf einer Linux-Umgebung sowie der Windows-Umgebung des "Digitalen Arbeitsplatzes" (DAP). Da jeder Indikator externe Daten lädt und transfomiert, kann keine Garantie für das Funktionieren der Pipeline in Zukunft übernommen werden. Auch bei Aufnahmen eines neuen Indikators in der [Excel-Liste](https://github.com/statistikZH/decarb_monitoring/blob/main/2773%20Monitoring.xlsx) können sich Fehler einschleichen. Deshalb findet sich [hier](docu/Troubleshooting.md) eine Sammlung an Hinweisen, wie mögliche Probleme entstehen und behoben werden können. 
 
 Um zu überprüfen ob alle Indikatoren eingelesen und heruntergeladen werden können, kann man die Hilfsfunktion `test_pipeline()` nutzen. Diese spielt eine Liste zurück, welche für jeden Indikator einen Eintrag samt Daten enthält. Bei einem Fehler empfiehlt es sich, zu überprüfen an welcher Stelle/welchem Indikator die Funktion stoppt. Dies erleichtert die Fehlersuche und somit Behebung.
 
