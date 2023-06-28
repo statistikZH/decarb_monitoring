@@ -1,10 +1,13 @@
 Package: decarbmonitoring
-Title: What the Package Does (One Line, Title Case)
+Title: Create indicators relevant for the decarb monitoring of the Kanton of Zürich.
 Version: 0.0.0.9000
-Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+Authors@R: c(
+    person("Bosch", "Philipp", email = "philipp.bosch@statistik.ji.zh.ch", role = "cre"),
+    person("Grobe", "Corinna", email = "corinna.grobe@statistik.ji.zh.ch", role = "aut"),
+    person("Lo Russo", "Thomas", email = "thomas.lorusso@statistik.ji.zh.ch", role = "aut"))
+Description: This package contains functions to perform the whole ETL (extract, transform, load) pipeline 
+    for each indicator of the "Dekarbonisierungsmonitoring" of the Kanton of Zürich.
+BugReports: https://github.com/statistikZH/decarb_monitoring/issues
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
