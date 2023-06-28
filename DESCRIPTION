@@ -1,5 +1,5 @@
 Package: decarbmonitoring
-Title: Create indicators relevant for the decarb monitoring of the Kanton of Zürich.
+Title: Create indicators relevant for the decarb monitoring of the Kanton of Zürich
 Version: 0.0.0.9000
 Authors@R: c(
     person("Bosch", "Philipp", email = "philipp.bosch@statistik.ji.zh.ch", role = "cre"),
