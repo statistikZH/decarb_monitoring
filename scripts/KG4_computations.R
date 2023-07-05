@@ -40,11 +40,9 @@ KG4_computed <- KG4_data %>%
   # nur Jahre mit Einwohnerdaten behalten
   tidyr::drop_na() %>%
   # Pro-Kopf berechnen
-  ## gma/2023-06-23, Einheit und Wert wegen Lesbarkeit angepasst auf Tonnen CO2-eq pro Kopf
-  dplyr::mutate(per_capita = Wert / Einwohner * 1000000) %>%
-  dplyr::mutate(Einheit = "Tonnen CO2-eq (pro Kopf)")
-  # dplyr::mutate(per_capita = Wert / Einwohner) %>%
-  # dplyr::mutate(Einheit = "Mio. Tonnen CO2-eq (pro Kopf)")
+  ## gma/2023-06-23, Wert wegen Lesbarkeit angepasst auf Tonnen CO2-eq pro Kopf
+  ## Einheit in Parameterliste nachgeführt
+  dplyr::mutate(per_capita = Wert / Einwohner * 1000000)
 
 # Die Voraussetzung für den letzten Schritt (3) ist ein Datensatz im long Format nach folgendem Beispiel:
 
@@ -71,6 +69,7 @@ KG4_export_data <- KG4_computed %>%
   dplyr::mutate(Variable = "Treibhausgas") %>%
   # Anreicherung  mit Metadaten
   dplyr::mutate(Indikator_ID = ds$dataset_id,
+                Einheit = ds$dimension_unit,
                 Indikator_Name = ds$dataset_name,
                 Datenquelle = ds$data_source) %>%
   dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
