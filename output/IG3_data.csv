@@ -1,3 +1,3 @@
 "Jahr","Gebiet","Indikator_ID","Indikator_Name","Variable","Wert","Einheit","Datenquelle"
-2020,"Kanton Zürich","IG3","Treibhauswirkung Kältemittel in grösseren Kälteanlagen","Durchschnittliche Treibhauswirkung (Global Warming Potential - GWP)",2038,"GWP in CO2eq","Amt für Abfall, Wasser, Energie und Luft des Kantons Zürich"
-2022,"Kanton Zürich","IG3","Treibhauswirkung Kältemittel in grösseren Kälteanlagen","Durchschnittliche Treibhauswirkung (Global Warming Potential - GWP)",1743,"GWP in CO2eq","Amt für Abfall, Wasser, Energie und Luft des Kantons Zürich"
+2020,"Kanton Zürich","IG3","Treibhauswirkung Kältemittel in grösseren Kälteanlagen","Durchschnittliche Treibhauswirkung (Global Warming Potential - GWP)",2038,"GWP in CO₂-Äquivalente (CO₂eq)","Amt für Abfall, Wasser, Energie und Luft des Kantons Zürich"
+2022,"Kanton Zürich","IG3","Treibhauswirkung Kältemittel in grösseren Kälteanlagen","Durchschnittliche Treibhauswirkung (Global Warming Potential - GWP)",1743,"GWP in CO₂-Äquivalente (CO₂eq)","Amt für Abfall, Wasser, Energie und Luft des Kantons Zürich"

@@ -49,6 +49,7 @@ IG3_computed <- IG3_data %>%
 IG3_export_data <- IG3_computed %>%
 # Anreicherung  mit Metadaten
   dplyr::mutate(Indikator_ID = ds$dataset_id,
+                Einheit = ds$dimension_unit,
                 Indikator_Name = ds$dataset_name,
                 Datenquelle = ds$data_source) %>%
   dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
