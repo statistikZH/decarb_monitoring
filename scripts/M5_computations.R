@@ -8,11 +8,9 @@ ds <- download_data(ds)
 
 # in this case two datasets are necessary (ZH data straight from the ressource and CH data is computed)
 m5_data_zh <- ds$data
-m5_data_ch <- ds$data_dep
+m5_data_ch <- ds$dep$M5_2
 
 # Computation of weighted mean (CH mean CO2) -----------------------------------------------------
-
-
 
 # First, we reshape both datasets to have the same long format
 co2_long <- ds$data %>%
@@ -21,7 +19,7 @@ co2_long <- ds$data %>%
     date == 20201101 ~ 20210101, # replace 11th January 2020 with 1st January 2021
     TRUE ~ as.numeric(date)))
 
-car_long <- ds$data_dep %>%
+car_long <- ds$dep$M5_2 %>%
   tidyr::pivot_longer(cols = -date, names_to = "Canton", values_to = "Num_Cars")
 
 # Then, we join both datasets on 'date' and 'Canton'
