@@ -39,6 +39,8 @@ KV3_computed <- KV3_data %>%
   dplyr::rename("Variable" = name)
 
 
+
+
 # Die Voraussetzung für den letzten Schritt (3) ist ein Datensatz im long Format nach folgendem Beispiel:
 
 # # A tibble: 216 × 5
@@ -62,6 +64,8 @@ KV3_export_data <- KV3_computed %>%
   dplyr::mutate(Indikator_ID = ds$dataset_id,
                 Indikator_Name = ds$indicator_name,
                 Datenquelle = ds$data_source) %>%
+  dplyr::mutate(Einheit = case_when(Einheit == "g CO2eq/km" ~ ds$dimension_unit,
+                              TRUE ~ as.character(Einheit))) %>%
   dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
 
 # assign data to be exported back to the initial ds object -> ready to export
