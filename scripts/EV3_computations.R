@@ -48,7 +48,7 @@ EV3_export_data <- EV3_computed %>%
                   Variable %in% c("erneuerbar", "nicht_erneuerbar") ~ ds$dimension_label,
                   TRUE ~ "Prozent (%)"
                 )) %>%
-  dplyr::mutate(Variable = dplyr::if_else(Variable %in% c("erneuerbar", "anteil_erneuerbar"), "Erneuerbar", "Nicht-erneuerbar")) %>%
+  dplyr::mutate(Variable = dplyr::if_else(Variable %in% c("erneuerbar", "anteil_erneuerbar"), "Im Kanton Zürich erneuerbar produzierter Strom", "Aus anderen Kantonen oder dem Ausland importierter Strom")) %>%
 # Anreicherung  mit Metadaten
   dplyr::mutate(Indikator_ID = ds$dataset_id,
                 Indikator_Name = ds$indicator_name,
