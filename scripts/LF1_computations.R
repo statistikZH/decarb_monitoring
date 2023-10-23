@@ -24,7 +24,7 @@ LF1_computed <- LF1_data %>%
   # remove unwanted artifacts in Gebiet variable
   dplyr::mutate(Gebiet = stringr::str_remove(Gebiet, stringr::fixed("** "))) %>%
   # prepare for join with pop data
-  dplyr::mutate(Gebiet = dplyr::if_else(Gebiet == "Zürich", "Kanton Zürich", Gebiet),
+  dplyr::mutate(Gebiet = dplyr::if_else(Gebiet == "Zürich" | Gebiet =="- Zürich", "Kanton Zürich", Gebiet),
                 Jahr = as.numeric(Jahr)) %>%
   # join with population data
   dplyr::left_join(LF1_pop, by = c("Jahr", "Gebiet")) %>%
