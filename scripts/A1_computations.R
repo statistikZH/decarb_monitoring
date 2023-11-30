@@ -27,13 +27,52 @@ a1_2_data <- ds$dep[[1]] %>%
   dplyr::rename("Gebiet" = id) %>%
   tidyr::pivot_longer(cols = matches("(\\d){4}"), names_to = "Jahr", values_to = "Wert")
 
-
 a1_3_data <- ds$dep[[2]] %>%
   # Renaming of columns in preparation to bring data into a uniform structure
   dplyr::rename("Gebiet" = id) %>%
   tidyr::pivot_longer(cols = matches("(\\d){4}"), names_to = "Jahr", values_to = "Wert")
 
+## Einschub - Daten unter opendata.swiss sind nicht sauber nachgeführt!
+#  Der Standort KVA Josefstrasse ist mit der Aktualisierung auf die
+#  2022er verschwunden...
+#  BFE als Datenlieferant ist informiert und hat versprochen den Standort
+#  Josefstrasse mit der Aktualisierung der 2023er Daten wieder zu integrieren
+#  Vorderhand braucht es einen kleinen Einschub damit die Zeitreihe
+#  vollständige Daten ausweist
 
+dir = "C:/Users/Public/kehrichtverbrennungsanlagen_Stand2021_inkl_Josefstrasse/"
+
+## Recycled Waste
+a1_data_21 <- readr::read_delim(paste0(dir,"RecycledWaste.csv"), delim = ",") %>%
+  # Renaming of columns in preparation to bring data into a uniform structure
+  dplyr::rename("Gebiet" = id) %>%
+  tidyr::pivot_longer(cols = matches("(\\d){4}"), names_to = "Jahr", values_to = "Wert") %>%
+  dplyr::filter(Gebiet == "ZH_5") %>%
+  dplyr::add_row(Name = "ZH Josefstrasse ", Gebiet = "ZH_5", Jahr = "2022", Wert = NA)
+
+a1_data <- dplyr::bind_rows(a1_data, a1_data_21)
+
+## Heat
+a1_2_data_21 <- readr::read_delim(paste0(dir,"Heat.csv"), delim = ",") %>%
+  # Renaming of columns in preparation to bring data into a uniform structure
+  dplyr::rename("Gebiet" = id) %>%
+  tidyr::pivot_longer(cols = matches("(\\d){4}"), names_to = "Jahr", values_to = "Wert") %>%
+  dplyr::filter(Gebiet == "ZH_5") %>%
+  dplyr::add_row(Name = "ZH Josefstrasse ", Gebiet = "ZH_5", Jahr = "2022", Wert = NA)
+
+a1_2_data <- dplyr::bind_rows(a1_2_data, a1_2_data_21)
+
+## Electricity
+a1_3_data_21 <- readr::read_delim(paste0(dir,"Electricity.csv"), delim = ",") %>%
+  # Renaming of columns in preparation to bring data into a uniform structure
+  dplyr::rename("Gebiet" = id) %>%
+  tidyr::pivot_longer(cols = matches("(\\d){4}"), names_to = "Jahr", values_to = "Wert") %>%
+  dplyr::filter(Gebiet == "ZH_5") %>%
+  dplyr::add_row(Name = "ZH Josefstrasse ", Gebiet = "ZH_5", Jahr = "2022", Wert = NA)
+
+a1_3_data <- dplyr::bind_rows(a1_3_data, a1_3_data_21)
+
+## Einschub beendet
 
 # Computation: Abfallmenge (t/a) & Abfallmenge pro Einwohner (t/a/Einw.) -----------------------------------------------------
 
