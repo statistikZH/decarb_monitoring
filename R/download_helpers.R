@@ -53,7 +53,10 @@ get_px_query_list <- function(ds) {
   # if it is still coded, we need to get the code for the max year
   # if the codes were changed to the actual year, we can get rid of the
   # if else clause
-  if(ds$dataset_id == "G1"){
+  # gma, 2023-12-13, changed "G1" to "G9", if it works: "if else" can be simplified to
+  # query_list[[ds$year_col]] <- as.character(ds$year_start:ds$year_end)
+
+  if(ds$dataset_id == "G9"){
     query_list[[ds$year_col]] <- as.character(ds$year_start)
   }else{
     query_list[[ds$year_col]] <- as.character(
