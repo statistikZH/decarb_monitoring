@@ -48,21 +48,7 @@ get_bfs_asset_info <- function(ds) {
 get_px_query_list <- function(ds) {
 
   query_list <- list()
-
-  # FIXME: At the next update check labels for the year!!
-  # if it is still coded, we need to get the code for the max year
-  # if the codes were changed to the actual year, we can get rid of the
-  # if else clause
-  # gma, 2023-12-13, changed "G1" to "G9", if it works: "if else" can be simplified to
-  # query_list[[ds$year_col]] <- as.character(ds$year_start:ds$year_end)
-
-  if(ds$dataset_id == "G9"){
-    query_list[[ds$year_col]] <- as.character(ds$year_start)
-  }else{
-    query_list[[ds$year_col]] <- as.character(
-      ds$year_start:ds$year_end
-    )
-  }
+  query_list[[ds$year_col]] <- as.character(ds$year_start:ds$year_end)
 
   # excel coerces comma to decimal point in gebiet_id
   if(stringr::str_detect(ds$gebiet_id, pattern = "\\.")){
@@ -70,8 +56,6 @@ get_px_query_list <- function(ds) {
   }else{
     query_list[[ds$gebiet_col]] <- stringr::str_split(ds$gebiet_id, ",")[[1]]
   }
-
-
 
   # check if two dimension cols are given in the parameter list
   if(!is.na(ds$dimension1_col)){
