@@ -17,7 +17,7 @@ get_bfs_asset_info <- function(ds) {
   # Retrieve asset number
   # 'asset_number' is used to construct the current read_paths for BFS assets from the DAM API.
   ds$asset_number <- asset_page %>%
-    rvest::html_text(ds$data_id) %>%
+    rvest::html_text() %>%
     stringr::str_extract("https://.*assets/.*/") %>%
     stringr::str_extract("[0-9]+")
 
