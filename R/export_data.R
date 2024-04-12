@@ -11,7 +11,7 @@ export_data <- function(ds, interactive = TRUE){
   # expected_variables <- c("Jahr", "Gebiet", "Indikator_ID", "Indikator_Name", "Variable", "Wert", "Einheit", "Datenquelle")
   # conditionally define expected_variables -> M2/M4 with additional attribute "gruppe"
   expected_variables <- if (any(ds$dataset_id %in% c("M2", "M4"))) {
-    c("Jahr", "Gebiet", "Indikator_ID", "Indikator_Name", "gruppe", "Variable", "Wert", "Einheit", "Datenquelle")
+    c("Jahr", "Gebiet", "Indikator_ID", "Indikator_Name", "Gruppe", "Variable", "Wert", "Einheit", "Datenquelle")
   } else {
     c("Jahr", "Gebiet", "Indikator_ID", "Indikator_Name", "Variable", "Wert", "Einheit", "Datenquelle")
   }
