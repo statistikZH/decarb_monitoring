@@ -48,7 +48,13 @@ get_bfs_asset_info <- function(ds) {
 get_px_query_list <- function(ds) {
 
   query_list <- list()
-  query_list[[ds$year_col]] <- as.character(ds$year_start:ds$year_end)
+  # In some cases, the year is not referred to by the value of the year, e.g. "2023", but by an index where the most recent year is "0".
+  # For those cases, the column year_start contains the number of years to pull, e.g. 2023 - 1996 = 27 --> so it calls index 0:27
+  if (ds$year_start > 1000) {
+    query_list[[ds$year_col]] <- as.character(ds$year_start:ds$year_end)
+  } else {
+    query_list[[ds$year_col]] <- as.character(0:ds$year_start)
+  }
 
   # excel coerces comma to decimal point in gebiet_id
   if(stringr::str_detect(ds$gebiet_id, pattern = "\\.")){
