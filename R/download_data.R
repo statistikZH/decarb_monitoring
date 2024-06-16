@@ -69,20 +69,13 @@ read_data.default <- function(ds) {
 
   temp_file <- paste0("temp.", file_ext)
 
-  # check which system is used to set the download method
-  if (Sys.info()["sysname"] == "Windows"){
-    download_method <- "wininet"
 
-
-  }else{
-    download_method <- "auto"
-  }
 
   # Download the file
 
 
   withr::with_envvar(new = c("no_proxy" = "dam-api.bfs.admin.ch"),
-                     code = download.file(url = ds$read_path, destfile = temp_file, method = download_method, mode = "wb"))
+                     code = download.file(url = ds$read_path, destfile = temp_file, mode = "wb"))
   # Import the data
   ds$data <-  rio::import(temp_file, which = ds$which_data, header = TRUE)
 
