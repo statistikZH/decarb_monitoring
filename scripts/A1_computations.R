@@ -48,7 +48,10 @@ a1_data_21 <- readr::read_delim(paste0(dir,"RecycledWaste.csv"), delim = ",") %>
   dplyr::rename("Gebiet" = id) %>%
   tidyr::pivot_longer(cols = matches("(\\d){4}"), names_to = "Jahr", values_to = "Wert") %>%
   dplyr::filter(Gebiet == "ZH_5") %>%
-  dplyr::add_row(Name = "ZH Josefstrasse ", Gebiet = "ZH_5", Jahr = "2022", Wert = NA)
+  dplyr::add_row(Name = c("ZH Josefstrasse", "ZH Josefstrasse"),
+                 Gebiet = c("ZH_5", "ZH_5"),
+                 Jahr = c("2022", "2023"),
+                 Wert = c(NA, NA))
 
 a1_data <- dplyr::bind_rows(a1_data, a1_data_21)
 
@@ -58,7 +61,10 @@ a1_2_data_21 <- readr::read_delim(paste0(dir,"Heat.csv"), delim = ",") %>%
   dplyr::rename("Gebiet" = id) %>%
   tidyr::pivot_longer(cols = matches("(\\d){4}"), names_to = "Jahr", values_to = "Wert") %>%
   dplyr::filter(Gebiet == "ZH_5") %>%
-  dplyr::add_row(Name = "ZH Josefstrasse ", Gebiet = "ZH_5", Jahr = "2022", Wert = NA)
+  dplyr::add_row(Name = c("ZH Josefstrasse", "ZH Josefstrasse"),
+        Gebiet = c("ZH_5", "ZH_5"),
+        Jahr = c("2022", "2023"),
+        Wert = c(NA, NA))
 
 a1_2_data <- dplyr::bind_rows(a1_2_data, a1_2_data_21)
 
@@ -68,7 +74,10 @@ a1_3_data_21 <- readr::read_delim(paste0(dir,"Electricity.csv"), delim = ",") %>
   dplyr::rename("Gebiet" = id) %>%
   tidyr::pivot_longer(cols = matches("(\\d){4}"), names_to = "Jahr", values_to = "Wert") %>%
   dplyr::filter(Gebiet == "ZH_5") %>%
-  dplyr::add_row(Name = "ZH Josefstrasse ", Gebiet = "ZH_5", Jahr = "2022", Wert = NA)
+  dplyr::add_row(Name = c("ZH Josefstrasse", "ZH Josefstrasse"),
+                 Gebiet = c("ZH_5", "ZH_5"),
+                 Jahr = c("2022", "2023"),
+                 Wert = c(NA, NA))
 
 a1_3_data <- dplyr::bind_rows(a1_3_data, a1_3_data_21)
 
@@ -78,6 +87,13 @@ a1_3_data <- dplyr::bind_rows(a1_3_data, a1_3_data_21)
 
 ## Getting population data for Kanton Zürich from indicator Q1 with helper function
 a1_population <- decarbmonitoring::download_per_capita()
+# Ergänzung um prov. Einwohnerdaten 2023
+a1_population <- a1_population %>%
+  dplyr::add_row(Jahr = c(2023, 2023),
+                 Gebiet = c("Schweiz", "Kanton Zürich"),
+                 Einwohner = c(8960817, 1605264))
+
+
 
 a1_computed <- a1_data %>%
   # Compute Wert for Schweiz (sum of all values)
