@@ -30,7 +30,7 @@ KG4_pop <- decarbmonitoring::download_per_capita() %>%
 
 KG4_computed <- KG4_data %>%
   # HIER JEDES JAHR ANPASSEN!
-  dplyr::slice(5:25) %>%
+  dplyr::slice(5:26) %>%
   # Renaming of columns in preparation to bring data into a uniform structure
   dplyr::rename("Jahr" = 1, "Wert" = 2) %>%
   dplyr::mutate(Jahr = as.numeric(Jahr),
