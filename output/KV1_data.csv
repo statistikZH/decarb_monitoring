@@ -1,4 +1,6 @@
 "Jahr","Gebiet","Indikator_ID","Indikator_Name","Variable","Wert","Einheit","Datenquelle"
+2009,"Kanton Zürich","KV1","CO₂-Emissionen kantonale Gebäude","Emissionen",16.7,"kg CO₂/m²","Hochbauamt des Kantons Zürich"
+2010,"Kanton Zürich","KV1","CO₂-Emissionen kantonale Gebäude","Emissionen",14.95,"kg CO₂/m²","Hochbauamt des Kantons Zürich"
 2011,"Kanton Zürich","KV1","CO₂-Emissionen kantonale Gebäude","Emissionen",16.87,"kg CO₂/m²","Hochbauamt des Kantons Zürich"
 2012,"Kanton Zürich","KV1","CO₂-Emissionen kantonale Gebäude","Emissionen",13.67,"kg CO₂/m²","Hochbauamt des Kantons Zürich"
 2013,"Kanton Zürich","KV1","CO₂-Emissionen kantonale Gebäude","Emissionen",14.25,"kg CO₂/m²","Hochbauamt des Kantons Zürich"
@@ -10,4 +12,5 @@
 2019,"Kanton Zürich","KV1","CO₂-Emissionen kantonale Gebäude","Emissionen",11.87,"kg CO₂/m²","Hochbauamt des Kantons Zürich"
 2020,"Kanton Zürich","KV1","CO₂-Emissionen kantonale Gebäude","Emissionen",11.17,"kg CO₂/m²","Hochbauamt des Kantons Zürich"
 2021,"Kanton Zürich","KV1","CO₂-Emissionen kantonale Gebäude","Emissionen",10.73,"kg CO₂/m²","Hochbauamt des Kantons Zürich"
-2022,"Kanton Zürich","KV1","CO₂-Emissionen kantonale Gebäude","Emissionen",9.59,"kg CO₂/m²","Hochbauamt des Kantons Zürich"
+2022,"Kanton Zürich","KV1","CO₂-Emissionen kantonale Gebäude","Emissionen",10.66,"kg CO₂/m²","Hochbauamt des Kantons Zürich"
+2023,"Kanton Zürich","KV1","CO₂-Emissionen kantonale Gebäude","Emissionen",10.39,"kg CO₂/m²","Hochbauamt des Kantons Zürich"
