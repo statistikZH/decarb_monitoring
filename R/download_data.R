@@ -13,7 +13,7 @@
 #' @export
 download_data <- function(ds){
 
-    # creates the path for the download URL
+  # creates the path for the download URL
   ds <- get_read_path(ds)
   # streams the data and appends it to the ds in $data
   ds <- read_data(ds)
@@ -69,13 +69,22 @@ read_data.default <- function(ds) {
 
   temp_file <- paste0("temp.", file_ext)
 
-
-
   # Download the file
+
+  if (Sys.info()["sysname"] == "Windows"){
+
+    download_method <- "wininet"
+
+
+  }else{
+
+    download_method <- "auto"
+
+  }
 
 
   withr::with_envvar(new = c("no_proxy" = "dam-api.bfs.admin.ch"),
-                     code = download.file(url = ds$read_path, destfile = temp_file, mode = "wb"))
+                     code = download.file(url = ds$read_path, destfile = temp_file, mode = "wb", method = download_method))
   # Import the data
   ds$data <-  rio::import(temp_file, which = ds$which_data, header = TRUE)
 
@@ -124,8 +133,3 @@ read_data.px <- function(ds){
 
   return(ds)
 }
-
-
-
-
-
