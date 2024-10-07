@@ -19,7 +19,8 @@ download_data <- function(ds){
   ds <- read_data(ds)
 
   # if the dataset requires a dependency (another dataset) the read function is called again and downloads the dependency
-  if(!is.na(ds$dependency)){
+  # second part of if statement is need to ensure there is no infinite recursion (same dataset dowloaded over & over)
+  if(!is.na(ds$dependency) && ds$dataset_id != ds$dependency){
 
     ds$dep <- list()
 
