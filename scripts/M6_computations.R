@@ -29,6 +29,13 @@ m6_export_data <- m6_data_oev %>%
                 Datenquelle = ds$data_source) %>%
   dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
 
+# # Daten MIV noch nicht nachgeführt, temporärer Workaround
+# m6_data_miv <- m6_export_data %>%
+#   dplyr:: mutate(Variable = "MIV", Wert = 1 - Wert)
+#
+# m6_export_data <- m6_export_data %>%
+#   dplyr::bind_rows(m6_data_miv)
+
 # assign data to be exported back to the initial ds object -> ready to export
 ds$export_data <- m6_export_data
 
