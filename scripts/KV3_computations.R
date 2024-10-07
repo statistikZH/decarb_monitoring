@@ -76,13 +76,18 @@ KV3_computed <- dplyr::bind_rows(KV3_comp1,KV3_comp2) %>%
 # - Angleichung der Spaltennamen / Kategorien und Einheitslabels an die Konvention
 # - Anreicherung mit Metadaten aus der Datensatzliste
 
+
+# Enrich KV3_computed with metadata
 KV3_export_data <- KV3_computed %>%
-# Anreicherung  mit Metadaten
-  dplyr::mutate(Indikator_ID = ds$dataset_id,
-                Indikator_Name = ds$indicator_name,
-                Datenquelle = ds$data_source) %>%
-  # dplyr::mutate(Einheit = case_when(Einheit == "g CO2eq/km" ~ "g CO₂eq/km,
-  #                              TRUE ~ as.character(Einheit))) %>%
+  dplyr::mutate(
+    Indikator_ID = ds$dataset_id,
+    Indikator_Name = ds$indicator_name,
+    Datenquelle = ds$data_source,
+    Variable = case_when(
+      Variable == "Schwere Nutzfahrzeuge (N2/N3)" ~ "Lastwagen (N2/N3)",
+      TRUE ~ as.character(Variable)
+    )
+  ) %>%
   dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
 
 # assign data to be exported back to the initial ds object -> ready to export
@@ -91,5 +96,4 @@ ds$export_data <- KV3_export_data
 # Export CSV --------------------------------------------------------------
 
 # Daten werden in den /output - Ordner geschrieben
-
 export_data(ds)
