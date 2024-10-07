@@ -6,29 +6,77 @@
 #'
 #' @param bfs_nr Number of a bfs publication e.g: "ind-d-21.02.30.1202.02.01"
 get_bfs_asset_info <- function(ds) {
-  bfs_home <- "https://www.bfs.admin.ch"
-
-  asset_page <- httr::GET(paste0(bfs_home, "/asset/de/", ds$data_id), config = httr::use_proxy("")) %>%
-    rvest::read_html()
 
 
-  #asset_page <- xml2::read_html(paste0(bfs_home, "/asset/de/", ds$data_id))
 
-  # Retrieve asset number
-  # 'asset_number' is used to construct the current read_paths for BFS assets from the DAM API.
-  ds$asset_number <- asset_page %>%
-    rvest::html_text() %>%
-    stringr::str_extract("https://.*assets/.*/") %>%
-    stringr::str_extract("[0-9]+")
+  # Define the base URL for the DAM API
+  base_url <- "https://dam-api.bfs.admin.ch/hub/api/dam/assets"
 
-  # Retrieve last year of the time series
-  # 'year_end' is used in the px query list
-  ds$year_end <- asset_page %>%
-    rvest::html_element("table") %>%
-    rvest::html_table() %>%
-    dplyr::filter(X1 == "Dargestellter Zeitraum") %>%
-    dplyr::pull(X2) %>%
-    substr(., nchar(.) - 3, nchar(.))
+  # Use withr::with_envvar to set no_proxy environment variable
+  withr::with_envvar(
+    new = c("no_proxy" = "dam-api.bfs.admin.ch"),
+    code = {
+      # Build the request URL with the order number as a query parameter
+      response <- httr2::request(base_url) %>%
+        httr2::req_url_query(orderNr = ds$data_id) %>%
+        httr2::req_headers(
+          "accept" = "application/json",      # Ensure we accept JSON
+          "Content-Type" = "application/json" # Request content type is JSON
+        ) %>%
+        httr2::req_perform()
+
+
+
+        # Parse the JSON response body into a list
+        data <- httr2::resp_body_json(response)
+
+    }
+  )
+
+  # save the resulting link list
+  links <- data[["data"]][[1]][["links"]]
+
+  # Define URL extraction based on the format using regex
+  if (ds$download_format == "px") {
+    # Regex to match URLs for .px files
+    px_regex <- "https://www\\.pxweb\\.bfs\\.admin\\.ch/api/v1/.+\\.px"
+    for (link in links) {
+      if (grepl(px_regex, link$href)) {
+        ds$read_path <- link$href
+        found <- TRUE
+        break
+      }
+
+      }
+    if(found != TRUE){
+      stop("Error: No matching .px URL found.")
+    }
+
+
+
+  } else if (ds$download_format == "xlsx") {
+    # Look for the master link with format xlsx
+    for (link in links) {
+      if (link$rel == "master" && link$format == "xlsx") {
+        ds$read_path <- link$href
+        found <- TRUE
+        break
+      }
+
+    }
+
+    if(found != TRUE){
+      stop("Error: No matching .xlsx URL found.")
+    }
+  }
+
+  # extract the last year of the data from the API meta data
+  year_end <- data[["data"]][[1]][["description"]][["bibliography"]][["period"]] %>%
+    stringr::str_extract(pattern = "(?<=-)[[:digit:]]{4}")
+
+  ds$year_end <- as.numeric(year_end)
+
+
 
   return(ds)
 }
@@ -48,13 +96,33 @@ get_bfs_asset_info <- function(ds) {
 get_px_query_list <- function(ds) {
 
   query_list <- list()
-  # In some cases, the year is not referred to by the value of the year, e.g. "2023", but by an index where the most recent year is "0".
-  # For those cases, the column year_start contains the number of years to pull, e.g. 2023 - 1996 = 27 --> so it calls index 0:27
-  if (ds$year_start > 1000) {
+
+  # extract the labels & codes for the years in the px data
+  lookup_list_year <- get_px_year_info(ds)
+
+  # get the index of the supplied start year
+  start_year_index <- which(lookup_list_year$valueTexts == ds$year_start)
+
+  start_year_value_text <- as.integer(lookup_list_year$valueTexts[[start_year_index]])
+
+
+  start_year_code <- as.integer(lookup_list_year$values[[start_year_index]])
+
+
+  #check if supplied year start can be found in the codes from the bfs px
+  if(ds$year_start %in% lookup_list_year$values && start_year_code == ds$year_start){
     query_list[[ds$year_col]] <- as.character(ds$year_start:ds$year_end)
   } else {
-    query_list[[ds$year_col]] <- as.character(0:ds$year_start)
+    # check if Values are counted upwards or downwards
+    if(as.integer(lookup_list_year$valueTexts[[1]]) < as.integer(lookup_list_year$valueTexts[[2]])){
+      # values are counted upwards
+      query_list[[ds$year_col]] <- as.character(lookup_list_year$values[[start_year_index]]:lookup_list_year$values[[length(lookup_list_year$values)]])
+    } else {
+      # values are counted downwards
+      query_list[[ds$year_col]] <- as.character(lookup_list_year$values[[start_year_index]]:0)
+    }
   }
+
 
   # excel coerces comma to decimal point in gebiet_id
   if(stringr::str_detect(ds$gebiet_id, pattern = "\\.")){
@@ -127,25 +195,66 @@ get_read_path_bfs <- function(ds) UseMethod("get_read_path_bfs")
 #' the asset number (BFS Nr) is required
 #'
 get_read_path_bfs.default <- function(ds){
-  # get asset number
+  # get asset number, year_end & download_path
   ds <- get_bfs_asset_info(ds)
-
-  # set download path
-  ds$read_path <- paste0(ds$data_url, ds$asset_number, "/master")
 
   return(ds)
 }
-#' Method for creating the read path for PXWEB data cubes
+
+
+
+#' Extract the labels & codes for the years in the px data
 #'
-#' the asset number (BFS Nr) is required
-get_read_path_bfs.px <- function(ds){
+#' @param ds
+#'
+#' @return list object which includes labels and codes
+#'
+#'
+#'
+get_px_year_info <- function(ds){
+  #get the json file with meta-data
+  withr::with_envvar(
+    new = c("no_proxy" = "pxweb.bfs.admin.ch"),
+    code = {
+      # Make the GET request and retrieve the JSON response
+      response <- httr2::request(ds$read_path) |>
+        httr2::req_perform()
+    }
+  )
 
-  ds <- get_bfs_asset_info(ds)
+  # parse it to a list
+  parsed_data <- httr2::resp_body_json(response)
 
-  # Create the download url
-  # all required information, like the name of the data cube, are in the dataset (ds)
-  # Example: name of the data cube ("px-x-0103010000_102") is taken from ds$data_id
-  ds$read_path <- paste0(ds$data_url, ds$data_id, "/", ds$data_id, ".px")
+  # find the right list element which includes the years
+  for (variable in parsed_data$variables) {
+    if (variable$code == ds$year_col) {
+      jahr_variable <- variable
+      break  # Exit the loop once found
+    }
+  }
 
-  return(ds)
+  # fill the information in a list
+  if (!is.null(jahr_variable)) {
+    jahr_code <- jahr_variable$code
+    jahr_text <- jahr_variable$text
+    jahr_values <- jahr_variable$values
+    jahr_valueTexts <- jahr_variable$valueTexts
+
+    # Return as a list including values and valueTexts
+    lookup_list_year <- list(
+      code = jahr_code,
+      text = jahr_text,
+      values = jahr_values,
+      valueTexts = jahr_valueTexts
+    )
+
+  } else {
+    stop("Error: 'Jahr' variable not found")
+  }
+
+  return(lookup_list_year)
+
 }
+
+
+
