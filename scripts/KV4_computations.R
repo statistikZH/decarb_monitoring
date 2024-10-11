@@ -50,12 +50,12 @@ KV4_export_data <- KV4_computed %>%
     Indikator_ID = ds$dataset_id,
     Indikator_Name = ds$indicator_name,
     Datenquelle = ds$data_source,
-    Fahrzeugtyp = case_when(
+    Fahrzeugtyp = dplyr::case_when(
       Fahrzeugtyp == "Schwere Nutzfahrzeuge (N2/N3)" ~ "Lastwagen (N2/N3)",
       TRUE ~ as.character(Fahrzeugtyp)
     )
   ) %>%
-  dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Fahrzeugtyp, Variable, Wert, Einheit, Datenquelle)
+  dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, "Gruppe" = Fahrzeugtyp, Variable, Wert, Einheit, Datenquelle)
 
 # assign data to be exported back to the initial ds object -> ready to export
 ds$export_data <- KV4_export_data
