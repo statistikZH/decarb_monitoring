@@ -1,5 +1,8 @@
 # G4 - Heizgradtage
 
+# Ab Ende 2024 stehen die Daten nicht mehr über das UGZ Stadt Zürich zur Verfügung
+# Alternative suchen (MeteoSchweiz ab April 2025?) und Datenquelle anpassen
+
 # Import data -------------------------------------------------------------
 
 ds <- create_dataset("G4")
