@@ -14,23 +14,23 @@ EV2_data <- ds$data
 # Berechnungen -----------------------------------------------------
 
 # Bevölkerungszahlen benötigt für per_capita (gefiltert auf Kanton Zürich)
-EV2_pop <- decarbmonitoring::download_per_capita()%>%
+EV2_pop <- decarbmonitoring::download_per_capita() |>
   dplyr::filter(Gebiet == "Kanton Zürich")
 
 # Annahme: nur das total pro Jahr sowie per_capita vom total pro Jahr werden visualisiert
 
-EV2_computed <- EV2_data %>%
-  dplyr::filter(Energiesektor == "Strom") %>%
+EV2_computed <- EV2_data |>
+  dplyr::filter(Energiesektor == "Strom") |>
   dplyr::mutate(Wert = dplyr::case_when(
     is.na(Wert) ~ 0,
     TRUE ~ as.numeric(Wert)
-  )) %>%
-  dplyr::group_by(Jahr) %>%
-  dplyr::summarise(Total = sum(Wert)) %>%
-  dplyr::left_join(EV1_pop, by = "Jahr") %>%
-  dplyr::mutate(per_capita = Total / Einwohner) %>%
-  dplyr::select(-Einwohner) %>%
-  tidyr::pivot_longer(cols = c("Total", "per_capita"), names_to = "Einheit", values_to = "Wert") %>%
+  )) |>
+  dplyr::group_by(Jahr) |>
+  dplyr::summarise(Total = sum(Wert)) |>
+  dplyr::left_join(EV2_pop, by = "Jahr") |>
+  dplyr::mutate(per_capita = Total / Einwohner) |>
+  dplyr::select(-Einwohner) |>
+  tidyr::pivot_longer(cols = c("Total", "per_capita"), names_to = "Einheit", values_to = "Wert") |>
   dplyr::ungroup()
 
 # Die Voraussetzung für den letzten Schritt (3) ist ein Datensatz im long Format nach folgendem Beispiel:
@@ -51,16 +51,16 @@ EV2_computed <- EV2_data %>%
 # - Angleichung der Spaltennamen / Kategorien und Einheitslabels an die Konvention
 # - Anreicherung mit Metadaten aus der Datensatzliste
 
-EV2_export_data <- EV2_computed %>%
+EV2_export_data <- EV2_computed |>
   # Renaming values
   dplyr::mutate(Einheit = dplyr::case_when(Einheit == "Total" ~ "Megawattstunden (MWh)",
                                            Einheit == "per_capita" ~ "Megawattstunden pro Person (MWh/Person)",
-                                           TRUE ~ Einheit)) %>%
+                                           TRUE ~ Einheit)) |>
   # Manually adding columns for Indikator_ID, Indikator_Name, Einheit and Datenquelle
   dplyr::mutate(Indikator_ID = ds$dataset_id,
                 Indikator_Name = ds$indicator_name,
                 Datenquelle = ds$data_source,
-                Variable = "Strom aus erneuerbaren Energieträgern") %>%
+                Variable = "Strom aus erneuerbaren Energieträgern") |>
   dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
 
 
