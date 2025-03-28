@@ -10,15 +10,31 @@ ds <- download_data(ds)
 # Dieses Objekt dient als Grundlage zur Weiterverarbeitung
 
 EV3_data <- ds$data
+EV3_data_eb <- ds$dep$EV1
+
+# Filtering and joining -----------------------------------------------------
+EV3_data_eb_sub <- EV3_data_eb |>
+  dplyr::filter(Energiesektor == "Strom") |>
+  dplyr::group_by(Jahr,Energiesektor) |>
+  dplyr::summarise(Wert = sum(Wert)) |>
+  dplyr::mutate(Strom = "erneuerbar", Einheit = "MWh") |>
+  dplyr::select(Jahr, Strom, Wert, Einheit)
+
+EV3_data_sub <- EV3_data |>
+  dplyr::filter(Energiesektor == "Strom") |>
+  dplyr::mutate(Strom = "total", Wert = Wert * 1000, Einheit = "MWh") |>
+  dplyr::select(Jahr, Strom, Wert, Einheit)
+
+EV3_data_joined <- dplyr::bind_rows(EV3_data_sub,EV3_data_eb_sub)
 
 # Berechnungen -----------------------------------------------------
 
-EV3_computed <- EV3_data %>%
-  dplyr::mutate(Gebiet = ds$gebiet_name) %>%
-  tidyr::pivot_wider(names_from = Strom, values_from = Wert) %>%
+EV3_computed <- EV3_data_joined |>
+  dplyr::mutate(Gebiet = ds$gebiet_name) |>
+  tidyr::pivot_wider(names_from = Strom, values_from = Wert) |>
   dplyr::mutate(nicht_erneuerbar = total - erneuerbar,
                 anteil_erneuerbar = erneuerbar / total,
-                anteil_nicht_erneuerbar = (total - erneuerbar) / total) %>%
+                anteil_nicht_erneuerbar = (total - erneuerbar) / total) |>
   tidyr::pivot_longer(cols = c(total, erneuerbar, nicht_erneuerbar, anteil_erneuerbar, anteil_nicht_erneuerbar), values_to = "Wert")
 
 # Die Voraussetzung für den letzten Schritt (3) ist ein Datensatz im long Format nach folgendem Beispiel:
@@ -39,20 +55,20 @@ EV3_computed <- EV3_data %>%
 # - Angleichung der Spaltennamen / Kategorien und Einheitslabels an die Konvention
 # - Anreicherung mit Metadaten aus der Datensatzliste
 
-EV3_export_data <- EV3_computed %>%
-  dplyr::filter(name != "total") %>%
-  dplyr::rename("Variable" = name) %>%
+EV3_export_data <- EV3_computed |>
+  dplyr::filter(name != "total") |>
+  dplyr::rename("Variable" = name) |>
   # Renaming values
   dplyr::mutate(Gebiet = "Kanton Zürich",
                 Einheit = dplyr::case_when(
                   Variable %in% c("erneuerbar", "nicht_erneuerbar") ~ ds$dimension_label,
                   TRUE ~ "Prozent (%)"
-                )) %>%
-  dplyr::mutate(Variable = dplyr::if_else(Variable %in% c("erneuerbar", "anteil_erneuerbar"), "Im Kanton Zürich erneuerbar produzierter Strom", "Aus anderen Kantonen oder dem Ausland importierter Strom")) %>%
+                )) |>
+  dplyr::mutate(Variable = dplyr::if_else(Variable %in% c("erneuerbar", "anteil_erneuerbar"), "Im Kanton Zürich erneuerbar produzierter Strom", "Aus anderen Kantonen oder dem Ausland importierter Strom")) |>
 # Anreicherung  mit Metadaten
   dplyr::mutate(Indikator_ID = ds$dataset_id,
                 Indikator_Name = ds$indicator_name,
-                Datenquelle = ds$data_source) %>%
+                Datenquelle = ds$data_source) |>
   dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
 
 # assign data to be exported back to the initial ds object -> ready to export
@@ -61,5 +77,4 @@ ds$export_data <- EV3_export_data
 # Export CSV --------------------------------------------------------------
 
 # Daten werden in den /output - Ordner geschrieben
-
 export_data(ds)
