@@ -19,9 +19,9 @@ LF1_data <- ds$data
 LF1_pop <- decarbmonitoring::download_per_capita()
 # Ergänzung um prov. Einwohnerdaten 2023
 LF1_pop <- LF1_pop %>%
-  dplyr::add_row(Jahr = c(2023, 2023),
+  dplyr::add_row(Jahr = c(2024, 2024),
                  Gebiet = c("Schweiz", "Kanton Zürich"),
-                 Einwohner = c(8960817, 1605264))
+                 Einwohner = c(9048905, 1619499))
 
 LF1_computed <- LF1_data %>%
   # Renaming of columns in preparation to bring data into a uniform structure
