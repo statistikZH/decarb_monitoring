@@ -83,7 +83,7 @@ KV3_export_data <- KV3_computed %>%
     Indikator_ID = ds$dataset_id,
     Indikator_Name = ds$indicator_name,
     Datenquelle = ds$data_source,
-    Variable = case_when(
+    Variable = dplyr::case_when(
       Variable == "Schwere Nutzfahrzeuge (N2/N3)" ~ "Lastwagen (N2/N3)",
       TRUE ~ as.character(Variable)
     )
