@@ -3,19 +3,17 @@
 
 # Import data -------------------------------------------------------------
 # Schritt 1 : hier werden die Daten eingelesen
+library(httr)
 
 ds <- create_dataset('KG4')
 ds <- download_data(ds)
 
 # Dieses Objekt dient als Grundlage zur Weiterverarbeitung
-
 KG4_data <- ds$data
 
 # Einlesen von Populationsdaten für per_capita
 KG4_pop <- decarbmonitoring::download_per_capita() %>%
   dplyr::filter(Gebiet == "Schweiz")
-
-
 
 # Berechnungen -----------------------------------------------------
 
@@ -28,20 +26,39 @@ KG4_pop <- decarbmonitoring::download_per_capita() %>%
 
 # Beispiel : Fahrzeuge nach Treibstoff - dieser Block dient nur der Veranschaulichung ---------
 
+# KG4_computed <- KG4_data %>%
+#   # HIER JEDES JAHR ANPASSEN!
+#   dplyr::slice(5:26) %>%
+#   # Renaming of columns in preparation to bring data into a uniform structure
+#   dplyr::rename("Jahr" = 1, "Wert" = 2) %>%
+#   dplyr::mutate(Jahr = as.numeric(Jahr),
+#                 Wert = as.numeric(Wert)) %>%
+#   # Join mit Populationsdaten um Pro-Kopf zu berechnen
+#   dplyr::left_join(KG4_pop, by = "Jahr") %>%
+#   # nur Jahre mit Einwohnerdaten behalten
+#   tidyr::drop_na() %>%
+#   # Pro-Kopf berechnen
+#   ## gma/2023-06-23, Wert wegen Lesbarkeit angepasst auf Tonnen CO2-eq pro Kopf
+#   ## Einheit in Parameterliste nachgeführt
+#   dplyr::mutate(per_capita = Wert / Einwohner * 1000000)
+
 KG4_computed <- KG4_data %>%
   # HIER JEDES JAHR ANPASSEN!
-  dplyr::slice(5:25) %>%
+  dplyr::filter(AGGR_BY == "total") |>
   # Renaming of columns in preparation to bring data into a uniform structure
-  dplyr::rename("Jahr" = 1, "Wert" = 2) %>%
+  dplyr::select("Jahr" = YEAR, "Wert" = VALUE)  |>
   dplyr::mutate(Jahr = as.numeric(Jahr),
-                Wert = as.numeric(Wert)) %>%
+                Wert = as.numeric(Wert)) |>
   # Join mit Populationsdaten um Pro-Kopf zu berechnen
-  dplyr::left_join(KG4_pop, by = "Jahr") %>%
+  dplyr::left_join(KG4_pop, by = "Jahr") |>
   # nur Jahre mit Einwohnerdaten behalten
-  tidyr::drop_na() %>%
+  tidyr::drop_na() |>
   # Pro-Kopf berechnen
-  dplyr::mutate(per_capita = Wert / Einwohner) %>%
-  dplyr::mutate(Einheit = "Mio. Tonnen CO2-eq (pro Kopf)")
+  ## gma/2023-06-23, Wert wegen Lesbarkeit angepasst auf Tonnen CO2-eq pro Kopf
+  ## Einheit in Parameterliste nachgeführt
+  dplyr::mutate(per_capita = Wert / Einwohner * 1000)
+
+
 # Die Voraussetzung für den letzten Schritt (3) ist ein Datensatz im long Format nach folgendem Beispiel:
 
 # # A tibble: 216 × 5
@@ -67,6 +84,7 @@ KG4_export_data <- KG4_computed %>%
   dplyr::mutate(Variable = "Treibhausgas") %>%
   # Anreicherung  mit Metadaten
   dplyr::mutate(Indikator_ID = ds$dataset_id,
+                Einheit = ds$dimension_unit,
                 Indikator_Name = ds$dataset_name,
                 Datenquelle = ds$data_source) %>%
   dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
