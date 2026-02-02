@@ -15,20 +15,30 @@ download_data <- function(ds){
 
   # creates the path for the download URL
   ds <- get_read_path(ds)
-
   # streams the data and appends it to the ds in $data
   ds <- read_data(ds)
 
   # if the dataset requires a dependency (another dataset) the read function is called again and downloads the dependency
-  if(!is.na(ds$dependency)){
-    #temporarily create a dependent ds and download the data
-    ds_dep <- create_dataset(ds$dependency)
-    ds_dep <- download_data(ds_dep)
+  # second part of if statement is need to ensure there is no infinite recursion (same dataset dowloaded over & over)
+  if(!is.na(ds$dependency) && ds$dataset_id != ds$dependency){
 
-    #add the downloaded data to the original ds object
-    ds$data_dep <- ds_dep$data
+    ds$dep <- list()
+
+    # Splitting the dependencies into a vector
+    deps <- strsplit(ds$dependency, ", ")[[1]]
+
+    # Iterating over each dependency in the list
+    for (dep in deps) {
+
+      # Temporarily create a dependent ds and download the data
+      ds_dep <- create_dataset(dep)
+      ds_dep <- download_data(ds_dep)
+
+      # Add the downloaded data to the original ds object
+      ds$dep[[dep]] <- ds_dep$data
+    }
   }
-  #only return the inital ds object
+  # Only return the initial ds object
   return(ds)
 }
 
@@ -49,24 +59,44 @@ read_data <- function(ds) UseMethod("read_data")
 #' and thus rio allows almost all common data formats to be read with the same function
 #' !Attention: package seems to be stable. Nevertheless, keep an eye out for potential issues.
 #'
-read_data.default<- function(ds){
+read_data.default <- function(ds) {
 
-  # Passing all arguments that are required for both XLSX (which = sheet number)
-  # and CSV (header definition).rio takes care of the rest.
-  # The data gets appended to the ds and later be called as ds$data
+  # Get the file extension from the URL or the given info from the excel sheet
+  if(!is.na(ds$download_format)){
+    file_ext <- ds$download_format
+  }else{
+    file_ext <- tools::file_ext(ds$read_path)
+  }
+
+  temp_file <- paste0("temp.", file_ext)
+
+  # Download the file
+
+  if (Sys.info()["sysname"] == "Windows"){
+
+    download_method <- "wininet"
+
+
+  }else{
+
+    download_method <- "auto"
+
+  }
+
+
   withr::with_envvar(new = c("no_proxy" = "dam-api.bfs.admin.ch"),
-                     code = ds$data <-  rio::import(
-                       ds$read_path,
-                       which = ds$which_data,
-                       header = TRUE
-                     ))
+                     code = download.file(url = ds$read_path, destfile = temp_file, mode = "wb", method = download_method))
 
+  # Import the data
+  ds$data <-  rio::import(temp_file, which = ds$which_data, header = TRUE)
 
-
+  # Remove the temporary file
+  file.remove(temp_file)
 
   return(ds)
-
 }
+
+
 
 #' Method to stream data from pxweb data cubes which is unique to the BFS
 #' Downloads the data from a data cube based on a query list and converts it to a data.frame
@@ -84,6 +114,8 @@ read_data.default<- function(ds){
 #' d <- pxweb::pxweb_interactive("https://www.pxweb.bfs.admin.ch/api/v1/de/px-x-0103010000_102")
 #'
 read_data.px <- function(ds){
+
+  print("px")
 
   # Create the query list using get_px_query_list() function
   query_list <- get_px_query_list(ds)
@@ -106,6 +138,36 @@ read_data.px <- function(ds){
   return(ds)
 }
 
+read_data.sdmx <- function(ds){
 
+  # Create the query list using get_px_query_list() function
+  print("sdmx")
 
+  # Beispiel-URL für die API-Anfrage
+  # url <- "https://dam-api.bfs.admin.ch/hub/api/dam/assets/36327098/master"
+  # creating the path of the download URL
+  ds$read_path <- paste0(ds$data_url, ds$data_id)
+
+  # GET-Anfrage
+  # Erstelle eine GET-Anfrage
+  # request <- httr2::request(read_path)
+  # response <- httr2::req_perform(request)
+
+  response <- httr::GET(ds$read_path)
+  # print(content(response, as = "text"))
+
+  # Überprüfe den Status der Anfrage
+  if (status_code(response) == 200) {
+    # Konvertiere die Antwort in einen Text
+    data_raw <- content(response, as = "text",encoding = "UTF-8")
+    # data_raw <- resp_body_string(response)
+    # Entferne BOM, falls vorhanden
+    data_raw <- sub("^\uFEFF", "", data_raw)
+    # Konvertiere in ein Tibble
+    ds$data <- readr::read_csv(data_raw)
+  } else {
+    stop("Fehler beim Abrufen der Daten: ", status_code(response))
+  }
+  return(ds)
+}
 

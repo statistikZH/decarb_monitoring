@@ -58,5 +58,15 @@ create_dataset <- function(dataset_id) {
     class = c(data$data_organization, data$download_format, data$dataset_id)
   )
 
+  known_extensions <- c("csv", "psv", "tsv", "csvy", "sas7bdat", "sav", "zsav",
+                        "dta", "xpt", "por", "xls", "xlsx", "R", "RData", "rda",
+                        "rds", "rec", "mtp", "syd", "dbf", "arff", "dif", "fwf",
+                        "csvgz", "parquet", "wf1", "feather", "fst", "json",
+                        "mat", "ods", "html", "xml", "yml", "zip", "px", "sdmx")
+
+  if(!(ds_list$download_format %in% known_extensions)){
+    cli::cli_abort("Download Format aus Excel ist nicht bekannt. Auf Tippfehler überprüfen.")
+  }
+
   return(ds_list)
 }

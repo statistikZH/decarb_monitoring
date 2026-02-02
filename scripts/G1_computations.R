@@ -21,32 +21,56 @@
 
 # Import data -------------------------------------------------------------
 
-
 ds <- create_dataset("G1")
 ds <- download_data(ds)
 
 g1_data <- ds$data
 
+url <- "https://disseminate.stats.swiss/rest/data/CH1.GWS,DF_GWS_REG4,1.0.0/A._T._T.._T.8100+ZH?startPeriod=2021&dimensionAtObservation=AllDimensions&format=csvfile"
+g1_sdmx <- read.delim(url, header = TRUE, sep = ",")
 
+g1_sdmx_mod <- g1_sdmx |>
+  dplyr::filter(GWAERZH != "_T") |>
+  dplyr::select(GWAERZH,KANTONSNUMMER,Jahr = TIME_PERIOD,Wert = OBS_VALUE) |>
+  dplyr::mutate(Gebiet = dplyr::case_when(KANTONSNUMMER == "ZH" ~ "Zürich",
+                                          KANTONSNUMMER == "8100" ~ "Schweiz",
+                                          TRUE ~ KANTONSNUMMER)
+                ) |>
+  dplyr::mutate(Variable = dplyr::case_when(GWAERZH == "_T" ~ "Total",
+                                      GWAERZH == "1" ~ "Wärmepumpe",
+                                      GWAERZH == "2" ~ "Gas",
+                                      GWAERZH == "3" ~ "Heizöl",
+                                      GWAERZH == "4" ~ "Holz",
+                                      GWAERZH == "5" ~ "Elektrizität",
+                                      GWAERZH == "6" ~ "Fernwärme",
+                                      GWAERZH == "7" ~ "Sonne",
+                                      GWAERZH %in% c("8","9") ~ "Andere",
+                                      TRUE ~ GWAERZH)
+                ) |>
+  dplyr::select(Gebiet,Jahr,Variable,Wert) |>
+  dplyr::group_by(Gebiet, Jahr, Variable) |>
+  dplyr::summarise(Wert = sum(Wert))
+
+g1_cleaned <- g1_sdmx_mod
 
 # Computation: Anzahl & Anteil -----------------------------------------------------
 
 # Initial data restructuring and renaming before we do the actual computations
-g1_cleaned <- g1_data %>%
-  # Renaming of columns in preparation to bring data into a uniform structure
-  dplyr::rename("Gebiet" = Kanton, "Variable" = `Hauptenergiequelle der Heizung`, "Wert" = Gebäude) %>%
-  # Doing the new grouping of the Variable
-  dplyr::mutate(Variable = dplyr::case_when(Variable %in% c("Holz (generisch)","Holz (Pellets)","Holz (Schnitzel)","Holz (Stückholz)") ~ "Holz",
-                                            Variable == "Sonne (thermisch)" ~ "Sonne",
-                                            Variable %in% c("Wärmepumpe (Wasser)","Wärmepumpe (Luft)","Wärmepumpe (Gas)","Wärmepumpe (Fernwärme)","Wärmepumpe (Erdwärme)","Wärmepumpe (Erdwärmesonde)",
-                                                            "Wärmepumpe (Erdregister)","Wärmepumpe (andere Quelle)","Wärmepumpe (unbestimmte Quelle)") ~ "Wärmepumpe",
-                                            Variable %in% c("Fernwärme (generisch)","Fernwärme (Hochtemperatur)","Fernwärme (Niedertemperatur)") ~"Fernwärme",
-                                            Variable %in% c("Abwärme (innerhalb des Gebäudes)", "Andere", "Keine", "Unbestimmt") ~"Andere",
-                                            TRUE ~ Variable
-                                            )) %>%
-  # Now sum up by the new groups
-  dplyr::group_by(Gebiet, Jahr, Variable) %>%
-  dplyr::summarise(Wert = sum(Wert))
+# g1_cleaned <- g1_data %>%
+#   # Renaming of columns in preparation to bring data into a uniform structure
+#   dplyr::rename("Gebiet" = Kanton, "Variable" = `Hauptenergiequelle der Heizung`, "Wert" = Gebäude) %>%
+#   # Doing the new grouping of the Variable
+#   dplyr::mutate(Variable = dplyr::case_when(Variable %in% c("Holz (generisch)","Holz (Pellets)","Holz (Schnitzel)","Holz (Stückholz)") ~ "Holz",
+#                                             Variable == "Sonne (thermisch)" ~ "Sonne",
+#                                             Variable %in% c("Wärmepumpe (Wasser)","Wärmepumpe (Luft)","Wärmepumpe (Gas)","Wärmepumpe (Fernwärme)","Wärmepumpe (Erdwärme)","Wärmepumpe (Erdwärmesonde)",
+#                                                             "Wärmepumpe (Erdregister)","Wärmepumpe (andere Quelle)","Wärmepumpe (unbestimmte Quelle)") ~ "Wärmepumpe",
+#                                             Variable %in% c("Fernwärme (generisch)","Fernwärme (Hochtemperatur)","Fernwärme (Niedertemperatur)") ~"Fernwärme",
+#                                             Variable %in% c("Abwärme (innerhalb des Gebäudes)", "Andere", "Keine", "Unbestimmt") ~"Andere",
+#                                             TRUE ~ Variable
+#                                             )) %>%
+#   # Now sum up by the new groups
+#   dplyr::group_by(Gebiet, Jahr, Variable) %>%
+#   dplyr::summarise(Wert = sum(Wert))
 
 # Auxiliary variable for calculating the number of buildings with fossil vs. fossil-free sources of heating. Fossil being 'Heizöl'+'Gas'+ (0.1 * 'Fernwärme')
 g1_fossil <- g1_cleaned %>%
@@ -75,7 +99,6 @@ g1_computed <- g1_cleaned %>%
   # Convert table to a long format
   tidyr::pivot_longer(cols = c(Wert, Anteil), names_to = "Einheit", values_to = "Wert") %>%
   dplyr::ungroup()
-
 
 # Data structure ----------------------------------------------------------
 
