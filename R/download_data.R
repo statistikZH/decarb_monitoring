@@ -138,36 +138,4 @@ read_data.px <- function(ds){
   return(ds)
 }
 
-read_data.sdmx <- function(ds){
-
-  # Create the query list using get_px_query_list() function
-  print("sdmx")
-
-  # Beispiel-URL für die API-Anfrage
-  # url <- "https://dam-api.bfs.admin.ch/hub/api/dam/assets/36327098/master"
-  # creating the path of the download URL
-  ds$read_path <- paste0(ds$data_url, ds$data_id)
-
-  # GET-Anfrage
-  # Erstelle eine GET-Anfrage
-  # request <- httr2::request(read_path)
-  # response <- httr2::req_perform(request)
-
-  response <- httr::GET(ds$read_path)
-  # print(content(response, as = "text"))
-
-  # Überprüfe den Status der Anfrage
-  if (status_code(response) == 200) {
-    # Konvertiere die Antwort in einen Text
-    data_raw <- content(response, as = "text",encoding = "UTF-8")
-    # data_raw <- resp_body_string(response)
-    # Entferne BOM, falls vorhanden
-    data_raw <- sub("^\uFEFF", "", data_raw)
-    # Konvertiere in ein Tibble
-    ds$data <- readr::read_csv(data_raw)
-  } else {
-    stop("Fehler beim Abrufen der Daten: ", status_code(response))
-  }
-  return(ds)
-}
 
