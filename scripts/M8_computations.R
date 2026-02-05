@@ -2,7 +2,7 @@
 
 ## Computations:
 ## 1. Verbrauch: Gigawattstunden (GWh)
-## 2. Verbrauch pro Einwohner: GWh/Einwohner
+## 2. Verbrauch pro Person: MWh/Person
 
 
 
@@ -29,7 +29,11 @@ m8_computed <- m8_data %>%
   # Joining population data
   dplyr::left_join(m8_population, by = "Jahr") %>%
   # Compute per capita
+<<<<<<< HEAD
   dplyr::mutate(`MWh pro Person` = (Wert / Einwohner)*1000) %>% # pro Einwohner wird in MWh angegeben
+=======
+  dplyr::mutate(`MWh pro Person` = (Wert / Einwohner)*1000) %>% # pro Person wird in MWh angegeben
+>>>>>>> dev
   dplyr::rename("Unit" = Einheit, "Value" = Wert) %>%
   dplyr::select(-Einwohner) %>%
   # Convert table to a long format

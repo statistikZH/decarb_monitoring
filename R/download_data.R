@@ -86,6 +86,10 @@ read_data.default <- function(ds) {
 
   withr::with_envvar(new = c("no_proxy" = "dam-api.bfs.admin.ch"),
                      code = download.file(url = ds$read_path, destfile = temp_file, mode = "wb", method = download_method))
+<<<<<<< HEAD
+=======
+
+>>>>>>> dev
   # Import the data
   ds$data <-  rio::import(temp_file, which = ds$which_data, header = TRUE)
 
@@ -114,6 +118,8 @@ read_data.default <- function(ds) {
 #'
 read_data.px <- function(ds){
 
+  print("px")
+
   # Create the query list using get_px_query_list() function
   query_list <- get_px_query_list(ds)
 
@@ -134,3 +140,8 @@ read_data.px <- function(ds){
 
   return(ds)
 }
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> dev

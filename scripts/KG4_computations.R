@@ -3,6 +3,7 @@
 
 # Import data -------------------------------------------------------------
 # Schritt 1 : hier werden die Daten eingelesen
+library(httr)
 
 library(httr)
 library(dplyr)
