@@ -267,9 +267,6 @@ get_px_year_info <- function(ds){
 }
 
 
-<<<<<<< HEAD
-
-=======
 #' Create the download URL for BFS SDMX datasets
 #'
 #' Builds \code{ds$read_path} from \code{ds$data_url}, \code{ds$data_id},
@@ -302,4 +299,3 @@ get_read_path_bfs.sdmx <- function(ds){
 
   return(ds)
 }
->>>>>>> dev
