@@ -122,6 +122,16 @@ get_read_path.default <- function(ds) {
 #' @export
 get_read_path.bfs <- function(ds) {
 
+  is_sdmx <- base::grepl(
+    pattern = "disseminate\\.stats\\.swiss/rest/data",
+    x = ds$data_url
+  )
+
+  if (is_sdmx) {
+    # prepend 'sdmx' so get_read_path_bfs() dispatches to get_read_path_bfs.sdmx()
+    base::class(ds) <- base::unique(c("sdmx", base::class(ds)))
+  }
+
   ds <- get_read_path_bfs(ds)
 
   return(ds)
@@ -153,6 +163,40 @@ get_read_path_bfs.px <- function(ds){
   # all required information, like the name of the data cube, are in the dataset (ds)
   # Example: name of the data cube ("px-x-0103010000_102") is taken from ds$data_id
   ds$read_path <- paste0(ds$data_url, ds$data_id, "/", ds$data_id, ".px")
+
+  return(ds)
+}
+
+
+#' Create the download URL for BFS SDMX datasets
+#'
+#' Builds \code{ds$read_path} from \code{ds$data_url}, \code{ds$data_id},
+#' \code{ds$gebiet_id} and \code{ds$year_start} and forces CSV output.
+#'
+#' @param ds Dataset object.
+#'
+#' @return Dataset object with \code{read_path} and \code{download_format} set.
+#'
+#' @export
+get_read_path_bfs.sdmx <- function(ds){
+
+  # Excel supplies:
+  # - ds$data_id like: "CH1.GWS,DF_GWS_REG4,1.0.0/A._T._T.._T."
+  # - ds$gebiet_id like: "8100+ZH"
+  # - ds$year_start like: 2021
+  ds$read_path <- base::paste0(
+    ds$data_url,
+    ds$data_id,
+    ds$gebiet_id,
+    "?startPeriod=",
+    ds$year_start,
+    "&dimensionAtObservation=AllDimensions",
+    "&format=csvfilewithlabels"
+  )
+
+  # Ensure default reader treats it as CSV
+  ds$download_format <- "csv"
+
 
   return(ds)
 }
