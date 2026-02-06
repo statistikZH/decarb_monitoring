@@ -1,37 +1,36 @@
-# EV2 - Produktion von Strom aus erneuerbaren Energieträgern ----------------------------------------------------
+# KG3 - Kreislauf-Materialnutzungsquote ----------------------------------------------------
 
 
 # Import data -------------------------------------------------------------
 # Schritt 1 : hier werden die Daten eingelesen
 
-ds <- create_dataset('EV2')
+ds <- create_dataset('KG3')
 ds <- download_data(ds)
 
 # Dieses Objekt dient als Grundlage zur Weiterverarbeitung
 
-EV2_data <- ds$data
+KG3_data <- ds$data
 
 # Berechnungen -----------------------------------------------------
 
-# Bevölkerungszahlen benötigt für per_capita (gefiltert auf Kanton Zürich)
-EV2_pop <- decarbmonitoring::download_per_capita() |>
-  dplyr::filter(Gebiet == "Kanton Zürich")
+# Schritt 2 : Falls die zu publizierenden Werte noch berechnet werden müssen, können hier Aggregierungs- und Transformationsschritte vorgenommen werden.
 
-# Annahme: nur das total pro Jahr sowie per_capita vom total pro Jahr werden visualisiert
+# Beispiele :
+# - neue Kategorien oder Totale bilden
+# - Anteile berechnen
+# - Umbenennung von Kategorien
 
-EV2_computed <- EV2_data |>
-  dplyr::filter(Energiesektor == "Strom") |>
-  dplyr::mutate(Wert = dplyr::case_when(
-    is.na(Wert) ~ 0,
-    TRUE ~ as.numeric(Wert)
-  )) |>
-  dplyr::group_by(Jahr) |>
-  dplyr::summarise(Total = sum(Wert)) |>
-  dplyr::left_join(EV2_pop, by = "Jahr") |>
-  dplyr::mutate(per_capita = Total / Einwohner) |>
-  dplyr::select(-Einwohner) |>
-  tidyr::pivot_longer(cols = c("Total", "per_capita"), names_to = "Einheit", values_to = "Wert") |>
-  dplyr::ungroup()
+# Beispiel : Fahrzeuge nach Treibstoff - dieser Block dient nur der Veranschaulichung ---------
+
+KG3_computed <- KG3_data %>%
+  # Renaming of columns in preparation to bring data into a uniform structure
+  dplyr::rename("Wert" = "Rueckgewinnung") %>%
+  dplyr::mutate(Einheit = "Prozent (%)",
+                Gebiet = "Schweiz",
+                # prozent dezimal berechnen
+                Wert = Wert / 100)
+
+
 
 # Die Voraussetzung für den letzten Schritt (3) ist ein Datensatz im long Format nach folgendem Beispiel:
 
@@ -51,21 +50,15 @@ EV2_computed <- EV2_data |>
 # - Angleichung der Spaltennamen / Kategorien und Einheitslabels an die Konvention
 # - Anreicherung mit Metadaten aus der Datensatzliste
 
-EV2_export_data <- EV2_computed |>
-  # Renaming values
-  dplyr::mutate(Einheit = dplyr::case_when(Einheit == "Total" ~ "Megawattstunden (MWh)",
-                                           Einheit == "per_capita" ~ "Megawattstunden pro Person (MWh/Person)",
-                                           TRUE ~ Einheit)) |>
-  # Manually adding columns for Indikator_ID, Indikator_Name, Einheit and Datenquelle
+KG3_export_data <- KG3_computed %>%
   dplyr::mutate(Indikator_ID = ds$dataset_id,
                 Indikator_Name = ds$indicator_name,
                 Datenquelle = ds$data_source,
-                Variable = "Strom aus erneuerbaren Energieträgern") |>
+                Variable = ds$dataset_name) %>%
   dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
 
-
 # assign data to be exported back to the initial ds object -> ready to export
-ds$export_data <- EV2_export_data
+ds$export_data <- KG3_export_data
 
 # Export CSV --------------------------------------------------------------
 

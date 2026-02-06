@@ -1,3 +1,5 @@
 "Jahr","Gebiet","Indikator_ID","Indikator_Name","Variable","Wert","Einheit","Datenquelle"
-2022,"Kanton Zürich","IG1","Installierte Feuerungsleistung bei Grossfeuerungsanlagen","Erdgas",461598,"Kilowatt (kW)","Amt für Abfall, Wasser, Energie und Luft des Kantons Zürich"
-2022,"Kanton Zürich","IG1","Installierte Feuerungsleistung bei Grossfeuerungsanlagen","Heizöl",542817,"Kilowatt (kW)","Amt für Abfall, Wasser, Energie und Luft des Kantons Zürich"
+2024,"Kanton Zürich","IG1","Installierte Feuerungsleistung bei Grossfeuerungsanlagen","Erdgas",397103,"Kilowatt (kW)","Amt für Abfall, Wasser, Energie und Luft des Kantons Zürich"
+2024,"Kanton Zürich","IG1","Installierte Feuerungsleistung bei Grossfeuerungsanlagen","Heizöl",387460,"Kilowatt (kW)","Amt für Abfall, Wasser, Energie und Luft des Kantons Zürich"
+2025,"Kanton Zürich","IG1","Installierte Feuerungsleistung bei Grossfeuerungsanlagen","Erdgas",392527,"Kilowatt (kW)","Amt für Abfall, Wasser, Energie und Luft des Kantons Zürich"
+2025,"Kanton Zürich","IG1","Installierte Feuerungsleistung bei Grossfeuerungsanlagen","Heizöl",383260,"Kilowatt (kW)","Amt für Abfall, Wasser, Energie und Luft des Kantons Zürich"

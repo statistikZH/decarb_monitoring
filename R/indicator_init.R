@@ -9,13 +9,9 @@
 #' @export
 #'
 #' @examples
-#'
-#' indicator_init("M3")
-#'
-#' indicator_init("M100",ds_l)
+#' \dontrun{#' indicator_init("M3")
+#'}
 
-# indicator_id <- "M3"
-# dataset_list <- data.frame()
 
 indicator_init <- function(indicator_id){
 

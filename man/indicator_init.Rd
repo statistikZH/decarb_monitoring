@@ -15,9 +15,3 @@ script
 \description{
 Initialisiere ein neues Skript für einen neuen Indikator
 }
-\examples{
-
-indicator_init("M3")
-
-indicator_init("M100",ds_l)
-}

@@ -4,7 +4,7 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-Repository für den Bezug der Daten fürs Dekarbonisierungsmonitoring des
+Repository für den Bezug der Daten fürs [Dekarbonisierungsmonitoring](https://www.zh.ch/de/umwelt-tiere/klima/langfristige-klimastrategie/monitoring.html) des
 Kantons Zürich.
 
 Für jeden Datensatz im Monitoring werden drei Prozessschritte
@@ -120,25 +120,27 @@ Die verarbeiteten Daten werden in einer harmonisierten Datenstruktur
 exportiert, die für alle Datensätze identisch ist. Die exportierten
 Daten bilden die Grundlage für die Visualisierungen.
 
+
+
 **Datenstruktur**
 
 | Jahr                    | Gebiet                  | Indikator_ID            | Indikator_Name          | Variable                | Datenquelle             | Einheit                 | Wert   |
 |-------------------------|-------------------------|-------------------------|-------------------------|-------------------------|-------------------------|-------------------------|--------|
-| *dimsension attributes* | *dimsension attributes* | *dimsension attributes* | *dimsension attributes* | *dimsension attributes* | *dimsension attributes* | *dimsension attributes* | *fact* |
+| *dimension attributes* | *dimension attributes* | *dimension attributes* | *dimension attributes* | *dimension attributes* | *dimension attributes* | *dimension attributes* | *fact* |
 
 **Logik hinter der Datenstruktur**
 
-Die Tabelle besteht aus *dimsension attributes* und *facts*. Wobei die
+Die Tabelle besteht aus *dimension attributes* und *facts*. Wobei die
 *facts* durch die *dimension attributes* beschrieben werden.
 
-- *dimsension attributes* liefern strukturierte
-  Beschreibungsinformationen. Die Hauptfunktionen der *dimsension
+- *dimension attributes* liefern strukturierte
+  Beschreibungsinformationen. Die Hauptfunktionen der *dimension
   attributes* sind: Filtern, Gruppieren und Bezeichnen.
 
 - *facts* stellen die messbaren Werte dar.
 
 In unserer Tabelle entspricht alles links der `Wert`-Spalte den
-*dimsension attributes* und die `Wert`-Spalte ist der *fact*.
+*dimension attributes* und die `Wert`-Spalte ist der *fact*.
 
 > Sometimes (…), it is unclear whether a numeric data field from a data
 > source is a measured fact or an attribute. Generally, if the numeric
@@ -147,6 +149,47 @@ In unserer Tabelle entspricht alles links der `Wert`-Spalte den
 > something that is more or less constant, it is a dimension
 > attribute.[^1]
 
+Sind die Daten nach der Verarbeitung in der richtigen Struktur, können Sie ganz einfach im Template in die Export-Funktionen gegeben werden. Hier wieder beispielhaft für den Indikator `LF1`
+
+```r
+# Harmonisierung Datenstruktur / Bezeichnungen  ----------------------------------------------------------
+
+# Schritt 3 : Hier werden die Daten in die finale Form gebracht
+
+# - Angleichung der Spaltennamen / Kategorien und Einheitslabels an die Konvention
+# - Anreicherung mit Metadaten aus der Datensatzliste
+
+LF1_export_data <- LF1_computed %>%
+  dplyr::mutate(Indikator_ID = ds$dataset_id,
+                Indikator_Name = ds$indicator_name,
+                Datenquelle = ds$data_source,
+                Variable = ds$dataset_name) %>%
+  dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
+
+# assign data to be exported back to the initial ds object -> ready to export
+ds$export_data <- LF1_export_data
+
+# Export CSV --------------------------------------------------------------
+
+# Daten werden in den /output - Ordner geschrieben
+
+export_data(ds)
+
+```
+
+Die Funktion `export_data(ds)` prüft dabei, ob der Datensatz schon einmal aufbereitet wurde. Wenn dies der Fall ist, muss aktiv bestätigt werden, dass man den Datensatz überschreiben möchte.
+Ausserdem wirft die Funktion einen Fehler, wenn Variablen fehlen/überflüssig sind im Export-Datensatz.
+
+## Troubleshooting
+Der Code läuft Stand Juli 2023 stabil auf einer Linux-Umgebung sowie der Windows-Umgebung des "Digitalen Arbeitsplatzes" (DAP). Da jeder Indikator externe Daten lädt und transfomiert, kann keine Garantie für das Funktionieren der Pipeline in Zukunft übernommen werden. Auch bei Aufnahmen eines neuen Indikators in der [Excel-Liste](https://github.com/statistikZH/decarb_monitoring/blob/main/2773%20Monitoring.xlsx) können sich Fehler einschleichen. Deshalb findet sich [hier](docu/Troubleshooting.md) eine Sammlung an Hinweisen, wie mögliche Probleme entstehen und behoben werden können. 
+
+Um zu überprüfen ob alle Indikatoren eingelesen und heruntergeladen werden können, kann man die Hilfsfunktion `test_pipeline()` nutzen. Diese spielt eine Liste zurück, welche für jeden Indikator einen Eintrag samt Daten enthält. Bei einem Fehler empfiehlt es sich, zu überprüfen an welcher Stelle/welchem Indikator die Funktion stoppt. Dies erleichtert die Fehlersuche und somit Behebung.
+
+```r
+list_of_indicators <- decarbmonitoring::test_pipeline()
+
+```
+ 
 ## Kontakte 📧
 
 ### AWEL

@@ -17,6 +17,11 @@ LF1_data <- ds$data
 
 # Einlesen von Populationsdaten für per_capita
 LF1_pop <- decarbmonitoring::download_per_capita()
+# Ergänzung um prov. Einwohnerdaten 2023
+LF1_pop <- LF1_pop %>%
+  dplyr::add_row(Jahr = c(2024, 2024),
+                 Gebiet = c("Schweiz", "Kanton Zürich"),
+                 Einwohner = c(9048905, 1619499))
 
 LF1_computed <- LF1_data %>%
   # Renaming of columns in preparation to bring data into a uniform structure
@@ -24,7 +29,7 @@ LF1_computed <- LF1_data %>%
   # remove unwanted artifacts in Gebiet variable
   dplyr::mutate(Gebiet = stringr::str_remove(Gebiet, stringr::fixed("** "))) %>%
   # prepare for join with pop data
-  dplyr::mutate(Gebiet = dplyr::if_else(Gebiet == "Zürich", "Kanton Zürich", Gebiet),
+  dplyr::mutate(Gebiet = dplyr::if_else(Gebiet == "Zürich" | Gebiet =="- Zürich", "Kanton Zürich", Gebiet),
                 Jahr = as.numeric(Jahr)) %>%
   # join with population data
   dplyr::left_join(LF1_pop, by = c("Jahr", "Gebiet")) %>%

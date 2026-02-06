@@ -1,15 +1,15 @@
-# IG3 - Treibhauswirkung Kältemittel in grösseren Kälteanlagen ----------------------------------------------------
+# G5 - Heizungsersatz - Anzahl fossil betriebener Feuerungen ----------------------------------------------------
 
 
 # Import data -------------------------------------------------------------
 # Schritt 1 : hier werden die Daten eingelesen
 
-ds <- create_dataset('IG3')
+ds <- create_dataset('G5')
 ds <- download_data(ds)
 
 # Dieses Objekt dient als Grundlage zur Weiterverarbeitung
 
-IG3_data <- ds$data
+G5_data <- ds$data
 
 # Berechnungen -----------------------------------------------------
 
@@ -20,13 +20,12 @@ IG3_data <- ds$data
 # - Anteile berechnen
 # - Umbenennung von Kategorien
 
-# keine computation nötig
-IG3_computed <- IG3_data %>%
-  # Renaming of columns in preparation to bring data into a uniform structure
-  dplyr::rename('Wert' = durchschnittliches_GWP) %>%
-  dplyr::mutate(Gebiet = "Kanton Zürich",
-                Variable = "Durchschnittliche Treibhauswirkung (Global Warming Potential - GWP)")
+# Beispiel : Fahrzeuge nach Treibstoff - dieser Block dient nur der Veranschaulichung ---------
 
+G5_computed <- G5_data |>
+  dplyr::select(-n_Gemeinden) |>
+  dplyr::filter(Jahr >= 2015 & Jahr <= 2023) |>
+  tidyr::pivot_longer(!Jahr, names_to = "Variable", values_to = "Wert")
 
 # Die Voraussetzung für den letzten Schritt (3) ist ein Datensatz im long Format nach folgendem Beispiel:
 
@@ -46,16 +45,17 @@ IG3_computed <- IG3_data %>%
 # - Angleichung der Spaltennamen / Kategorien und Einheitslabels an die Konvention
 # - Anreicherung mit Metadaten aus der Datensatzliste
 
-IG3_export_data <- IG3_computed %>%
+G5_export_data <- G5_computed |>
 # Anreicherung  mit Metadaten
-  dplyr::mutate(Indikator_ID = ds$dataset_id,
+  dplyr::mutate(Gebiet = "Kanton Zürich",
+                Indikator_ID = ds$dataset_id,
+                Indikator_Name = ds$indicator_name,
                 Einheit = ds$dimension_unit,
-                Indikator_Name = ds$dataset_name,
-                Datenquelle = ds$data_source) %>%
+                Datenquelle = ds$data_source) |>
   dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
 
 # assign data to be exported back to the initial ds object -> ready to export
-ds$export_data <- IG3_export_data
+ds$export_data <- G5_export_data
 
 # Export CSV --------------------------------------------------------------
 

@@ -1,15 +1,15 @@
-# IG3 - Treibhauswirkung Kältemittel in grösseren Kälteanlagen ----------------------------------------------------
+# LF3 - Eingesetzter Stickstoffdünger ----------------------------------------------------
 
 
 # Import data -------------------------------------------------------------
 # Schritt 1 : hier werden die Daten eingelesen
 
-ds <- create_dataset('IG3')
+ds <- create_dataset('LF3')
 ds <- download_data(ds)
 
 # Dieses Objekt dient als Grundlage zur Weiterverarbeitung
 
-IG3_data <- ds$data
+LF3_data <- ds$data
 
 # Berechnungen -----------------------------------------------------
 
@@ -20,24 +20,17 @@ IG3_data <- ds$data
 # - Anteile berechnen
 # - Umbenennung von Kategorien
 
-# keine computation nötig
-IG3_computed <- IG3_data %>%
-  # Renaming of columns in preparation to bring data into a uniform structure
-  dplyr::rename('Wert' = durchschnittliches_GWP) %>%
-  dplyr::mutate(Gebiet = "Kanton Zürich",
-                Variable = "Durchschnittliche Treibhauswirkung (Global Warming Potential - GWP)")
+# Beispiel : Fahrzeuge nach Treibstoff - dieser Block dient nur der Veranschaulichung ---------
 
+LF3_computed <- LF3_data %>%
+  tidyr::pivot_wider(names_from = Düngerart, values_from = Wert) %>%
+  dplyr::mutate(Total = rowSums(pick(tidyselect::contains("ünger")))) %>%
+  tidyr::pivot_longer(cols = dplyr::where(is.double), names_to = "Variable", values_to = "Wert") %>%
+  dplyr::mutate(Variable = stringr::str_replace(Variable, "_", "/")) %>%
+  dplyr::select(-Einheit) %>%
+  dplyr::rename(Einheit = `Einheit lang`) %>%
+  dplyr::mutate(Gebiet = "Kanton Zürich")
 
-# Die Voraussetzung für den letzten Schritt (3) ist ein Datensatz im long Format nach folgendem Beispiel:
-
-# # A tibble: 216 × 5
-#    Jahr  Gebiet  Treibstoff_Typ Einheit         Wert
-#    <chr> <chr>   <chr>          <chr>          <dbl>
-#  1 2005  Schweiz fossil         Anzahl  306455
-#  2 2005  Schweiz fossil         Total   307161
-#  3 2005  Schweiz fossil         Anteil       0.998
-#  4 2005  Schweiz fossil-free    Anzahl     706
-#  5 2005  Schweiz fossil-free    Total   307161
 
 # Harmonisierung Datenstruktur / Bezeichnungen  ----------------------------------------------------------
 
@@ -46,16 +39,15 @@ IG3_computed <- IG3_data %>%
 # - Angleichung der Spaltennamen / Kategorien und Einheitslabels an die Konvention
 # - Anreicherung mit Metadaten aus der Datensatzliste
 
-IG3_export_data <- IG3_computed %>%
+LF3_export_data <- LF3_computed %>%
 # Anreicherung  mit Metadaten
   dplyr::mutate(Indikator_ID = ds$dataset_id,
-                Einheit = ds$dimension_unit,
-                Indikator_Name = ds$dataset_name,
+                Indikator_Name = ds$indicator_name,
                 Datenquelle = ds$data_source) %>%
   dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
 
 # assign data to be exported back to the initial ds object -> ready to export
-ds$export_data <- IG3_export_data
+ds$export_data <- LF3_export_data
 
 # Export CSV --------------------------------------------------------------
 

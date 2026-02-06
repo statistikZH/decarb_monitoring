@@ -12,27 +12,66 @@
 # Import data -------------------------------------------------------------
 
 ds <- create_dataset("M3")
-ds <- download_data(ds)
+# ds <- download_data(ds)
 
-m3_data <- ds$data
+# m3_data <- ds$data
+
+url <- "https://disseminate.stats.swiss/rest/data/CH1.MFZ_IVS,DF_IVS_1_TECH,1.0.0/1+_T.N._T.PC+PH+DC+DH+HP+HD+EL+FC+GA+_O._T._T._T.A?startPeriod=2005&dimensionAtObservation=AllDimensions&format=csvfile"
+m3_sdmx <- read.delim(url, header = TRUE, sep = ",")
+
+data_sdmx <- m3_sdmx |>
+  dplyr::select(UV_HGDE_KT, UV_RV_FUEL, TIME_PERIOD, OBS_VALUE)
+
+# Datenreihen vervollständigen -> expand_grid
+# Eindeutige Treibstoff, Zeitstempel und Kategorien extrahieren
+unique_kt <- unique(data_sdmx$UV_HGDE_KT)
+unique_fuel <- unique(data_sdmx$UV_RV_FUEL)
+unique_time <- unique(data_sdmx$TIME_PERIOD)
+
+# Kombinationen von Kanton, Zeitstempel und Treibstoffkategorie generieren
+all_combinations <- expand.grid(UV_HGDE_KT = unique_kt, UV_RV_FUEL = unique_fuel, TIME_PERIOD = unique_time)
+
+# Vollständige Datenreihe, beim Attribut
+data_sdmx <- all_combinations |>
+  dplyr::left_join(data_sdmx) |>
+  dplyr::mutate(OBS_VALUE = ifelse(is.na(OBS_VALUE), 0, OBS_VALUE))
+
 
 # Computation: Anzahl & Anteil -----------------------------------------------------
 
 # Initial data restructuring and renaming before we do the actual computations
-m3_cleaned <- m3_data %>%
+m3_cleaned <- data_sdmx |>
   # Renaming of columns in preparation to bring data into a uniform structure
-  dplyr::rename("Gebiet" = Kanton, "Variable" = Treibstoff, "Wert" =  `Neue Inverkehrsetzungen von Strassenfahrzeugen`) %>%
+  dplyr::rename("Gebiet" = UV_HGDE_KT, "Variable" = UV_RV_FUEL, "Jahr" = TIME_PERIOD, "Wert" = OBS_VALUE) |>
   # Doing the new grouping of the Variable
-  dplyr::mutate(Variable = dplyr::case_when(Variable %in% c("Benzin", "Diesel") ~ "Benzin, Diesel",
-                                            Variable %in% c("Benzin-elektrisch: Normal-Hybrid","Diesel-elektrisch: Normal-Hybrid") ~ "Hybrid",
-                                            Variable %in% c("Benzin-elektrisch: Plug-in-Hybrid", "Diesel-elektrisch: Plug-in-Hybrid") ~ "PlugIn-Hybrid",
-                                            Variable == "Gas (mono- und bivalent)" ~"Gas",
-                                            Variable %in% c("Anderer", "Ohne Motor") ~"Andere",
+  dplyr::mutate(Variable = dplyr::case_when(Variable %in% c("PC", "DC") ~ "Benzin, Diesel",
+                                            Variable %in% c("PH","DH") ~ "Hybrid",
+                                            Variable %in% c("HP", "HD") ~ "PlugIn-Hybrid",
+                                            Variable == "EL" ~"Elektrisch",
+                                            Variable == "GA" ~"Gas",
+                                            Variable == "FC" ~"Wasserstoff",
+                                            Variable %in% c("NM", "_O") ~"Andere",
                                             TRUE ~ Variable
-  )) %>%
+  )) |>
   # Now sum up by the new groups
   dplyr::group_by(Gebiet, Jahr, Variable) %>%
   dplyr::summarise(Wert = sum(Wert))
+
+# # Initial data restructuring and renaming before we do the actual computations
+# m3_cleaned <- m3_data %>%
+#   # Renaming of columns in preparation to bring data into a uniform structure
+#   dplyr::rename("Gebiet" = Kanton, "Variable" = Treibstoff, "Wert" =  `Neue Inverkehrsetzungen von Strassenfahrzeugen`) %>%
+#   # Doing the new grouping of the Variable
+#   dplyr::mutate(Variable = dplyr::case_when(Variable %in% c("Benzin", "Diesel") ~ "Benzin, Diesel",
+#                                             Variable %in% c("Benzin-elektrisch: Normal-Hybrid","Diesel-elektrisch: Normal-Hybrid") ~ "Hybrid",
+#                                             Variable %in% c("Benzin-elektrisch: Plug-in-Hybrid", "Diesel-elektrisch: Plug-in-Hybrid") ~ "PlugIn-Hybrid",
+#                                             Variable == "Gas (mono- und bivalent)" ~"Gas",
+#                                             Variable %in% c("Anderer", "Ohne Motor") ~"Andere",
+#                                             TRUE ~ Variable
+#   )) %>%
+#   # Now sum up by the new groups
+#   dplyr::group_by(Gebiet, Jahr, Variable) %>%
+#   dplyr::summarise(Wert = sum(Wert))
 
 # Auxiliary variable for calculating the number of cars counting as Elektrofahrzeuge (ohne Hybrid); being 'Elektrisch'+'Wasserstoff'
 m3_elektro <- m3_cleaned %>%
@@ -64,13 +103,14 @@ m3_computed <- m3_cleaned %>%
 
 m3_export_data <- m3_computed %>%
   # Renaming values
-  dplyr::mutate(Gebiet = dplyr::if_else(Gebiet == "Zürich", "Kanton Zürich", Gebiet),
-                Einheit = dplyr::case_when(Einheit == "Wert" ~ "Neuzulassungen PW [Anz.]",
+  dplyr::mutate(Gebiet = dplyr::if_else(Gebiet == "1", "Kanton Zürich", "Schweiz"),
+  # dplyr::mutate(Gebiet = dplyr::if_else(Gebiet == "Zürich", "Kanton Zürich", Gebiet),
+                Einheit = dplyr::case_when(Einheit == "Wert" ~ "Neuzulassungen PW (Anzahl)",
                                            Einheit == "Anteil" ~ "Neuzulassungen PW [%]",
                                            TRUE ~ Einheit)) %>%
   # Manually adding columns for Indikator_ID, Indikator_Name, Einheit and Datenquelle
   dplyr::mutate(Indikator_ID = ds$dataset_id,
-                Indikator_Name = ds$dataset_name,
+                Indikator_Name = ds$indicator_name,
                 Datenquelle = ds$data_source) %>%
   dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
 
