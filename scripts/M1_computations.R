@@ -4,7 +4,6 @@
 ## Groupings Antriebsart: 1: Benzin, Diesel; 2: "Hybrid" -> [Benzin-elektrisch: Normal-Hybrid,Diesel-elektrisch: Normal-Hybrid];
 ## 3: "PlugIn-Hybrid" ->  [Benzin-elektrisch: Plug-in-Hybrid, Diesel-elektrisch: Plug-in-Hybrid]; 4: Gas [Gas (mono- und bivalent)], Anderer; 5: Wasserstoff; 6: Elektrisch
 
-
 ## Computations:
 ## 1. Anzahl: 'Total' (Treibstoffe[alle])
 ## 2. Anteil Elektrofahrzeuge (ohne Hybrid): 1 - ('Elektrisch' + 'Wasserstoff') / 'Total'
@@ -16,8 +15,10 @@ ds <- download_data(ds)
 
 m1_data <- ds$data
 
+# Filter auf Daten Kanton ZH sowie CH
 data_sdmx <- m1_data |>
-  dplyr::select(UV_HGDE_KT, UV_RV_FUEL, TIME_PERIOD, OBS_VALUE)
+  dplyr::select(UV_HGDE_KT, UV_RV_FUEL, TIME_PERIOD, OBS_VALUE) |>
+  dplyr::filter(UV_HGDE_KT %in% stringr::str_split(ds$gebiet_id, ",")[[1]])
 
 # Datenreihen vervollständigen -> expand_grid
 # Eindeutige Treibstoff, Zeitstempel und Kategorien extrahieren
@@ -28,7 +29,7 @@ unique_time <- unique(data_sdmx$TIME_PERIOD)
 # Kombinationen von Kanton, Zeitstempel und Treibstoffkategorie generieren
 all_combinations <- expand.grid(UV_HGDE_KT = unique_kt, UV_RV_FUEL = unique_fuel, TIME_PERIOD = unique_time)
 
-# Vollständige Datenreihe, beim Attribut
+# Vollständige Datenreihe
 data_sdmx <- all_combinations |>
   dplyr::left_join(data_sdmx) |>
   dplyr::mutate(OBS_VALUE = ifelse(is.na(OBS_VALUE), 0, OBS_VALUE))
@@ -39,6 +40,7 @@ data_sdmx <- all_combinations |>
 m1_cleaned <- data_sdmx |>
   # Renaming of columns in preparation to bring data into a uniform structure
   dplyr::rename("Gebiet" = UV_HGDE_KT, "Variable" = UV_RV_FUEL, "Jahr" = TIME_PERIOD, "Wert" = OBS_VALUE) |>
+  dplyr::filter(Variable != "_T") |>
   # Doing the new grouping of the Variable
   dplyr::mutate(Variable = dplyr::case_when(Variable %in% c("PC", "DC") ~ "Benzin, Diesel",
                                             Variable %in% c("PH","DH") ~ "Hybrid",
@@ -97,9 +99,7 @@ m1_export_data <- m1_computed |>
 # assign data to be exported back to the initial ds object -> ready to export
 ds$export_data <- m1_export_data
 
-
 # Export CSV --------------------------------------------------------------
 
-## Temporarily storing export files in Gitea repo > output folder
-## Naming convention for CSV files: [indicator number]_data.csv
+# Daten werden in den /output - Ordner geschrieben
 export_data(ds)

@@ -16,8 +16,10 @@ ds <- download_data(ds)
 
 m3_data <- ds$data
 
+# Filter auf Daten Kanton ZH sowie CH
 data_sdmx <- m3_data |>
-  dplyr::select(UV_HGDE_KT, UV_RV_FUEL, TIME_PERIOD, OBS_VALUE)
+  dplyr::select(UV_HGDE_KT, UV_RV_FUEL, TIME_PERIOD, OBS_VALUE) |>
+  dplyr::filter(UV_HGDE_KT %in% stringr::str_split(ds$gebiet_id, ",")[[1]])
 
 # Datenreihen vervollständigen -> expand_grid
 # Eindeutige Treibstoff, Zeitstempel und Kategorien extrahieren
@@ -33,13 +35,13 @@ data_sdmx <- all_combinations |>
   dplyr::left_join(data_sdmx) |>
   dplyr::mutate(OBS_VALUE = ifelse(is.na(OBS_VALUE), 0, OBS_VALUE))
 
-
 # Computation: Anzahl & Anteil -----------------------------------------------------
 
 # Initial data restructuring and renaming before we do the actual computations
 m3_cleaned <- data_sdmx |>
   # Renaming of columns in preparation to bring data into a uniform structure
   dplyr::rename("Gebiet" = UV_HGDE_KT, "Variable" = UV_RV_FUEL, "Jahr" = TIME_PERIOD, "Wert" = OBS_VALUE) |>
+  dplyr::filter(Variable != "_T") |>
   # Doing the new grouping of the Variable
   dplyr::mutate(Variable = dplyr::case_when(Variable %in% c("PC", "DC") ~ "Benzin, Diesel",
                                             Variable %in% c("PH","DH") ~ "Hybrid",
@@ -97,7 +99,6 @@ m3_export_data <- m3_computed |>
 
 # assign data to be exported back to the initial ds object -> ready to export
 ds$export_data <- m3_export_data
-
 
 # Export CSV --------------------------------------------------------------
 

@@ -286,7 +286,7 @@ get_read_path_bfs.sdmx <- function(ds){
   ds$read_path <- base::paste0(
     ds$data_url,
     ds$data_id,
-    ds$gebiet_id,
+    # ds$gebiet_id,
     "?startPeriod=",
     ds$year_start,
     "&dimensionAtObservation=AllDimensions",

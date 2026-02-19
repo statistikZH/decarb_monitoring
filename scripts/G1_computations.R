@@ -26,7 +26,11 @@ ds <- download_data(ds)
 
 g1_data <- ds$data
 
-g1_cleaned <- g1_data |>
+# Filter auf Daten Kanton ZH sowie CH
+g1_data_flt <- g1_data |>
+  dplyr::filter(KANTONSNUMMER %in% stringr::str_split(ds$gebiet_id, ",")[[1]])
+
+g1_cleaned <- g1_data_flt |>
   dplyr::filter(GWAERZH != "_T") |>
   dplyr::select(GWAERZH,KANTONSNUMMER,Jahr = TIME_PERIOD,Wert = OBS_VALUE) |>
   dplyr::mutate(Gebiet = dplyr::case_when(KANTONSNUMMER == "ZH" ~ "Zürich",
