@@ -3,11 +3,6 @@
 
 # Import data -------------------------------------------------------------
 # Schritt 1 : hier werden die Daten eingelesen
-library(httr)
-
-library(httr)
-library(dplyr)
-library(readr)
 
 ds <- create_dataset('KG4')
 ds <- download_data(ds)
