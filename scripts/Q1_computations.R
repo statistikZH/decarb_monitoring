@@ -20,15 +20,6 @@ Q1_data <- ds$data
 # - Anteile berechnen
 # - Umbenennung von Kategorien
 
-# Beispiel : Fahrzeuge nach Treibstoff - dieser Block dient nur der Veranschaulichung ---------
-
-# Q1_computed <- Q1_data %>%
-#   # Renaming of columns in preparation to bring data into a uniform structure
-#   dplyr::rename('Gebiet' = Kanton, 'Variable' = Bevölkerungstyp, 'Wert' = `Ständige und nichtständige Wohnbevölkerung`) %>%
-#   # Auxiliary variable for calculating the number of fossil vs. fossil-free passenger cars. Fossil being 'Benzin' + 'Diesel' + 'Gas (mono- und bivalent)'
-#   dplyr::mutate(Gebiet = dplyr::if_else(Gebiet == "Zürich", "Kanton Zürich", Gebiet),
-#                 Einheit = "Anzahl Personen")
-
 Q1_computed <- Q1_data %>%
   # Renaming of columns in preparation to bring data into a uniform structure
   dplyr::rename('Gebiet' = `Kanton (-) / Bezirk (>>) / Gemeinde (......)`, 'Variable' = `Demografische Komponente`, 'Wert' = `Demografische Bilanz nach institutionellen Gliederungen`) %>%
