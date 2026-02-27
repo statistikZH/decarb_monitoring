@@ -17,41 +17,27 @@ LF1_data <- ds$data
 
 # Einlesen von Populationsdaten für per_capita
 LF1_pop <- decarbmonitoring::download_per_capita()
-# Ergänzung um prov. Einwohnerdaten 2023
-LF1_pop <- LF1_pop %>%
-  dplyr::add_row(Jahr = c(2024, 2024),
-                 Gebiet = c("Schweiz", "Kanton Zürich"),
-                 Einwohner = c(9048905, 1619499))
+LF1_pop <- LF1_pop |>
+  dplyr::mutate(Gebiet = dplyr::if_else(Gebiet == "Zürich" | Gebiet =="- Zürich", "Kanton Zürich", Gebiet),
+              Jahr = as.numeric(Jahr))
 
-LF1_computed <- LF1_data %>%
+LF1_computed <- LF1_data |>
   # Renaming of columns in preparation to bring data into a uniform structure
-  dplyr::rename("Variable" = 1, "Gebiet" = 2, "Wert" = 4) %>%
+  dplyr::rename("Variable" = 1, "Gebiet" = 2, "Wert" = 4) |>
   # remove unwanted artifacts in Gebiet variable
-  dplyr::mutate(Gebiet = stringr::str_remove(Gebiet, stringr::fixed("** "))) %>%
+  dplyr::mutate(Gebiet = stringr::str_remove(Gebiet, stringr::fixed("** "))) |>
   # prepare for join with pop data
   dplyr::mutate(Gebiet = dplyr::if_else(Gebiet == "Zürich" | Gebiet =="- Zürich", "Kanton Zürich", Gebiet),
-                Jahr = as.numeric(Jahr)) %>%
+                Jahr = as.numeric(Jahr)) |>
   # join with population data
-  dplyr::left_join(LF1_pop, by = c("Jahr", "Gebiet")) %>%
-  # delete NA (years with no pop data) %>%
-  tidyr::drop_na() %>%
-  dplyr::mutate("Anzahl Rinder pro Person" = Wert / Einwohner) %>%
-  tidyr::pivot_longer(cols = c("Wert", "Anzahl Rinder pro Person"), names_to = "Einheit") %>%
-  dplyr::select(-Einwohner) %>%
-  dplyr::rename("Wert" = "value") %>%
+  dplyr::left_join(LF1_pop, by = c("Jahr", "Gebiet")) |>
+  # delete NA (years with no pop data) |>
+  tidyr::drop_na() |>
+  dplyr::mutate("Anzahl Rinder pro Person" = Wert / Einwohner) |>
+  tidyr::pivot_longer(cols = c("Wert", "Anzahl Rinder pro Person"), names_to = "Einheit") |>
+  dplyr::select(-Einwohner) |>
+  dplyr::rename("Wert" = "value") |>
   dplyr::mutate(Einheit = dplyr::if_else(Einheit == "Wert", "Anzahl Rinder (Absolut)", Einheit))
-
-
-# Die Voraussetzung für den letzten Schritt (3) ist ein Datensatz im long Format nach folgendem Beispiel:
-
-# # A tibble: 216 × 5
-#    Jahr  Gebiet  Treibstoff_Typ Einheit         Wert
-#    <chr> <chr>   <chr>          <chr>          <dbl>
-#  1 2005  Schweiz fossil         Anzahl  306455
-#  2 2005  Schweiz fossil         Total   307161
-#  3 2005  Schweiz fossil         Anteil       0.998
-#  4 2005  Schweiz fossil-free    Anzahl     706
-#  5 2005  Schweiz fossil-free    Total   307161
 
 # Harmonisierung Datenstruktur / Bezeichnungen  ----------------------------------------------------------
 
@@ -60,11 +46,11 @@ LF1_computed <- LF1_data %>%
 # - Angleichung der Spaltennamen / Kategorien und Einheitslabels an die Konvention
 # - Anreicherung mit Metadaten aus der Datensatzliste
 
-LF1_export_data <- LF1_computed %>%
+LF1_export_data <- LF1_computed |>
   dplyr::mutate(Indikator_ID = ds$dataset_id,
                 Indikator_Name = ds$indicator_name,
                 Datenquelle = ds$data_source,
-                Variable = ds$dataset_name) %>%
+                Variable = ds$dataset_name) |>
   dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
 
 # assign data to be exported back to the initial ds object -> ready to export
@@ -73,5 +59,4 @@ ds$export_data <- LF1_export_data
 # Export CSV --------------------------------------------------------------
 
 # Daten werden in den /output - Ordner geschrieben
-
 export_data(ds)
