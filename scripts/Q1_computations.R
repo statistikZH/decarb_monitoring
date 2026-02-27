@@ -22,24 +22,20 @@ Q1_data <- ds$data
 
 # Beispiel : Fahrzeuge nach Treibstoff - dieser Block dient nur der Veranschaulichung ---------
 
+# Q1_computed <- Q1_data %>%
+#   # Renaming of columns in preparation to bring data into a uniform structure
+#   dplyr::rename('Gebiet' = Kanton, 'Variable' = Bevölkerungstyp, 'Wert' = `Ständige und nichtständige Wohnbevölkerung`) %>%
+#   # Auxiliary variable for calculating the number of fossil vs. fossil-free passenger cars. Fossil being 'Benzin' + 'Diesel' + 'Gas (mono- und bivalent)'
+#   dplyr::mutate(Gebiet = dplyr::if_else(Gebiet == "Zürich", "Kanton Zürich", Gebiet),
+#                 Einheit = "Anzahl Personen")
+
 Q1_computed <- Q1_data %>%
   # Renaming of columns in preparation to bring data into a uniform structure
-  dplyr::rename('Gebiet' = Kanton, 'Variable' = Bevölkerungstyp, 'Wert' = `Ständige und nichtständige Wohnbevölkerung`) %>%
+  dplyr::rename('Gebiet' = `Kanton (-) / Bezirk (>>) / Gemeinde (......)`, 'Variable' = `Demografische Komponente`, 'Wert' = `Demografische Bilanz nach institutionellen Gliederungen`) %>%
   # Auxiliary variable for calculating the number of fossil vs. fossil-free passenger cars. Fossil being 'Benzin' + 'Diesel' + 'Gas (mono- und bivalent)'
-  dplyr::mutate(Gebiet = dplyr::if_else(Gebiet == "Zürich", "Kanton Zürich", Gebiet),
+  dplyr::mutate(Gebiet = dplyr::if_else(Gebiet == "- Zürich", "Kanton Zürich", Gebiet),
                 Einheit = "Anzahl Personen")
 
-
-# Die Voraussetzung für den letzten Schritt (3) ist ein Datensatz im long Format nach folgendem Beispiel:
-
-# # A tibble: 216 × 5
-#    Jahr  Gebiet  Treibstoff_Typ Einheit         Wert
-#    <chr> <chr>   <chr>          <chr>          <dbl>
-#  1 2005  Schweiz fossil         Anzahl  306455
-#  2 2005  Schweiz fossil         Total   307161
-#  3 2005  Schweiz fossil         Anteil       0.998
-#  4 2005  Schweiz fossil-free    Anzahl     706
-#  5 2005  Schweiz fossil-free    Total   307161
 
 # Harmonisierung Datenstruktur / Bezeichnungen  ----------------------------------------------------------
 
