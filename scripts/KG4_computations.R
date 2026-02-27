@@ -23,24 +23,6 @@ KG4_pop <- decarbmonitoring::download_per_capita() %>%
 # - Anteile berechnen
 # - Umbenennung von Kategorien
 
-# Beispiel : Fahrzeuge nach Treibstoff - dieser Block dient nur der Veranschaulichung ---------
-
-# KG4_computed <- KG4_data %>%
-#   # HIER JEDES JAHR ANPASSEN!
-#   dplyr::slice(5:26) %>%
-#   # Renaming of columns in preparation to bring data into a uniform structure
-#   dplyr::rename("Jahr" = 1, "Wert" = 2) %>%
-#   dplyr::mutate(Jahr = as.numeric(Jahr),
-#                 Wert = as.numeric(Wert)) %>%
-#   # Join mit Populationsdaten um Pro-Kopf zu berechnen
-#   dplyr::left_join(KG4_pop, by = "Jahr") %>%
-#   # nur Jahre mit Einwohnerdaten behalten
-#   tidyr::drop_na() %>%
-#   # Pro-Kopf berechnen
-#   ## gma/2023-06-23, Wert wegen Lesbarkeit angepasst auf Tonnen CO2-eq pro Kopf
-#   ## Einheit in Parameterliste nachgeführt
-#   dplyr::mutate(per_capita = Wert / Einwohner * 1000000)
-
 KG4_computed <- KG4_data %>%
   # HIER JEDES JAHR ANPASSEN!
   dplyr::filter(AGGR_BY == "total") |>
@@ -56,18 +38,6 @@ KG4_computed <- KG4_data %>%
   ## gma/2023-06-23, Wert wegen Lesbarkeit angepasst auf Tonnen CO2-eq pro Kopf
   ## Einheit in Parameterliste nachgeführt
   dplyr::mutate(per_capita = Wert / Einwohner * 1000)
-
-
-# Die Voraussetzung für den letzten Schritt (3) ist ein Datensatz im long Format nach folgendem Beispiel:
-
-# # A tibble: 216 × 5
-#    Jahr  Gebiet  Treibstoff_Typ Einheit         Wert
-#    <chr> <chr>   <chr>          <chr>          <dbl>
-#  1 2005  Schweiz fossil         Anzahl  306455
-#  2 2005  Schweiz fossil         Total   307161
-#  3 2005  Schweiz fossil         Anteil       0.998
-#  4 2005  Schweiz fossil-free    Anzahl     706
-#  5 2005  Schweiz fossil-free    Total   307161
 
 # Harmonisierung Datenstruktur / Bezeichnungen  ----------------------------------------------------------
 
@@ -94,5 +64,4 @@ ds$export_data <- KG4_export_data
 # Export CSV --------------------------------------------------------------
 
 # Daten werden in den /output - Ordner geschrieben
-
 export_data(ds)
