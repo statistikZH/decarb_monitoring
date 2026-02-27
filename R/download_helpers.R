@@ -47,12 +47,27 @@ get_bfs_asset_info <- function(ds) {
         break
       }
 
-      }
-    if(found != TRUE){
+    }
+    if (!exists("found")) {
       stop("Error: No matching .px URL found.")
     }
 
 
+
+  } else if (ds$download_format == "csv") {
+    # Look for the master link with format csv
+    for (link in links) {
+      if (link$rel == "master" && link$format == "csv") {
+        ds$read_path <- link$href
+        found <- TRUE
+        break
+      }
+
+    }
+
+    if (!exists("found")) {
+      stop("Error: No matching .csv URL found.")
+    }
 
   } else if (ds$download_format == "xlsx") {
     # Look for the master link with format xlsx
@@ -65,10 +80,13 @@ get_bfs_asset_info <- function(ds) {
 
     }
 
-    if(found != TRUE){
+    if (!exists("found")) {
       stop("Error: No matching .xlsx URL found.")
     }
   }
+
+
+
 
   # extract the last year of the data from the API meta data
   year_end <- data[["data"]][[1]][["description"]][["bibliography"]][["period"]] %>%
@@ -299,3 +317,4 @@ get_read_path_bfs.sdmx <- function(ds){
 
   return(ds)
 }
+
