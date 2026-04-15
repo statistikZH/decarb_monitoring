@@ -24,7 +24,7 @@ G5_data <- ds$data
 
 G5_computed <- G5_data |>
   dplyr::select(-n_Gemeinden) |>
-  dplyr::filter(Jahr >= 2015 & Jahr <= 2023) |>
+  dplyr::filter(Jahr >= 2015 & Jahr <= 2024) |>
   tidyr::pivot_longer(!Jahr, names_to = "Variable", values_to = "Wert")
 
 # Die Voraussetzung für den letzten Schritt (3) ist ein Datensatz im long Format nach folgendem Beispiel:
