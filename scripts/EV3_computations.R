@@ -22,7 +22,7 @@ EV3_data_eb_sub <- EV3_data_eb |>
 
 EV3_data_sub <- EV3_data |>
   dplyr::filter(Energiesektor == "Strom") |>
-  dplyr::mutate(Strom = "total", Wert = Wert * 1000, Einheit = "MWh") |>
+  dplyr::mutate(Strom = "total") |>
   dplyr::select(Jahr, Strom, Wert, Einheit)
 
 EV3_data_joined <- dplyr::bind_rows(EV3_data_sub,EV3_data_eb_sub)

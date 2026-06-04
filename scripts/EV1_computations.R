@@ -15,12 +15,12 @@ EV1_data <- ds$data
 
 # Bevölkerungszahlen benötigt für per_capita (gefiltert auf Kanton Zürich)
 EV1_pop <- decarbmonitoring::download_per_capita()%>%
-  dplyr::filter(Gebiet == "Kanton Zürich")
+  dplyr::filter(Gebiet == "- Zürich") |>
+  dplyr::mutate(Gebiet = dplyr::recode(Gebiet, "- Zürich" = "Kanton Zürich"))
 
 # Annahme: nur das total pro Jahr sowie per_capita vom total pro Jahr werden visualisiert
-
 EV1_computed <- EV1_data %>%
-  dplyr::filter(Energiesektor == "Waerme") %>%
+  dplyr::filter(Energiesektor == "Wärme") %>%
   dplyr::mutate(Wert = dplyr::case_when(
     is.na(Wert) ~ 0,
     TRUE ~ as.numeric(Wert)
@@ -64,7 +64,6 @@ EV1_export_data <- EV1_computed %>%
                 Datenquelle = ds$data_source,
                 Variable = "Wärme aus erneuerbaren Energieträgern") %>%
   dplyr::select(Jahr, Gebiet, Indikator_ID, Indikator_Name, Variable, Wert, Einheit, Datenquelle)
-
 
 
 # assign data to be exported back to the initial ds object -> ready to export
