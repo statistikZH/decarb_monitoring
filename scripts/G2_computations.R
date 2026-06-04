@@ -10,7 +10,7 @@ g2_data_eb <- ds$dep$EV1
 
 # Filtering and joining -----------------------------------------------------
 g2_data_eb_sub <- g2_data_eb |>
-  dplyr::filter(Energiesektor == "Waerme") |>
+  dplyr::filter(Energiesektor == "Wärme" & Energieträger != "Rechenzentren") |>
   dplyr::group_by(Jahr,Energiesektor) |>
   dplyr::summarise(Wert = sum(Wert)) |>
   dplyr::mutate(Waerme = "erneuerbar", Einheit = "MWh") |>
@@ -18,7 +18,8 @@ g2_data_eb_sub <- g2_data_eb |>
 
 g2_data_sub <- g2_data |>
   dplyr::filter(Energiesektor == "Waerme") |>
-  dplyr::mutate(Waerme = "total", Wert = Wert * 1000, Einheit = "MWh") |>
+  # dplyr::mutate(Waerme = "total", Wert = Wert * 1000, Einheit = "MWh") |>
+  dplyr::mutate(Waerme = "total") |>
   dplyr::select(Jahr, Waerme, Wert, Einheit)
 
 g2_data_joined <- dplyr::bind_rows(g2_data_sub,g2_data_eb_sub)
